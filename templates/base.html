@@ -1,0 +1,273 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>{% block title %} {% endblock title %}</title>
+  <meta conent="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+  <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/quill/quill.snow.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/quill/quill.bubble.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/remixicon/remixicon.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/simple-datatables/style.css' %}" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
+  {% block styles %}{% endblock %}
+
+  <!-- =======================================================
+  * Template Name: NiceAdmin - v2.5.0
+  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="header fixed-top d-flex align-items-center">
+    <!--start logo-->
+
+    <nav class="navbar bg-body-tertiary">
+        <div class="container-fluidn">
+          <a class="navbar-brand" href="">
+            <img src="{% static 'assets/img/logo.png' %}" alt="Logo" width="45" height="40" class="d-inline-block align-text-top">
+            <span class="fw-bolder align-bottom">Identification of potential ambiguity in user stories</span>
+          </a>
+        </div>
+    </nav>
+    
+    <!--end logo-->
+    
+    <!-- start search bar-->
+    <!--
+    <div class="search-bar">
+      <form class="search-form d-flex ms-auto" method="POST" action="#">
+        <input class="form-control-me-2" type="text" name="query" placeholder="Search" title="Enter search keyword">
+        <button type="submit" title="Search"><i class="bi bi-search"></i></button>
+      </form>
+    </div>
+    -->
+    <!-- End Search Bar -->
+
+  </header>
+  
+  <!-- End Header -->
+
+   <!-- ======= Sidebar ======= -->
+   <aside id="sidebar" class="sidebar">
+
+    <ul class="sidebar-nav" id="sidebar-nav">
+
+      <!-- <li class="nav-item">
+        <a class="nav-link " href="/">
+          <i class="bi bi-grid"></i>
+          <span>Dashboard</span>
+        </a> -->
+      <!-- </li>End Dashboard Nav -->
+      
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#components-nav-1" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-menu-button-wide"></i><span>User story</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="components-nav-1" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+              <a href="/inputUS/upload_US.html">
+              <i class="bi bi-circle"></i><span>Import user stories</span>
+              </a>
+          </li>
+          <li>
+            <a href="/inputUS/see_uploaded_US.html">
+              <i class="bi bi-circle"></i><span>See uploaded user stories</span>
+            </a>
+          </li>
+          <li>
+            <a href="/inputUS/see_splitted_US1.html">
+              <i class="bi bi-circle"></i><span>See splitted user stories</span>
+            </a>
+          </li>
+         <!--
+          <li>
+            <a href="/importUS/see_well_formed_US.html">
+              <i class="bi bi-circle"></i><span>See well-formed user stories</span>
+            </a>
+          </li> -->
+          <!-- <li>
+            <a href="/importUS/see_explicit_US.html">
+              <i class="bi bi-circle"></i><span>See explicit user stories</span>
+            </a>
+          </li> -->
+          <!-- <li>
+            <a href="/importUS/see_precise_US.html">
+              <i class="bi bi-circle"></i><span>See precise user stories</span>
+            </a>
+          </li> -->
+        </ul>
+      </li><!-- End Components Nav -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#components-nav-2" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-zoom-in"></i><span>Analyze user stories</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="components-nav-2" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="">
+              <i class="bi bi-circle"></i><span>Potential ambiguity in user stories</span>
+            </a>
+          </li>
+          <li>
+            <a href="">
+              <i class="bi bi-circle"></i><span>Good quality user stories</span>
+            </a>
+          </li>
+          
+        </ul>
+      </li><!-- End Analysis Nav -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-layout-text-window-reverse"></i><span>Report</span><i class="bi ms-auto"></i>
+        </a>
+        
+          <!-- <li>
+            <a href="tables-data.html">
+              <i class="bi bi-circle"></i><span>Implicit user story</span>
+            </a>
+          </li> -->
+          
+        <!-- </ul> -->
+      </li><!-- End Tables Nav -->
+
+        <!-- Add component settings-->
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#components-nav-3" data-bs-toggle="collapse" href="#">
+            <i class="bi bi-gear"></i><span>Settings</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="components-nav-3" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+            <li>
+                <a href="/settings/addNewProject.html">
+                <i class="bi bi-circle"></i><span>Add Project Domain</span>
+                </a>
+            </li>
+            <!--
+            <li>
+            <a href="settings/editProject.html">
+            <i class="bi bi-circle"></i><span>Edit Project Domain</span>
+            </a>
+            </li> -->
+            <li>
+            <a href="/settings/addNewKeyword.html">
+                <i class="bi bi-circle"></i><span>Add Action Keyword</span>
+            </a>
+            </li>
+        </ul>
+        </li><!-- End Components Nav -->
+
+      <!-- <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-journal-text"></i><span>Domain lexicon glossary</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a> 
+         <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          
+          <li>
+            <a href="forms-elements.html">
+              <i class="bi bi-circle"></i><span>Create verb class keywords</span>
+            </a>
+          </li>
+   
+          <li>
+            <a href="/domain_lexicon/n_grams.html">
+              <i class="bi bi-circle"></i><span>N-grams analysis</span>
+            </a>
+          </li>
+          <li>
+            <a href="see_verb.html">
+              <i class="bi bi-circle"></i><span>See verb class keywords</span>
+            </a>
+          </li>
+        </ul>
+       </li>End Forms Nav -->
+    </ul>
+  </aside><!-- End Sidebar-->
+
+  <main id="main" class="main">
+
+    <div class="pagetitle">
+      
+      {% block contentTitle %}
+        
+      {% endblock contentTitle %}
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+        {% if messages %}
+          {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}" role="alert">
+            {{ message }}
+          </div>
+          {% endfor %}
+        {% endif %}
+
+        
+        {% block contentLeft %}
+            
+        {% endblock contentLeft %}
+            
+        
+
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+
+<!-- ======= Footer ======= -->
+  
+<footer id="footer" class="footer">
+    <div class="card-body text-center"> 
+        <div class="copyright"> &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved </div>
+        <div class="credits"> Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a> </div>
+    </div>
+                
+</footer><!-- End Footer -->
+
+<!--
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+-->
+  <!-- Vendor JS Files -->
+  <script src="{% static 'assets/vendor/apexcharts/apexcharts.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/chart.js/chart.umd.js' %}"></script>
+  <script src="{% static 'assets/vendor/echarts/echarts.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/quill/quill.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/simple-datatables/simple-datatables.js' %}"></script>
+  <script src="{% static 'assets/vendor/tinymce/tinymce.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/php-email-form/validate.js' %}"></script>
+
+  <!-- Template Main JS File -->
+  <script src="{% static 'assets/js/main.js' %}"></script>
+  
+  {% block extrajs %}
+  
+  {% endblock %}
+</body>
+
+</html>

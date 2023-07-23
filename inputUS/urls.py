@@ -1,0 +1,15 @@
+from django.contrib import admin
+from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
+from . import views
+
+urlpatterns = [
+    # path('admin/', admin.site.urls),
+    path('upload_US.html', views.Upload_UserStory, name='Upload_User_Story'),
+    #path('upload_US.html/show_US<int:id>', views.show_uploaded_UserStory, name='show_UserStory'),
+    path('see_uploaded_US.html', views.show_uploaded_UserStory, name='show_UserStory'),
+    path('preprocessed_US/<int:id>', views.split_user_story_to_segment, name='split_user_story_to_segment'),
+    path('see_splitted_US1.html', views.show_splitted_UserStory, name='show_splitted_UserStory'),
+    path('del_Upload_US/<int:id>/', views.del_Upload_US, name= 'del_Upload_US'),
+]

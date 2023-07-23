@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+
+{% block title %} User stories {% endblock title %}
+
+{% block contentTitle %} 
+
+<h1>See processed user story</h1> 
+<nav>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item">User story</li>
+        <li class="breadcrumb-item active">See processed user story</li>
+    </ol>
+    </nav>
+
+
+{% endblock contentTitle %}
+
+
+{% block contentLeft %}
+    <!-- Left side columns -->
+    <div class="col-lg-12">
+        <div class="row">
+          <!-- Input user story file -->
+          <div class="col-12">
+            <div class="card top-selling overflow-auto">
+              <div class="card-body pb-0 mb-3">
+                <h5 class="card-title"> Show list of user story </h5>
+                {% if see_splitted_user_stories %}
+                <table class="table table-borderless datatable">
+        
+                    <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">User Story</th>
+                      <th scope="col">Project Domain</th>
+                      <th scope="col">Actor</th>
+                      <th scope="col">Action</th>     
+                      <th scope="col">Goal</th>     
+
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for dt in see_splitted_user_stories %}
+                    <tr>
+                      <th scope="row">{{dt.id}}</th>
+                      <td>{{dt.UserStory_Full_Text}}</td>
+                      <td>{{dt.Project_Name}}</td>
+                      <td>{{dt.Who_full}}</td>
+                      <td>{{dt.What_full}}</td>
+                      <td>{{dt.Why_full}}</td>
+              
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+          </div>            
+        </div>
+      </div><!-- End Left side columns -->
+
+{% endblock contentLeft %}
+    
