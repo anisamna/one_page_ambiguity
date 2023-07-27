@@ -3,4 +3,5 @@
 *.pyc
 *.DS_Store
 .venv
+.env
 media/

@@ -1,0 +1,10 @@
+Django==4.2.3
+psycopg2-binary==2.9.6
+pandas==2.0.3
+nltk==3.8.1
+spacy==3.5.2
+bitermplus==0.7.0
+matplotlib==3.7.1
+gensim==4.3.1
+sentence-transformers==2.2.2
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0-py3-none-any.whl\#sha256\=0964370218b7e1672a30ac50d72cdc6b16f7c867496f1d60925691188f4d2510

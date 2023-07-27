@@ -7,7 +7,19 @@
 - Buat folder media:
     - /media/file/treeps
     - /media/file/treeimage
- 
+
+
+### Database
+
+```sql
+CREATE DATABASE ambiguity_db;
+CREATE USER ambiguity_user WITH PASSWORD 'NUy7UmJAH7xF3srqBoGGyyP5cJ1n3r';
+ALTER ROLE ambiguity_user SET client_encoding TO 'utf8';
+ALTER ROLE ambiguity_user SET default_transaction_isolation TO 'read committed';
+ALTER ROLE ambiguity_user WITH PASSWORD 'NUy7UmJAH7xF3srqBoGGyyP5cJ1n3r';
+GRANT ALL PRIVILEGES ON DATABASE ambiguity_db TO ambiguity_user;
+```
+
 ### Download Resource NLTK
 
 lakukan di terminal, ketik python, copy code di shell:
