@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from functions.segmentation import segmentation
 # from functions.well_formed import well_formed_an
@@ -31,13 +32,13 @@ def Upload_UserStory(request):
         File_content = []
 
         for line in readLine:
-            print('readLine', readLine)
+            # print('readLine', readLine)
             # decode bytes to string
             newLine = line.decode("utf-8")
             # newLine = re.sub(r"[^A-Za-z0-9, ]", "", newLine)
             newLine = re.sub(r"[^[^A-Za-z0-9(-){-}[-]⟨-⟩, ]", "", newLine)
             newLine = newLine.strip()
-            print('newLine', newLine)
+            # print('newLine', newLine)
             if newLine:
                 File_content.append(newLine)
 
@@ -57,13 +58,13 @@ def Upload_UserStory(request):
             upload_user_story.save()
 
             messages.success(request, "New set of user stories have been successfully added")
-
-            upload_user_story = InputUserStory_Form()
-            return render(
-                request,
-                "inputUS/upload_US.html",
-                {"form": upload_US_File, "upload_user_story": upload_user_story},
-    )
+            # upload_user_story = InputUserStory_Form()
+            # return render(
+            #     request,
+            #     "inputUS/upload_US.html",
+            #     {"form": upload_US_File, "upload_user_story": upload_user_story},
+            # )
+            return redirect(reverse('show_UserStory'))
         else:
             return redirect("/")
     else:

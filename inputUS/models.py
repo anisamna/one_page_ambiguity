@@ -255,3 +255,31 @@ class WordNet_classification(models.Model):
 #     class Meta:
 #         verbose_name = "Conceptual_Topic_Modeling"
 #         verbose_name_plural = "Conceptual_Topic_Modeling"
+
+class ReportUserStory(models.Model):
+    class ANALYS_TYPE(models.IntegerChoices):
+        WELL_FORMED = 1, "Well Formed"
+        ATOMICITY = 2, "Atomicity"
+        PRECISE = 3, "Precise Criteria"
+        CONSISTENT = 4, "Consistent Criteria"
+        CONCEPTUALLY = 5, "Conceptually Sound"
+        UNIQUENESS = 6, "Uniqueness Criteria"
+
+
+    userstory = models.ForeignKey(UserStory_element, on_delete=models.CASCADE)
+    status = models.CharField(max_length=255, null=True, blank=True)
+    recommendation = models.CharField(max_length=400, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    type = models.IntegerField(
+        choices=ANALYS_TYPE.choices, null=True
+    )
+
+
+    def __str__(self):
+        if self.userstory and self.status:
+            return f"{str(self.userstory)} - {self.status}"
+        return str(self.id)
+    
+    class Meta:
+        verbose_name = "Report User Story"
+        verbose_name_plural = "Report User Story"

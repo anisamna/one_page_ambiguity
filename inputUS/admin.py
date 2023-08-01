@@ -12,6 +12,7 @@ from inputUS.models import (
     UserStory_Why,
     WordNet_classification,
     US_Upload,
+    ReportUserStory,
     # Well_Formed,
     # N_gram,
     # Parser,
@@ -144,3 +145,10 @@ class Similarity_AnalysisAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Similarity_Analysis, Similarity_AnalysisAdmin)
+
+
+@admin.register(ReportUserStory)
+class ReportUserStoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'userstory', 'status', 'recommendation', 'description', 'type')
+    list_filter = ('userstory__Project_Name', 'type')
+    search_fields = ('userstory__UserStory_Full_Text', 'status', 'recommendation')

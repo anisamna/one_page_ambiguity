@@ -36,7 +36,7 @@ def well_formed_an(obj_id):
             recommendation = 'Role does not found. Add role !'
 
         #elif not get_UserStory_data.What_full and get_UserStory_data.What_full.What_full:
-        elif get_UserStory_data.What_full and get_UserStory_data.What_full.What_full =='':
+        elif get_UserStory_data.What_full and get_UserStory_data.What_full.What_full == '':
             status ='Well-formed criterion is not achieved !'
             recommendation = 'Action does not found. Add action !'
         elif get_UserStory_data.Who_full and get_UserStory_data.What_full:
