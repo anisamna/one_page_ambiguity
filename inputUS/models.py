@@ -94,7 +94,12 @@ class UserStory_element(models.Model):
 
     def __str__(self):
         return self.UserStory_Full_Text
-
+    
+    def get_report_list(self):
+        return self.reportuserstory_set.filter(userstory__is_processed=True).order_by('userstory', 'id')
+    
+    def get_count_report(self):
+        return self.get_report_list().count()+1
     class Meta:
         verbose_name = "UserStory"
         verbose_name_plural = "UserStories"

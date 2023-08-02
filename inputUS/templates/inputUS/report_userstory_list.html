@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block contentLeft %}
+<div class="card">
+  <div class="card-header">
+    <h5>Filter</h5>
+  </div>
+  <div class="card-body">
+    <form method="get" id="form_filter_id">
+      <div class="form-group">
+        <label for="project_id">Project</label>
+        <select name="project_id" id="project_id" class="form-control">
+          <option value>Select Project</option>
+          {% for item in project_list %}
+          <option value="{{ item.id }}" {% if project_id == item.id %}selected{% endif %}>{{ item.Project_Name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+{% if userstory_list %}
+<div class="card p-0">
+  <div class="card-header p-3">
+    <h5 class="m-0">Result</h5>
+  </div>
+  <div class="card-body p-1">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>User Story</th>
+          <th>Status</th>
+          <th>Recommendation</th>
+          <th>Description</th>
+          <th>Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in userstory_list %}
+        {% if item.get_report_list %}
+        <tr>
+          <td rowspan="{{ item.get_count_report }}">{{ forloop.counter }}</td>
+          <td rowspan="{{ item.get_count_report }}">
+            {{ item.UserStory_Full_Text }}
+            <a href="{% url 'userstory_edit' item.id %}" class="btn btn-primary">Edit</a>
+          </td>
+        </tr>
+        <!-- render report list -->
+        {% for report in item.get_report_list %}
+        <tr>
+          <td>{{ report.status|default:"-" }}</td>
+          <td>{{ report.recommendation|default:"-" }}</td>
+          <td>
+            <p style="white-space: pre-line;">{{ report.description|default:"-" }}</p>
+          </td>
+          <td>{{ report.get_type_display }}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>
+            {{ item.UserStory_Full_Text }}
+            <a href="{% url 'userstory_edit' item.id %}" class="btn btn-primary">Edit</a>
+          </td>
+          <td colspan="4"></td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+
+{% block extrajs %}
+{{ block.super }}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script>
+  $('select#project_id').on('change', function(){
+    console.log("change")
+    $('form#form_filter_id').submit();
+  })
+</script>
+{% endblock %}

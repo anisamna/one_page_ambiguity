@@ -25,7 +25,7 @@ class AnalysisData:
     # 4. consistency / consistent
     # 5. conceptually sound
     # 6. uniqueness
-    def __init__(self, userstory_list_id=[]):
+    def __init__(self, userstory_list_id=[], terms=None, topics=None, cluster=None, similarity=None):
         self.userstory_list = userstory_list_id
         self.corenlp_parser = CoreNLPParser(url="http://localhost:9000")
         self.nlp = spacy.load("en_core_web_sm")
@@ -84,36 +84,60 @@ class AnalysisData:
             "search": ["investigate", "inquire", "research", "search"],
         }
 
+    def save_report(self, userstory, status, type, data={}):
+        print(f'\n{userstory}')
+        print(status)
+        print(data)
+        report, created = ReportUserStory.objects.get_or_create(
+            userstory=userstory,
+            status=status,
+            type=type
+        )
+        for key, value in data.items():
+            setattr(report, key, value)
+        report.save()
+
+        if userstory:
+            userstory.is_processed = True
+            userstory.save()
+        return report
+
+
     def start(self):
         # 1. well-formed
         self.well_formed_data = self.well_formed()
         # print("well_formed", self.well_formed_data)
 
         for item in self.well_formed_data:
-            # report, created = ReportUserStory.objects.get_or_create(
-            #     userstory=item['userstory_obj'],
-            #     status=item['status'],
-            #     type=ReportUserStory.ANALYS_TYPE.WELL_FORMED
-            # )
-            # report.recommendation = item['recommendation']
-            # report.save()
-            # print(item)
-            print(f'\n{item["userstory"]}')
-            print(item['status'])
+            self.save_report(
+                item['userstory_obj'],
+                item['status'],
+                ReportUserStory.ANALYS_TYPE.WELL_FORMED,
+                {
+                    'recommendation': item['recommendation'],
+                }
+            )
 
         # 2. atomicity
         self.atomic_data = self.atomicity_stat()
         for item in self.atomic_data:
-            print(f'\n{item["userstory_obj"]}')
-            print(item['atomicity_status'])
-        # print("atomic", self.atomic_data)
+            self.save_report(
+                item['userstory_obj'],
+                item['atomicity_status'],
+                ReportUserStory.ANALYS_TYPE.ATOMICITY
+            )
 
         # 3. preciseness
         self.preciseness_data = self.stat_preciseness()
         for item in self.preciseness_data:
-            print(f'\n{item["userstory"]}')
-            print(item['status'])
-            print(item['recommendation'])
+            self.save_report(
+                item['userstory'],
+                item['status'],
+                ReportUserStory.ANALYS_TYPE.PRECISE,
+                {
+                    'recommendation': item['recommendation'],
+                }
+            )
         # print("stat_preciseness", self.preciseness_data)
 
         # 4. consistency / consistent
@@ -121,6 +145,9 @@ class AnalysisData:
 
         # 5. conceptually sound
         self.stat_conceptually_sound()
+
+        # 6. uniqueness
+        self.stat_uniqueness_criteria()
 
     # ============ Well Formed ============
     def well_formed(self):
@@ -351,6 +378,7 @@ class AnalysisData:
             cc_label = ""
             sbar_stat = ""
             sbar_label = ""
+            captured_text = ""
 
             if sbar_text == "":
                 sbar_text = "No SBAR in this user story"
@@ -848,14 +876,17 @@ class AnalysisData:
         r_txt = []
         a_txt = []
         dic_role = []
+        userstory_list = []
 
         for item in self.well_formed_data:
             text = item["userstory"]
+            userstory = item["userstory_obj"]
             role = item["actor"].Who_identifier
             action = item["action"].What_identifier
             txt.append(text)
             r_txt.append(role)
             a_txt.append(action)
+            userstory_list.append(userstory)
 
         # Vectorize the role_s values using TF-IDF
         vectorizer = TfidfVectorizer()
@@ -872,13 +903,13 @@ class AnalysisData:
         grouped_role_s = defaultdict(list)  # Use defaultdict to simplify groupings
         role_s_lists = defaultdict(list)  # Store top terms for each cluster label
 
-        for role, text, label in zip(r_txt, txt, labels):
-            grouped_role_s[label].append((role, text))
+        for role, text, label, userstory in zip(r_txt, txt, labels, userstory_list):
+            grouped_role_s[label].append((role, text, userstory))
 
         # Iterate over cluster labels and their corresponding role_s values
         for label, role_s_text_list in grouped_role_s.items():
             role_s_list = []  # Reset role_s_list for each cluster label
-            for role, text in role_s_text_list:
+            for role, text, userstory in role_s_text_list:
                 if role not in role_s_list:
                     role_s_list.append(role)
             role_s_lists[
@@ -887,10 +918,11 @@ class AnalysisData:
 
             if label == -1:  # Check if the cluster label is not -1
                 # Append the dictionary to dic_role
-                for role, text in role_s_text_list:
+                for role, text, userstory in role_s_text_list:
                     dic_role.append(
                         {
                             # "index": index+1,
+                            "userstory": userstory,
                             "text": text,
                             "actor": role,
                             "role_cluster_label": label,
@@ -898,9 +930,10 @@ class AnalysisData:
                     )
             else:
                 # Append the dictionary to dic_role
-                for role, text in role_s_text_list:
+                for role, text, userstory in role_s_text_list:
                     dic_role.append(
                         {
+                            "userstory": userstory,
                             "text": text,
                             "actor": role,
                             "role_cluster_label": label,
@@ -920,6 +953,7 @@ class AnalysisData:
 
         index = 0
         for item in self.well_formed_data:
+            userstory = item["userstory_obj"]
             text = item["userstory"]
             role = item["actor"].Who_identifier
             action = item["action"].What_identifier
@@ -946,6 +980,7 @@ class AnalysisData:
             dic_action.append(
                 {
                     "index": index + 1,
+                    "userstory": userstory,
                     "text": text,
                     "action": lemmatized_sentence,
                     "act_cluster_label": labels[0],
@@ -954,6 +989,7 @@ class AnalysisData:
             )
 
         # Get the top terms for each act_cluster_label
+        #isian pertama, what is your preferred number of terms to be displayed in each class, jika tidak diisi gunakan default ini
         top_terms_act = self.get_top_terms_act(dic_action, 5)
 
         # Update dic_action with the top terms
@@ -1020,6 +1056,8 @@ class AnalysisData:
         for sc in consistency:
             Text = sc["text"]
 
+            #default the preferred number of top terms to be displayed in each class (1), preferred number of top terms bisa diubah
+    
             top_terms_role = self.get_top_terms_role(dic_role, 5)
             top_terms_act = self.get_top_terms_act(dic_action, 7)
 
@@ -1032,15 +1070,33 @@ class AnalysisData:
             if matching_sub or matching_act:
                 if Text:
                     # Accessing "actor" key from the "matching_sub" dictionary in "dic_sub"
+                    userstory = None
+                    if matching_sub.get('userstory', None):
+                        userstory = matching_sub['userstory']
+                    if matching_act.get('userstory', None):
+                        userstory = matching_act['userstory']
+                    
+                    print(f'\n{userstory}')
                     print("Story #", matching_act["index"], ": ", Text)
                     print("Role:", matching_sub["actor"])
                     print("Action:", matching_act["action"])
                     print("Status:", matching_sub["status"])
                     print("Recommendation:", matching_sub["recommendation"])
+
+                    description = None
                     if matching_sub["role_cluster_label"] == -1:
+                        description = f'Terms for role: {str(top_terms_role)}'
                         print("Recommendation terms: ")
-                        print("Terms for role: " + str(top_terms_role))
-                    print("")
+                        print(description)
+                    self.save_report(
+                        userstory,
+                        matching_sub["status"],
+                        ReportUserStory.ANALYS_TYPE.CONSISTENT,
+                        {
+                            'recommendation': matching_sub["recommendation"],
+                            'description': description
+                        }
+                    )
             else:
                 print("Role: Not Found")
             print("\n--------------------")
@@ -1051,6 +1107,7 @@ class AnalysisData:
         sentence_dependency = []
         dic_sent = {}
         for item in self.well_formed_data:
+            userstory = item["userstory_obj"]
             text = item["userstory"]
             role = item["actor"]
             action = item["action"]
@@ -1106,6 +1163,7 @@ class AnalysisData:
             predicate = predicate.replace(obj, "") if obj and predicate else predicate
             dic_sent = {
                 "index": index + 1,
+                "userstory": userstory,
                 "sentence": text,
                 "subject": role,
                 "predicate": predicate,
@@ -1119,12 +1177,10 @@ class AnalysisData:
         new_docs = []
         for dic_sent in sentence_dependency:
             index1 = dic_sent["index"]
-
             sent = dic_sent["sentence"]
             subject = dic_sent["subject"]
             predicate = dic_sent["predicate"]
             obj = dic_sent["object"]
-
             new_doc = "".join(predicate)
 
             new_docs.append(new_doc)
@@ -1133,6 +1189,7 @@ class AnalysisData:
         biterms = btm.get_biterms(docs_vec)
 
         # running model
+        # the preferred number of topics (T) dapat diubah (2). T = 10 adalah default topic number
         model = btm.BTM(X, vocabulary, T=10, M=20, alpha=50 / 7, beta=0.01)
         model.fit(biterms, iterations=100)
 
@@ -1177,6 +1234,7 @@ class AnalysisData:
                     # Create a dictionary with the document's information
                     doc_info = {
                         "index": dic_sent["index"],
+                        "userstory": dic_sent["userstory"],
                         "text": dic_sent["sentence"],
                         "subject": dic_sent["subject"],
                         "predicate": dic_sent["predicate"],
@@ -1194,6 +1252,7 @@ class AnalysisData:
         keyword_to_sentence_class = {}
         for top in topic_btm:
             index = top["index"]
+            userstory = top["userstory"]
             sent = top["text"]
             subject = top["subject"]
             predicate = top["predicate"]
@@ -1236,6 +1295,7 @@ class AnalysisData:
             labels = []
             sentence_classify = {
                 "index": index,
+                "userstory": userstory,
                 "sentence": sent,
                 "subject": subject,
                 "predicate": predicate,
@@ -1270,15 +1330,21 @@ class AnalysisData:
         print("\n============ Start Conceptually Sound ============\n")
         print("== Conceptually sound analysis - identify semantic ambiguity ==")
         for item in sent_concept:
-            print("Story #", item["index"], ":", item["sentence"])
+            print("\nStory #", item["index"], ":", item["sentence"])
+            print(f'{item["userstory"]}')
             print("Subject:", item["subject"])
             print("Predicate:", item["predicate"])
             print("Object:", item["object"])
+
+            status = None
+            recommendation = None
             if not item["sentence_class"]:
                 print(
-                    "Status: The user story is potentially ambiguous. It might be underspecified."
+                    "Status: "
                 )
                 print("Recommendation: Rewrite the predicate !")
+                status = 'The user story is potentially ambiguous. It might be underspecified.'
+                recommendation = 'Recommendation: Rewrite the predicate !'
             elif len(item["sentence_class"]) > 1:
                 print(
                     "Status: The user story is potentially ambiguous. It might be wrongly decode."
@@ -1287,8 +1353,21 @@ class AnalysisData:
                     "Recommendation: Rewrite the predicate using one of these term : ",
                     item["sentence_class"],
                 )
+                status = 'The user story is potentially ambiguous. It might be wrongly decode.'
+                recommendation = f'Recommendation: Rewrite the predicate using one of these term :\n{item["sentence_class"]}'
             elif len(item["sentence_class"]) == 1:
                 print("Status: user story is fine !")
+                status = 'user story is fine !'
+            
+            if status or recommendation:
+                self.save_report(
+                    item["userstory"],
+                    status,
+                    ReportUserStory.ANALYS_TYPE.CONCEPTUALLY,
+                    {
+                        'recommendation': recommendation
+                    }
+                )
 
     # ============ Uniqueness Criteria ============
 
@@ -1304,10 +1383,12 @@ class AnalysisData:
         role_user = []
         action_user = []
         goal_user = []
+        userstory_list = []
         for item in self.well_formed_data:
-            role_user.append(item["actor"].Who_identifier)
-            action_user.append(item["action"].What_identifier)
-            goal_user.append(item["goal"].Why_identifier)
+            role_user.append(item["actor"].Who_full)
+            action_user.append(item["action"].What_full)
+            goal_user.append(item["goal"].Why_full)
+            userstory_list.append(item['userstory_obj'])
 
         # text=df_element['UserStory']
         # role=df_element['Role']
@@ -1418,3 +1499,48 @@ class AnalysisData:
             else:
                 stat_sim = "Result: Uniqueness is achieved !"
                 sol_sim = "User story is fine !"
+
+            #maximum level of similarity, role (who), action (what), and goal (why). 
+            #semua variabel (who, what, why) disamakan similaritynya. nilai default = 0.6 (untuk who/role dan what/action), 0.5 (untuk why/goal)
+
+            # row_i = df_segment.index[i]
+            # row_j = df_segment.index[j]
+            
+            print("Story {}".format(userstory_list[i]))
+            print("Story {}".format(userstory_list[j]))
+            print('Role 1: ',role_user[i])
+            print('Role 2: ',role_user[j])
+            print('Similarity score in role:', role_score)
+            print()
+            print('Action 1: ',action_user[i])
+            print('Action 2: ', action_user[j])
+            print('Similarity score in action: ',action_score)
+            print()
+            print('Goal 1: ',goal_user[i])
+            print('Goal 2: ', goal_user[j])
+            print('Similarity score in goal: ',goal_score)
+            print('')
+            print('Total similarity score: ',sim_score)
+            print(stat_sim)
+            print(sol_sim)
+
+            description = f'''Story: {userstory_list[j]}\n
+            Role 1: {role_user[i]}
+            Role 2: {role_user[j]}
+            Similarity score in role: {role_score}\n
+            Goal 1: {goal_user[i]}
+            Goal 2: {goal_user[j]}
+            Similarity score in goal: {goal_score}\n
+            Total similarity score:  {sim_score}
+            '''
+
+            self.save_report(
+                userstory_list[i],
+                stat_sim,
+                ReportUserStory.ANALYS_TYPE.UNIQUENESS,
+                {
+                    'recommendation': sol_sim,
+                    'description': description
+                }
+            )
+            print("====================")

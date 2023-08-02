@@ -99,128 +99,136 @@
 
 {% block contentLeft %}
 
-<div class="col-lg-12">
-  <div class="row">
-    <!-- Input preferred criteria for analysis -->
-    <div class="col-12">
-      <div class="card top-selling overflow-auto form-process-assessment">
-        <div class="card-body pb-0 mb-3">
-          <h5 class="card-title"> Input assessment criteria : </h5>
-          <div class="container-fluidn">
-            <div class="row">
-              <div class="col-md-12">
-                <div class="form-group">
-                  <input type="checkbox" aria-label="Consistency criteria" id="consistency_criteria_id">
-                  <label for="consistency_criteria_id">What is your preferred number of terms to be displayed in each class?</label>
-                  <input type="text" class="form-control">
-                </div>
+<form method="post" action="{% url 'analyze_data' %}">
+  {% csrf_token %}
+  <!-- Input preferred criteria for analysis -->
+  <div class="card top-selling overflow-auto form-process-assessment">
+    <div class="card-body pb-0 mb-3">
+      <h5 class="card-title"> Input assessment criteria : </h5>
+      <div class="container-fluidn">
+        <div class="row">
+          <div class="col-md-12">
+            <!-- Precise Criteria -->
+            <div class="form-group">
+              <input type="checkbox" id="precise_eps_checkbox_id" name="precise_eps_checkbox"/>
+              <label for="precise_eps_checkbox_id">What is the maximum distances of two node that you can accept?</label>
+              <input type="number" class="form-control" name="precise_eps_value" id="precise_eps_id">
+              <span class="text-muted">Default: 0.5</span>
+            </div>
+            
+            <div class="form-group">
+              <input type="checkbox" id="precise_min_samples_checkbox_id" name="precise_min_samples_checkbox"/>
+              <label for="precise_min_samples_checkbox_id">What is the minimum number of samples that meet the max. distance that you allowed?</label>
+              <input type="number" class="form-control" name="precise_min_samples_value" id="precise_min_samples_id">
+              <span class="text-muted">Default: 2</span>
+            </div>
 
-                <div class="form-group">
-                  <input type="checkbox" aria-label="Conceptually sound criteria" id="conceptually_sound_criteria_id">
-                  <label for="conceptually_sound_criteria_id">What is your preferred number of topics for classifying the user stories?</label>
-                  <input type="text" class="form-control">
-                </div>
+            <!-- Get the top terms for each act_cluster_label -->
+            <div class="form-group">
+              <input type="checkbox" id="consistency_criteria_id">
+              <label for="consistency_criteria_id">What is your preferred number of terms to be displayed in each class?</label>
+              <input type="text" class="form-control">
+              <span class="text-muted">Default: 5</span>
+            </div>
 
-                <div class="form-group">
-                  <input type="checkbox" id="cluster_for_grouping_id"> 
-                  <label for="cluster_for_grouping_id">What is your preferred number of cluster for grouping the user stories?</label>
-                  <input type="text" class="form-control">
-                </div>
+            <!-- the preferred number of topics -->
+            <div class="form-group">
+              <input type="checkbox" aria-label="Conceptually sound criteria" id="conceptually_sound_criteria_id">
+              <label for="conceptually_sound_criteria_id">What is your preferred number of topics for classifying the user stories?</label>
+              <input type="text" class="form-control">
+            </div>
 
-                <div class="form-group">
-                  <input type="checkbox" aria-label="Unique criteria" id="unique_criteria_id">
-                  <label for="unique_criteria_id">What is the maximum level of similarity you can accept?</label>
-                  <input type="text" class="form-control">
-                </div>
-              </div>
+            <div class="form-group">
+              <input type="checkbox" id="cluster_for_grouping_id"> 
+              <label for="cluster_for_grouping_id">What is your preferred number of cluster for grouping the user stories?</label>
+              <input type="text" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <input type="checkbox" aria-label="Unique criteria" id="unique_criteria_id">
+              <label for="unique_criteria_id">What is the maximum level of similarity you can accept?</label>
+              <input type="text" class="form-control">
             </div>
           </div>
-        </div>
-        <div class="card-footer">
-          <button type="submit" class="btn btn-warning">Proceed</button>
         </div>
       </div>
     </div>
+    <div class="card-footer">
+      <button type="submit" class="btn btn-warning">Proceed</button>
+    </div>
   </div>
-</div>
-    
-    <div class="col-12">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">
-            Select set of user stories
-          </h5>
-          
 
-          <div class="row">
-            <div class="col-4">
-              <div class="form-group ms-3">
-                <label for="domain_filter_id">Project Domain</label>
-                <select class="form-select" aria-label="Project Domain" id="domain_filter_id" name="project_domain_id">
-                  <option selected="">Select Project Domain</option>
-                  {% for item in project_list %}
-                  {% if item.id == project_id %}
-                  <option value="{{ item.id }}" selected>{{ item }}</option>
-                  {% else %}
-                  <option value="{{ item.id }}">{{ item }}</option>
-                  {% endif %}
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-          </div>
-          
-          <table class="table table-striped" id="table_result_id">
-            <thead>
-              <tr>
-                <th>
-                  <input type="checkbox" name="select_all" class="select_all_list">
-                </th>
-                <th scope="col">ID</th>
-                <th scope="col">
-                  <nobr>Project Domain</nobr>
-                </th>
-                <th scope="col">User story</th>
-                <th scope="col">
-                  <nobr>Role of actor (Who-)</nobr>
-                </th>
-                <th scope="col">
-                  <nobr>Role of action (What-)</nobr>
-                </th>
-                <th scope="col">
-                  <nobr>Roal of benefit (Why-)</nobr>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {% if view_all %}
-              {% for dt in view_all %}
-              <tr for="userstory_id_{{dt.id}}">
-                <td>
-                  <input type="checkbox" name="userstory_id" id="userstory_id_{{dt.id}}" class="checklist-item" data-id="{{dt.id}}" value="{{dt.id}}">
-                </td>
-                <td class="mylabel">{{ dt.id }}</td>
-                <td class="mylabel">{{ dt.Project_Name }}</td>
-                <td class="mylabel">{{ dt.UserStory_Full_Text }}</td>
-                <td class="mylabel">{{ dt.Who_full }}</td>
-                <td class="mylabel">{{ dt.What_full }}</td>
-                <td class="mylabel">{{ dt.Why_full }}</td>
-              </tr>
-              {% endfor %}
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">
+        Select set of user stories
+      </h5>
+      <div class="row">
+        <div class="col-4">
+          <div class="form-group ms-3">
+            <label for="domain_filter_id">Project Domain</label>
+            <select class="form-select" aria-label="Project Domain" id="domain_filter_id" name="project_domain_id">
+              <option selected="">Select Project Domain</option>
+              {% for item in project_list %}
+              {% if item.id == project_id %}
+              <option value="{{ item.id }}" selected>{{ item }}</option>
               {% else %}
-              <tr>
-                <td colspan="7" align="center">No data available in table</td>
-              </tr>
+              <option value="{{ item.id }}">{{ item }}</option>
               {% endif %}
-            </tbody>
-          </table>
-          
-
+              {% endfor %}
+            </select>
+          </div>
         </div>
       </div>
+      
+      <table class="table table-striped" id="table_result_id">
+        <thead>
+          <tr>
+            <th>
+              <input type="checkbox" name="select_all" class="select_all_list">
+            </th>
+            <th scope="col">ID</th>
+            <th scope="col">
+              <nobr>Project Domain</nobr>
+            </th>
+            <th scope="col">User story</th>
+            <th scope="col">
+              <nobr>Role of actor (Who-)</nobr>
+            </th>
+            <th scope="col">
+              <nobr>Role of action (What-)</nobr>
+            </th>
+            <th scope="col">
+              <nobr>Roal of benefit (Why-)</nobr>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if view_all %}
+          {% for dt in view_all %}
+          <tr for="userstory_id_{{dt.id}}">
+            <td>
+              <input type="checkbox" name="userstory_id" id="userstory_id_{{dt.id}}" class="checklist-item" data-id="{{dt.id}}" value="{{dt.id}}">
+            </td>
+            <td class="mylabel">{{ dt.id }}</td>
+            <td class="mylabel">{{ dt.Project_Name }}</td>
+            <td class="mylabel">{{ dt.UserStory_Full_Text }}</td>
+            <td class="mylabel">{{ dt.Who_full }}</td>
+            <td class="mylabel">{{ dt.What_full }}</td>
+            <td class="mylabel">{{ dt.Why_full }}</td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="7" align="center">No data available in table</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+      
+
     </div>
   </div>
-</div>
 </form>
 {% endblock contentLeft %}
 

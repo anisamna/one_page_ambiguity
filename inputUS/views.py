@@ -7,7 +7,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from functions.segmentation import segmentation
+from functions.segmentation import segmentation, segmentation_edit_userstory
 # from functions.well_formed import well_formed_an
 from functions.analysis import well_formed_an, stat_preciseness
 
@@ -17,6 +17,7 @@ from .models import (
     UserStory_element,
     Result,
     Project,
+    ReportUserStory
 )
 
 # # Create your views here.
@@ -147,23 +148,25 @@ def show_splitted_UserStory(request):
 
 
 def analyze_data(request):
+    from functions.analysis_userstory import AnalysisData
     data_list_id = request.POST.getlist("userstory_id", [])
     
     if len(data_list_id) < 2:
-            # jika user story hanya dipilih hanya 1 akan muncul message
-            messages.warning(
-                request,
-                "Warning, please select more than 1 user story !",
-            )
-    else:
-        for item in data_list_id:
-            well_formed_an(item)
-
-        messages.success(
+        # jika user story hanya dipilih hanya 1 akan muncul message
+        messages.warning(
             request,
-            "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
+            "Warning, please select more than 1 user story !",
         )
-    return render(request, "inputUS/see_result.html")
+        return redirect(reverse('show_splitted_UserStory'))
+
+    AnalysisData(data_list_id).start()
+    messages.success(
+        request,
+        "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
+    )
+    
+    return redirect(reverse('show_splitted_UserStory'))
+    
 
 def see_wellformed(request):
     project = request.GET.get('project', None)
@@ -182,7 +185,45 @@ def see_wellformed(request):
             "view_all": wellformed_list,
             "project_id": int(project)
         })
-    return render(request, "importUS/see_well_formed_US.html", extra_context)
+    return render(request, "inputUS/see_well_formed_US.html", extra_context)
+
+
+def view_report_userstory_list(request):
+    extra_context = {
+        'project_list': Project.objects.all(),
+    }
+    project_id = request.GET.get('project_id', None)
+    if project_id:
+        userstory_list = UserStory_element.objects.filter(Project_Name_id=project_id, is_processed=True)
+        # report_list = ReportUserStory.objects.filter(userstory__Project_Name_id=project_id).order_by('userstory', 'id')
+        extra_context.update({
+            'userstory_list': userstory_list,
+            'project_id': int(project_id)
+        })
+    
+    return render(request, "inputUS/report_userstory_list.html", extra_context)
+
+def edit_userstory(request, userstory_id):
+    userstory = get_object_or_404(UserStory_element, id=userstory_id)
+    extra_context = {
+        'userstory': userstory
+    }
+
+    if request.POST:
+        text_story = request.POST.get('userstory', None)
+        if text_story:
+            userstory.UserStory_Full_Text = text_story
+            userstory.is_processed = False
+            userstory.save()
+            segmentation_edit_userstory(userstory_id)
+
+            if userstory.get_report_list().exists():
+                # delete data report
+                userstory.get_report_list().delete()
+            
+            messages.success(request, "Success update userstory.")
+            return redirect(reverse('report_userstory_list')+"?project_id="+str(userstory.Project_Name_id))
+    return render(request, "inputUS/edit_userstory.html", extra_context)
 
 
 # def see_precise(request):
