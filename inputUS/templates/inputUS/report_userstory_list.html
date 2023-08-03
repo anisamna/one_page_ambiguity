@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load reporttag %}
 
 {% block contentLeft %}
 <div class="card">
@@ -22,7 +23,7 @@
         <select name="type" id="type_id" class="form-control">
           <option value>All Type</option>
           {% for item in analyze_type %}
-          <option value="{{ item.0 }}">{{ item.1 }}</option>
+          <option value="{{ item.0 }}" {% if type == item.0 %}selected{% endif %}>{{ item.1 }}</option>
           {% endfor %}
         </select>
       </div>
@@ -31,8 +32,8 @@
         <label for="status_id">Status</label>
         <select name="status" id="status_id" class="form-control">
           <option value>All</option>
-          <option value="1">Potential Ambiguity</option>
-          <option value="2">Good Quality</option>
+          <option value="1" {% if status == 1 %}selected{% endif %}>Potential Ambiguity</option>
+          <option value="2" {% if status == 2 %}selected{% endif %}>Good Quality</option>
         </select>
       </div>
     </form>
@@ -59,16 +60,16 @@
       </thead>
       <tbody>
         {% for item in userstory_list %}
-        {% if item.get_report_list %}
+        {% if item.id|get_report_list:request %}
         <tr>
-          <td rowspan="{{ item.get_count_report }}">{{ forloop.counter }}</td>
-          <td rowspan="{{ item.get_count_report }}">
+          <td rowspan="{{ item.id|get_count_report:request }}">{{ forloop.counter }}</td>
+          <td rowspan="{{ item.id|get_count_report:request }}">
             {{ item.UserStory_Full_Text }}
             <a href="{% url 'userstory_edit' item.id %}" class="btn btn-primary">Edit</a>
           </td>
         </tr>
         <!-- render report list -->
-        {% for report in item.get_report_list %}
+        {% for report in item.id|get_report_list:request %}
         <tr>
           <td>{{ report.status|default:"-" }}</td>
           <td>{{ report.recommendation|default:"-" }}</td>

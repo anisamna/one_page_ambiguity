@@ -62,4 +62,4 @@ https://pythonguides.com/convert-html-page-to-pdf-using-django/#:~:text=Django%2
 
 
 - penambahan userstory add
-- atomic status line kedua jadikan recommendation
+- filter report 

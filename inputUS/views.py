@@ -193,12 +193,24 @@ def view_report_userstory_list(request):
         'project_list': Project.objects.all(),
     }
     project_id = request.GET.get('project_id', None)
+    # status = request.GET.get('status', None)
     if project_id:
         userstory_list = UserStory_element.objects.filter(Project_Name_id=project_id, is_processed=True)
+        # if status:
+        #     if status == "1":
+        #         userstory_list = userstory_list.filter(
+        #             is_processed=True
+        #         )
+        #     elif status == "2":
+        #         userstory_list = userstory_list.filter(
+        #             is_processed=False
+        #         )
         # report_list = ReportUserStory.objects.filter(userstory__Project_Name_id=project_id).order_by('userstory', 'id')
         extra_context.update({
             'userstory_list': userstory_list,
             'project_id': int(project_id),
+            'type': int(request.GET.get('type', None)) if request.GET.get('type', None) else None,
+            'status': int(request.GET.get('status', None)) if request.GET.get('status', None) else None,
             'analyze_type': ReportUserStory.ANALYS_TYPE.choices
         })
     
