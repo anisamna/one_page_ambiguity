@@ -2,14 +2,14 @@ import re
 
 from django.contrib import messages
 
-from django.http import JsonResponse
-from django.core.paginator import Paginator
+# from django.http import JsonResponse
+# from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from functions.segmentation import segmentation, segmentation_edit_userstory
 # from functions.well_formed import well_formed_an
-from functions.analysis import well_formed_an, stat_preciseness
+# from functions.analysis import well_formed_an, stat_preciseness
 
 from .forms import InputUserStory_Form
 from .models import (
@@ -198,7 +198,8 @@ def view_report_userstory_list(request):
         # report_list = ReportUserStory.objects.filter(userstory__Project_Name_id=project_id).order_by('userstory', 'id')
         extra_context.update({
             'userstory_list': userstory_list,
-            'project_id': int(project_id)
+            'project_id': int(project_id),
+            'analyze_type': ReportUserStory.ANALYS_TYPE.choices
         })
     
     return render(request, "inputUS/report_userstory_list.html", extra_context)

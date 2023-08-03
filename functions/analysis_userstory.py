@@ -25,7 +25,12 @@ class AnalysisData:
     # 4. consistency / consistent
     # 5. conceptually sound
     # 6. uniqueness
-    def __init__(self, userstory_list_id=[], terms=None, topics=None, cluster=None, similarity=None):
+    def __init__(self, userstory_list_id=[], eps=0.5, min_samples=2, terms=5, topics=10, cluster=None, similarity=None):
+        self.eps = eps
+        self.min_samples = min_samples
+        self.terms = terms
+        self.topics = topics
+        self.similarity = similarity
         self.userstory_list = userstory_list_id
         self.corenlp_parser = CoreNLPParser(url="http://localhost:9000")
         self.nlp = spacy.load("en_core_web_sm")
@@ -85,9 +90,9 @@ class AnalysisData:
         }
 
     def save_report(self, userstory, status, type, data={}):
-        print(f'\n{userstory}')
-        print(status)
-        print(data)
+        # print(f'\n{userstory}')
+        # print(status)
+        # print(data)
         report, created = ReportUserStory.objects.get_or_create(
             userstory=userstory,
             status=status,
@@ -107,7 +112,6 @@ class AnalysisData:
         # 1. well-formed
         self.well_formed_data = self.well_formed()
         # print("well_formed", self.well_formed_data)
-
         for item in self.well_formed_data:
             self.save_report(
                 item['userstory_obj'],
@@ -165,28 +169,36 @@ class AnalysisData:
             except UserStory_element.DoesNotExist:
                 pass
             else:
-                if userstory.Who_full and userstory.Who_full.Who_full == "":
-                    status = "Well-formed criterion is not achieved !"
-                    recommendation = "Role does not found. Add role !"
-                elif userstory.What_full and userstory.What_full.What_full == "":
-                    status = "Well-formed criterion is not achieved !"
-                    recommendation = "Action does not found. Add action !"
-                elif userstory.Who_full and userstory.What_full:
-                    if (
-                        userstory.Who_full.Who_full != ""
-                        and userstory.What_full.What_full != ""
-                    ):
-                        if userstory.Who_full.Who_identifier not in (
-                            "As a",
-                            "As an",
-                            "As",
-                        ) or userstory.What_full.What_identifier not in (
-                            "I want",
-                            "I want to",
-                        ):
-                            status = "Well-formed criterion is not achieved, potential ambiguity is not occurred !"
+                # Role: Who
+                # Action: What
+                # Goal: Why
+                # print(f'\n{userstory}')
+                # print('userstory.Who_full', userstory.Who_full)
+                # print('userstory.What_full', userstory.What_full)
+
+                if userstory.Who_full and userstory.What_full:
+                    Who_full = userstory.Who_full
+                    What_full = userstory.What_full
+                    if Who_full.Who_identifier != '' and Who_full.Who_action != '' and What_full.What_identifier != '' and What_full.What_action != '':
+                        Who_identifier = Who_full.Who_identifier.lower()
+                        What_identifier = What_full.What_identifier.lower()
+                        if Who_identifier not in ("as an", "as a", "as") or What_identifier not in ("i want", "i want to"):
+                            status = 'Well-formed criteria is not achieved, anbiguity does not exist !'
                         else:
-                            pass
+                            status = 'Well-formed criteria is achieved! User story is fine'
+                    elif Who_full.Who_identifier == '' and Who_full.Who_action == '' and What_full.What_identifier != '' and What_full.What_action != '':
+                        status = 'Well-formed is not achieved ! WHO segment is not not found !'
+                        recommendation = 'Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*'
+                    elif Who_full.Who_identifier == '' and Who_full.Who_action != '' and What_full.What_identifier != '' and What_full.What_action != '':
+                        status = 'Well-formed is achieved ! WHO segment is not complete. WHO identifier does not found !'
+                        recommendation = 'Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*'
+                    elif Who_full.Who_identifier != '' and Who_full.Who_action != '' and What_full.What_identifier == '' and What_full.What_action != '':
+                        status = 'Well-formed is achieved ! WHAT segment is not complete. WHAT identifier does not found !'
+                        recommendation = 'Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*'
+                    elif Who_full.Who_identifier != '' and Who_full.Who_action != '' and What_full.What_identifier == '' and What_full.What_action == '':
+                        status = 'Well-formed is not achieved ! WHAT segment is not not found !'
+                        recommendation = 'Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*'
+
                 well_formed_result = {
                     "index": index,
                     "userstory_obj": userstory,
@@ -444,6 +456,7 @@ class AnalysisData:
             for atomic_item in atomic:
                 if sbar_item["text"] == atomic_item["text"]:
                     if atomic_item["sbar_label"] == 0 and atomic_item["cc_label"] == 0:
+                        # line kedua dijadikan recommendation
                         atomicity_amb_status = (
                             "User story meet conciseness and atomicity criteria and does not ambiguous."
                             "\nUser story is fine !"
@@ -532,7 +545,7 @@ class AnalysisData:
         X = vectorizer.fit_transform(role_s_values)
 
         # Apply DBSCAN clustering
-        dbscan = DBSCAN(eps=0.5, min_samples=2)
+        dbscan = DBSCAN(eps=self.eps, min_samples=self.min_samples)
         labels = dbscan.fit_predict(X)
         dic_sub = []
         # Group the role_s values and texts by their labels
@@ -893,7 +906,7 @@ class AnalysisData:
         X = vectorizer.fit_transform(r_txt)
 
         # Apply DBSCAN clustering
-        dbscan = DBSCAN(eps=0.5, min_samples=2)
+        dbscan = DBSCAN(eps=self.eps, min_samples=self.min_samples)
         labels = dbscan.fit_predict(X)
 
         # Get unique cluster labels
@@ -972,7 +985,7 @@ class AnalysisData:
             X = vectorizer.fit_transform([lemmatized_sentence])
 
             # Apply DBSCAN clustering
-            dbscan = DBSCAN(eps=0.5, min_samples=2)
+            dbscan = DBSCAN(eps=self.eps, min_samples=self.min_samples)
             labels = dbscan.fit_predict(X)
 
             # Add the text, action, and cluster label to the dictionary
@@ -990,7 +1003,7 @@ class AnalysisData:
 
         # Get the top terms for each act_cluster_label
         #isian pertama, what is your preferred number of terms to be displayed in each class, jika tidak diisi gunakan default ini
-        top_terms_act = self.get_top_terms_act(dic_action, 5)
+        top_terms_act = self.get_top_terms_act(dic_action, self.terms)
 
         # Update dic_action with the top terms
         for item in dic_action:
@@ -1058,8 +1071,8 @@ class AnalysisData:
 
             #default the preferred number of top terms to be displayed in each class (1), preferred number of top terms bisa diubah
     
-            top_terms_role = self.get_top_terms_role(dic_role, 5)
-            top_terms_act = self.get_top_terms_act(dic_action, 7)
+            top_terms_role = self.get_top_terms_role(dic_role, self.terms)
+            # top_terms_act = self.get_top_terms_act(dic_action, 7)
 
             # Finding the corresponding dictionary in "dic_sub" using "text" key
             matching_sub = next((sub for sub in dic_role if sub["text"] == Text), None)
@@ -1190,7 +1203,7 @@ class AnalysisData:
 
         # running model
         # the preferred number of topics (T) dapat diubah (2). T = 10 adalah default topic number
-        model = btm.BTM(X, vocabulary, T=10, M=20, alpha=50 / 7, beta=0.01)
+        model = btm.BTM(X, vocabulary, T=self.topics, M=20, alpha=50 / 7, beta=0.01)
         model.fit(biterms, iterations=100)
 
         p_zd = model.fit_transform(
@@ -1469,39 +1482,43 @@ class AnalysisData:
             sim_score = float(tot["sim_score_tot"])
             sim_score = round(sim_score, 4)
 
-            if (role_score > 0.6) and (action_score > 0.6) and (goal_score > 0.5):
+            #maximum level of similarity, role (who), action (what), and goal (why). 
+            #semua variabel (who, what, why) disamakan similaritynya. nilai default = 0.6 (untuk who/role dan what/action), 0.5 (untuk why/goal)
+
+            who_score, what_score, why_score = 0.6, 0.6, 0.5
+            if self.similarity:
+                who_score, what_score, why_score = self.similarity, self.similarity, self.similarity
+
+            if (role_score > who_score) and (action_score > what_score) and (goal_score > why_score):
                 stat_sim = "Status: Uniqueness is not achieved. User stories might be ambiguous !"
                 sol_sim = "Recommendation: Delete one user story!"
 
-            elif (role_score < 0.6) and (action_score > 0.6) and (goal_score > 0.5):
+            elif (role_score < who_score) and (action_score > what_score) and (goal_score > why_score):
                 stat_sim = "Result: Conflict-free may not be achieved. User stories might be ambiguous !"
                 sol_sim = "Recommendation: Need manual confirmation from the user"
 
-            elif (role_score > 0.6) and (action_score < 0.6) and (goal_score > 0.5):
+            elif (role_score > who_score) and (action_score < what_score) and (goal_score > why_score):
                 stat_sim = "Result: Uniqueness is achieved !"
                 sol_sim = "User story is fine !"
 
-            elif (role_score > 0.6) and (action_score > 0.6) and (goal_score < 0.5):
+            elif (role_score > who_score) and (action_score > what_score) and (goal_score < why_score):
                 stat_sim = "Result: Uniqueness is achieved !"
                 sol_sim = "User story is fine !"
 
-            elif (role_score < 0.6) and (action_score < 0.6) and (goal_score > 0.5):
+            elif (role_score < who_score) and (action_score < what_score) and (goal_score > why_score):
                 stat_sim = "Result: Uniqueness is achieved !"
                 sol_sim = "User story is fine !"
 
-            elif (role_score < 0.6) and (action_score < 0.6) and (goal_score < 0.5):
+            elif (role_score < who_score) and (action_score < what_score) and (goal_score < why_score):
                 stat_sim = "Result: Conflict-free is achieved, Uniqueness is achieved !"
                 sol_sim = "User story is fine !"
 
-            elif (role_score < 0.6) and ((action_score > 0.6) or (goal_score > 0.6)):
+            elif (role_score < who_score) and ((action_score > what_score) or (goal_score > why_score)):
                 stat_sim = "Result: Conflict-free is achieved !"
                 sol_sim = "User story is fine !"
             else:
                 stat_sim = "Result: Uniqueness is achieved !"
                 sol_sim = "User story is fine !"
-
-            #maximum level of similarity, role (who), action (what), and goal (why). 
-            #semua variabel (who, what, why) disamakan similaritynya. nilai default = 0.6 (untuk who/role dan what/action), 0.5 (untuk why/goal)
 
             # row_i = df_segment.index[i]
             # row_j = df_segment.index[j]

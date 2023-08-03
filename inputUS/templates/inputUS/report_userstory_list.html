@@ -16,6 +16,25 @@
           {% endfor %}
         </select>
       </div>
+
+      <div class="form-group mt-2">
+        <label for="type_id">Type</label>
+        <select name="type" id="type_id" class="form-control">
+          <option value>All Type</option>
+          {% for item in analyze_type %}
+          <option value="{{ item.0 }}">{{ item.1 }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group mt-2">
+        <label for="status_id">Status</label>
+        <select name="status" id="status_id" class="form-control">
+          <option value>All</option>
+          <option value="1">Potential Ambiguity</option>
+          <option value="2">Good Quality</option>
+        </select>
+      </div>
     </form>
   </div>
 </div>
@@ -82,7 +101,7 @@
 {{ block.super }}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
 <script>
-  $('select#project_id').on('change', function(){
+  $('select').on('change', function(){
     console.log("change")
     $('form#form_filter_id').submit();
   })

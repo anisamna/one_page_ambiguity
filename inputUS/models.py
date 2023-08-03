@@ -91,6 +91,7 @@ class UserStory_element(models.Model):
     Project_Name = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
     UserStory_File_ID = models.ForeignKey(US_Upload, on_delete=models.CASCADE, null=True)
     is_processed = models.BooleanField(default=False)
+    is_problem = models.BooleanField(default=False)
 
     def __str__(self):
         return self.UserStory_Full_Text
@@ -278,6 +279,7 @@ class ReportUserStory(models.Model):
     type = models.IntegerField(
         choices=ANALYS_TYPE.choices, null=True
     )
+    is_problem = models.BooleanField(default=False)
 
 
     def __str__(self):
