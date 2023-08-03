@@ -1,11 +1,55 @@
 version: '3.7'
 
 services:
+  db:
+    image: postgres:12.3-alpine
+    expose:
+     - 5432
+    env_file:
+      - .env.dist
+    volumes:
+      - ambiguity_pg_data:/var/lib/postgresql/data
+
+
   stanford_corenlp:
-    build: d1egoprog/stanford-corenlp:4.5.2
-    ports:
-      - "9000:9000"
-    environment: 
-      - JAVA_XMX=12G
-      - ANNOTATORS=tokenize,ssplit,parse
+    image: d1egoprog/stanford-corenlp:4.5.2
+    expose:
+      - 9000
+    env_file:
+      - .env.dist
     restart: always
+
+  ambiguity:
+    build: 
+      context: .
+    expose:
+      - 8005
+    env_file:
+      - .env.dist
+    depends_on:
+      - stanford_corenlp
+    volumes:
+      - .:/ambiguity
+      - ambiguity_static_volume:/ambiguity/files/ambiguity_static
+      - ambiguity_media_volume:/ambiguity/files/ambiguity_media
+    command: >
+      sh -c "python manage.py collectstatic --noinput && 
+            ./wait-for-postgres.sh &&
+            python manage.py migrate && 
+            python init_nltk.py &&
+            gunicorn --bind :8005 --workers 3 one_page_ambiguity_base.wsgi"
+  nginx:
+    build: ./nginx
+    volumes:
+      - ambiguity_static_volume:/ambiguity/files/ambiguity_static
+      - ambiguity_media_volume:/ambiguity/files/ambiguity_media
+      - .:/nginx/etc/nginx/conf.d/
+    ports:
+      - 80:80
+    depends_on:
+      - ambiguity
+
+volumes:
+  ambiguity_static_volume:
+  ambiguity_media_volume:
+  ambiguity_pg_data:
