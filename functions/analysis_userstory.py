@@ -1,4 +1,5 @@
 import re
+import os
 import spacy
 import numpy as np
 import string
@@ -27,7 +28,9 @@ class AnalysisData:
     # 6. uniqueness
     def __init__(self, userstory_list_id=[], terms=None, topics=None, cluster=None, similarity=None):
         self.userstory_list = userstory_list_id
-        self.corenlp_parser = CoreNLPParser(url="http://localhost:9000")
+        core_nlp_parser_url = os.environ.get("CORE_NLP_URL","localhost")
+        core_nlp_parser_port = os.environ.get("CORE_NLP_PORT",9000)
+        self.corenlp_parser = CoreNLPParser(url=f"http://{core_nlp_parser_url}:{core_nlp_parser_port}")
         self.nlp = spacy.load("en_core_web_sm")
         # Precise criteria
         self.keywords = {
