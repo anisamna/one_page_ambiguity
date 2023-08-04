@@ -1,0 +1,122 @@
+<style>
+  table {
+    border-collapse: collapse;
+    /* Collapse table borders for better appearance */
+    width: 100%;
+    /* Make sure the table fits within the container */
+  }
+
+  td,
+  th {
+    border: 1px solid black;
+    /* Add borders to all cells */
+    padding: 5px;
+    /* Add padding to cells for better spacing */
+  }
+
+  .no-border {
+    border: none !important;
+  }
+
+  @media print {
+    body {
+      width: 210mm;
+      height: 297mm;
+      padding: 10px;
+    }
+
+    table {
+      /* page-break-inside: avoid; Prevent breaking table inside pages */
+      border-collapse: collapse;
+      /* Collapse table borders for better print appearance */
+      width: 100%;
+      /* Make sure the table fits within the printed page */
+    }
+
+    th,
+    td {
+      border: 1px solid black;
+      /* Add borders to cells for better visibility */
+      padding: 5px;
+      /* Add padding to cells for better spacing */
+    }
+
+    tr {
+      page-break-inside: avoid;
+      /* Prevent breaking rows inside pages */
+    }
+
+    .table-breaked {
+      page-break-before: auto;
+    }
+
+    .no-border {
+      border: none !important;
+    }
+  }
+
+</style>
+{% load reporttag %}
+
+<div class="card p-0">
+  <div class="card-header p-3">
+    <h4 class="m-0" style="margin-bottom: -10px; ">Project Name = {{ project.Project_Name }}</h4>
+  </div>
+  <div class="card-body p-1 table-breaked">
+    <table class="table table-bordered">
+      <thead>
+        <!-- add extra space for printing -->
+        <tr class="no-border">
+          <td class="no-border">&nbsp;</td>
+        </tr>
+        <!-- add extra space for printing -->
+        <tr>
+          <th>No.</th>
+          <th>User Story</th>
+          <th>Status</th>
+          <th>Recommendation</th>
+          <th>Description</th>
+          <th>Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in userstory_list %}
+        {% if item.id|get_report_list:request %}
+        <tr>
+          <td rowspan="{{ item.id|get_count_report:request }}">{{ forloop.counter }}</td>
+          <td rowspan="{{ item.id|get_count_report:request }}">
+            {{ item.UserStory_Full_Text }}
+          </td>
+        </tr>
+        <!-- render report list -->
+        {% for report in item.id|get_report_list:request %}
+        <tr>
+          <td>{{ report.status|default:"-" }}</td>
+          <td>{{ report.recommendation|default:"-" }}</td>
+          <td>
+            <p style="white-space: pre-line;">{{ report.description|default:"-" }}</p>
+          </td>
+          <td>{{ report.get_type_display }}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>
+            {{ item.UserStory_Full_Text }}
+          </td>
+          <td colspan="4"></td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  (function () {
+    window.print();
+    window.onafterprint = window.close
+  })()
+</script>
