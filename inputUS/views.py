@@ -193,14 +193,15 @@ def analyze_data(request):
         similarity_value
     )
 
-    AnalysisData(data_list_id).start(
+    AnalysisData(
+        data_list_id,
         eps_value,
         min_samples_value,
         terms_role_value,
         terms_action_value,
         topics_value,
         similarity_value
-    )
+        ).start()
     messages.success(
         request,
         "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
