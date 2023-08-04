@@ -410,3 +410,17 @@ def add_userstory(request, project_id):
 #             parser_obj.save()
 #             response = {'success': True, 'message': 'Success save'}
 #     return JsonResponse(response)
+def print_report(request):
+    project_id = request.GET.get('project_id', None)
+    project = get_object_or_404(Project, pk=project_id)
+    extra_context = {}
+    if project_id:
+        userstory_list = UserStory_element.objects.filter(Project_Name_id=project_id, is_processed=True)
+        extra_context.update({
+            'userstory_list': userstory_list,
+            'project': project,
+            'type': request.GET.get('type', None) if request.GET.get('type', None) else None,
+            'status': request.GET.get('status', None) if request.GET.get('status', None) else None,
+            'analyze_type': ReportUserStory.ANALYS_TYPE.choices
+        })
+    return render(request,'inputUS/report/userstory.html', extra_context)
