@@ -149,7 +149,7 @@ def show_splitted_UserStory(request):
 
 def analyze_data(request):
     from functions.analysis_userstory import AnalysisData
-    eps_value, min_samples_value, terms_role_value, terms_action_value, topics_value, similarity_value = None, None, None, None, None, None
+    eps_value, min_samples_value, terms_role_value, terms_action_value, topics_value, similarity_value = 0.5, 2, 5, 7, 10, None
     eps_checkbox = request.POST.get('eps_checkbox', None)
     if eps_checkbox == 'on':
         eps_value = request.POST.get('eps_value', None)
