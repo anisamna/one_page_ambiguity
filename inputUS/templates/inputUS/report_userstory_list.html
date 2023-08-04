@@ -1,6 +1,19 @@
 {% extends 'base.html' %}
 {% load reporttag %}
 
+{% block title %} Report User Stories {% endblock title %}
+
+{% block contentTitle %} 
+<h1>Report User Stories</h1> 
+<nav>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item">User Story</li>
+    <li class="breadcrumb-item active">See Report User Stories</li>
+  </ol>
+</nav>
+{% endblock contentTitle %}
+
 {% block contentLeft %}
 <div class="card">
   <div class="card-header">
@@ -45,6 +58,12 @@
 <div class="card p-0">
   <div class="card-header p-3">
     <h5 class="m-0">Result</h5>
+    <div class="d-flex justify-content-end">
+      {% if project_id %}
+      <a href="{% url 'userstory_project_add' project_id  %}" class="btn btn-success">Add Userstory</a>
+      {% endif %}
+      <a href="{% url 'userstory_project_add' project_id  %}" class="btn btn-danger">Download PDF</a>
+    </div>
   </div>
   <div class="card-body p-1">
     <table class="table table-bordered">

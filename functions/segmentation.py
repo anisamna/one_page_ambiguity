@@ -162,7 +162,7 @@ def segmentation(obj_id):
         userstory_obj.save()
 
 
-def segmentation_edit_userstory(userstory_id):
+def segmentation_edit_userstory(userstory_id, is_add):
     # userstory edit update spliting
     try:
         userstory_obj = UserStory_element.objects.get(id=userstory_id)
@@ -268,26 +268,56 @@ def segmentation_edit_userstory(userstory_id):
 
         why = goal_id +" "+goal_usr
 
+        if is_add:
+            userstory_obj_who, created = UserStory_Who.objects.get_or_create(
+                Who_identifier = role_id,
+                Who_action = role_act,
+                Who_full = who,
+                Element_type = "Actor",
+            )
 
-        if userstory_obj.Who_full:
-            who_obj = userstory_obj.Who_full
-            who_obj.Who_identifier = role_id
-            who_obj.Who_action = role_act
-            who_obj.Who_full = who
-            who_obj.save()
-        
-        if userstory_obj.What_full:
-            what_obj = userstory_obj.What_full
-            what_obj.What_identifier = action_id
-            what_obj.What_action = action_usr
-            what_obj.What_full = what
-            what_obj.save()
+            userstory_obj_who.save()
 
-        if userstory_obj.Why_full:
-            why_obj = userstory_obj.Why_full
-            why_obj.Why_identifier = goal_id
-            why_obj.Why_action = goal_usr
-            why_obj.Why_full = why
-            why_obj.save()
+            userstory_obj_what, created = UserStory_What.objects.get_or_create(
+                What_identifier = action_id,
+                What_action = action_usr,
+                What_full = what,
+                Element_type = "Action",
+            )
 
+            userstory_obj_what.save()
 
+            userstory_obj_why, created = UserStory_Why.objects.get_or_create(
+                Why_identifier = goal_id,
+                Why_action = goal_usr,
+                Why_full = why,
+                Element_type = "Goal",
+
+            )
+
+            userstory_obj_why.save()
+            userstory_obj.Who_full = userstory_obj_who
+            userstory_obj.What_full = userstory_obj_what
+            userstory_obj.Why_full = userstory_obj_why
+            userstory_obj.save()
+        else:
+            if userstory_obj.Who_full:
+                who_obj = userstory_obj.Who_full
+                who_obj.Who_identifier = role_id
+                who_obj.Who_action = role_act
+                who_obj.Who_full = who
+                who_obj.save()
+            
+            if userstory_obj.What_full:
+                what_obj = userstory_obj.What_full
+                what_obj.What_identifier = action_id
+                what_obj.What_action = action_usr
+                what_obj.What_full = what
+                what_obj.save()
+
+            if userstory_obj.Why_full:
+                why_obj = userstory_obj.Why_full
+                why_obj.Why_identifier = goal_id
+                why_obj.Why_action = goal_usr
+                why_obj.Why_full = why
+                why_obj.save()

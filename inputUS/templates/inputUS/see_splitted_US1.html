@@ -110,45 +110,46 @@
           <div class="col-md-12">
             <!-- Precise Criteria -->
             <div class="form-group">
-              <input type="checkbox" id="precise_eps_checkbox_id" name="precise_eps_checkbox"/>
-              <label for="precise_eps_checkbox_id">What is the maximum distances of two node that you can accept?</label>
-              <input type="number" class="form-control" name="precise_eps_value" id="precise_eps_id">
+              <input type="checkbox" id="eps_checkbox_id" name="eps_checkbox"/>
+              <label for="eps_checkbox_id">What is the maximum distances of two node that you can accept?</label>
+              <input type="number" class="form-control" name="eps_value" id="eps_value_id" step="0.01">
               <span class="text-muted">Default: 0.5</span>
             </div>
             
             <div class="form-group">
-              <input type="checkbox" id="precise_min_samples_checkbox_id" name="precise_min_samples_checkbox"/>
-              <label for="precise_min_samples_checkbox_id">What is the minimum number of samples that meet the max. distance that you allowed?</label>
-              <input type="number" class="form-control" name="precise_min_samples_value" id="precise_min_samples_id">
+              <input type="checkbox" id="min_samples_checkbox_id" name="min_samples_checkbox"/>
+              <label for="min_samples_checkbox_id">What is the minimum number of samples that meet the max. distance that you allowed?</label>
+              <input type="number" class="form-control" name="min_samples_value" id="min_samples_value_id">
               <span class="text-muted">Default: 2</span>
             </div>
 
             <!-- Get the top terms for each act_cluster_label -->
             <div class="form-group">
-              <input type="checkbox" id="consistency_criteria_id">
-              <label for="consistency_criteria_id">What is your preferred number of terms to be displayed in each class?</label>
-              <input type="text" class="form-control">
+              <input type="checkbox" id="terms_role_checkbox_id" name="terms_role_checkbox">
+              <label for="terms_role_checkbox_id">What is your preferred number of role terms to be displayed?</label>
+              <input type="number" class="form-control" name="terms_role_value" id="terms_role_value_id">
               <span class="text-muted">Default: 5</span>
+            </div>
+            
+            <div class="form-group">
+              <input type="checkbox" id="terms_action_checkbox_id" name="terms_action_checkbox">
+              <label for="terms_action_checkbox_id">What is your preferred number of action terms to be displayed?</label>
+              <input type="number" class="form-control" name="terms_action_value" id="terms_action_value_id">
+              <span class="text-muted">Default: 7</span>
             </div>
 
             <!-- the preferred number of topics -->
             <div class="form-group">
-              <input type="checkbox" aria-label="Conceptually sound criteria" id="conceptually_sound_criteria_id">
-              <label for="conceptually_sound_criteria_id">What is your preferred number of topics for classifying the user stories?</label>
-              <input type="text" class="form-control">
+              <input type="checkbox" id="topics_checkbox_id" name="topics_checkbox">
+              <label for="topics_checkbox_id">What is your preferred number of topics for classifying the user stories?</label>
+              <input type="number" class="form-control" name="topics_value" id="topics_value_id">
               <span class="text-muted">Default: 10</span>
             </div>
 
             <div class="form-group">
-              <input type="checkbox" id="cluster_for_grouping_id"> 
-              <label for="cluster_for_grouping_id">What is your preferred number of cluster for grouping the user stories?</label>
-              <input type="text" class="form-control">
-            </div>
-
-            <div class="form-group">
-              <input type="checkbox" aria-label="Unique criteria" id="unique_criteria_id">
-              <label for="unique_criteria_id">What is the maximum level of similarity you can accept?</label>
-              <input type="text" class="form-control">
+              <input type="checkbox" id="similarity_checkbox_id" name="similarity_checkbox">
+              <label for="similarity_checkbox_id">What is the maximum level of similarity you can accept?</label>
+              <input type="number" class="form-control" name="similarity_value" id="similarity_value_id">
             </div>
           </div>
         </div>

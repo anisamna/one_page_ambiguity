@@ -149,6 +149,31 @@ def show_splitted_UserStory(request):
 
 def analyze_data(request):
     from functions.analysis_userstory import AnalysisData
+    eps_value, min_samples_value, terms_role_value, terms_action_value, topics_value, similarity_value = None, None, None, None, None, None
+    eps_checkbox = request.POST.get('eps_checkbox', None)
+    if eps_checkbox == 'on':
+        eps_value = request.POST.get('eps_value', None)
+
+    min_samples_checkbox = request.POST.get('min_samples_checkbox', None)
+    if min_samples_checkbox == 'on':
+        min_samples_value = request.POST.get('min_samples_value', None)
+    
+    terms_role_checkbox = request.POST.get('terms_role_checkbox', None)
+    if terms_role_checkbox == 'on':
+        terms_role_value = request.POST.get('terms_role_value', None)
+    
+    terms_action_checkbox = request.POST.get('terms_action_checkbox', None)
+    if terms_action_checkbox == 'on':
+        terms_action_value = request.POST.get('terms_action_value', None)
+    
+    topics_checkbox = request.POST.get('topics_checkbox', None)
+    if topics_checkbox == 'on':
+        topics_value = request.POST.get('topics_value', None)
+    
+    similarity_checkbox = request.POST.get('similarity_checkbox', None)
+    if similarity_checkbox == 'on':
+        similarity_value = request.POST.get('similarity_value', None)
+
     data_list_id = request.POST.getlist("userstory_id", [])
     
     if len(data_list_id) < 2:
@@ -158,8 +183,24 @@ def analyze_data(request):
             "Warning, please select more than 1 user story !",
         )
         return redirect(reverse('show_splitted_UserStory'))
+    
+    print(
+        eps_value,
+        min_samples_value,
+        terms_role_value,
+        terms_action_value,
+        topics_value,
+        similarity_value
+    )
 
-    AnalysisData(data_list_id).start()
+    AnalysisData(data_list_id).start(
+        eps_value,
+        min_samples_value,
+        terms_role_value,
+        terms_action_value,
+        topics_value,
+        similarity_value
+    )
     messages.success(
         request,
         "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
@@ -237,6 +278,22 @@ def edit_userstory(request, userstory_id):
             messages.success(request, "Success update userstory.")
             return redirect(reverse('report_userstory_list')+"?project_id="+str(userstory.Project_Name_id))
     return render(request, "inputUS/edit_userstory.html", extra_context)
+
+def add_userstory(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    extra_context = {
+        'project': project
+    }
+    if request.POST:
+        text_story = request.POST.get('userstory', None)
+        if text_story:
+            userstory = UserStory_element.objects.create(
+                UserStory_Full_Text=text_story,
+                Project_Name=project,
+            )
+            segmentation_edit_userstory(userstory.id, True)
+            messages.success(request, "Success add userstory.")
+    return render(request, "inputUS/add_userstory.html", extra_context)
 
 
 # def see_precise(request):

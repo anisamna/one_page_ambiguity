@@ -13,6 +13,7 @@ urlpatterns = [
     path('see_splitted_US1.html', views.show_splitted_UserStory, name='show_splitted_UserStory'),
     path('del_Upload_US/<int:id>/', views.del_Upload_US, name= 'del_Upload_US'),
     path('report/list', views.view_report_userstory_list, name="report_userstory_list"),
+    path('userstory/<int:project_id>/add', views.add_userstory, name="userstory_project_add"),
     path('userstory/<int:userstory_id>/edit', views.edit_userstory, name="userstory_edit"),
     path('userstory/analyze', views.analyze_data, name="analyze_data")
 ]

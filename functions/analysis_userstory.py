@@ -26,10 +26,11 @@ class AnalysisData:
     # 4. consistency / consistent
     # 5. conceptually sound
     # 6. uniqueness
-    def __init__(self, userstory_list_id=[], eps=0.5, min_samples=2, terms=5, topics=10, cluster=None, similarity=None):
+    def __init__(self, userstory_list_id=[], eps=0.5, min_samples=2, terms_role=5, terms_action=7, topics=10, similarity=None):
         self.eps = eps
         self.min_samples = min_samples
-        self.terms = terms
+        self.terms_role = terms_role
+        self.terms_action = terms_action
         self.topics = topics
         self.similarity = similarity
         self.userstory_list = userstory_list_id
@@ -1044,7 +1045,7 @@ class AnalysisData:
 
         # Get the top terms for each act_cluster_label
         #isian pertama, what is your preferred number of terms to be displayed in each class, jika tidak diisi gunakan default ini
-        top_terms_act = self.get_top_terms_act(dic_action, self.terms)
+        top_terms_act = self.get_top_terms_act(dic_action, self.terms_action)
 
         # Update dic_action with the top terms
         for item in dic_action:
@@ -1112,8 +1113,8 @@ class AnalysisData:
 
             #default the preferred number of top terms to be displayed in each class (1), preferred number of top terms bisa diubah
     
-            top_terms_role = self.get_top_terms_role(dic_role, self.terms)
-            # top_terms_act = self.get_top_terms_act(dic_action, 7)
+            top_terms_role = self.get_top_terms_role(dic_role, self.terms_role)
+            top_terms_act = self.get_top_terms_act(dic_action, self.terms_action)
 
             # Finding the corresponding dictionary in "dic_sub" using "text" key
             matching_sub = next((sub for sub in dic_role if sub["text"] == Text), None)

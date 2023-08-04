@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block contentLeft %}
+<form method="post">
+  {% csrf_token %}
+  <div class="card">
+    <div class="card-header">
+      <h5>Add Userstory</h5>
+    </div>
+    <div class="card-body pt-2">
+      <div class="form-group">
+        <label for="project">Project</label>
+        <input class="form-control" value="{{ project.Project_Name }}" disabled />
+      </div>
+      <div class="form-group mt-2">
+        <label for="userstory_id">User Story</label>
+        <input name="userstory" class="form-control" id="userstory_id" />
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-warning">Submit</button>
+    </div>
+  </div>
+</form>
+{% endblock %}
