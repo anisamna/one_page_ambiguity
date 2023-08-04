@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block contentLeft %}
+<form method="post">
+  {% csrf_token %}
+  <div class="card">
+    <div class="card-header">
+      <h5>Project Add</h5>
+    </div>
+    <div class="card-body">
+      <div class="form-group">
+        <label for="priject_name_id">Project Name</label>
+        <input type="text" class="form-control" id="priject_name_id" name="project_name">
+      </div>
+      <div class="form-group">
+        <label for="project_description_id">Project Description</label>
+        <input type="text" class="form-control" id="project_description_id" name="project_description">
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-primary">Submit</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

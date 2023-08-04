@@ -295,6 +295,52 @@ def add_userstory(request, project_id):
             messages.success(request, "Success add userstory.")
     return render(request, "inputUS/add_userstory.html", extra_context)
 
+def view_list_project(request):
+    projects = Project.objects.all()
+    extra_context = {
+        'projects': projects
+    }
+    return render(request, "inputUS/project/view.html", extra_context)
+
+def view_add_project(request):
+    extra_context = {
+        
+    }
+
+    if request.POST:
+        project_name = request.POST.get('project_name', None)
+        project_description = request.POST.get('project_description', None)
+        if project_name:
+            Project.objects.create(
+                Project_Name=project_name,
+                Project_Desc=project_description
+            )
+            messages.success(request, "Success add project.")
+            return redirect(reverse('projects_list_view'))
+    return render(request, "inputUS/project/add.html", extra_context)
+
+def view_edit_project(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    extra_context = {
+        'project': project
+    }
+    if request.POST:
+        project_name = request.POST.get('project_name', None)
+        project_description = request.POST.get('project_description', None)
+        if project_name:
+            project.Project_Name = project_name
+            project.Project_Desc = project_description
+            project.save()
+            messages.success(request, "Success update project.")
+            return redirect(reverse('projects_list_view'))
+    return render(request, "inputUS/project/edit.html", extra_context)
+
+def view_delete_project(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    if project:
+        project.delete()
+        messages.success(request, "Success delete project.")
+    return redirect(reverse('projects_list_view'))
 
 # def see_precise(request):
 

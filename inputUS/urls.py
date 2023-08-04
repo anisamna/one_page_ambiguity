@@ -15,5 +15,9 @@ urlpatterns = [
     path('report/list', views.view_report_userstory_list, name="report_userstory_list"),
     path('userstory/<int:project_id>/add', views.add_userstory, name="userstory_project_add"),
     path('userstory/<int:userstory_id>/edit', views.edit_userstory, name="userstory_edit"),
-    path('userstory/analyze', views.analyze_data, name="analyze_data")
+    path('userstory/analyze', views.analyze_data, name="analyze_data"),
+    path('userstory/projects', views.view_list_project, name="projects_list_view"),
+    path('userstory/projects/add', views.view_add_project, name="projects_add_view"),
+    path('userstory/projects/<int:project_id>/edit', views.view_edit_project, name="projects_edit_view"),
+    path('userstory/projects/<int:project_id>/delete', views.view_delete_project, name="projects_delete_view"),
 ]
