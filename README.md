@@ -48,18 +48,9 @@ java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer \
 -status_port 9000 -port 9000 -timeout 15000 & 
 ```
 
-di laptop Anis berubah jadi spt ini:
-```sh
-Start-Process java -ArgumentList '-mx4g', '-cp', '*', 'edu.stanford.nlp.pipeline.StanfordCoreNLPServer', '-preload', 'tokenize,ssplit,pos,lemma,ner,parse,depparse', '-port', '9000', '-timeout', '15000'
-```
-
 ## Documentation
 
 - [NLTK](https://github.com/nltk/nltk/wiki/Stanford-CoreNLP-API-in-NLTK)
 - [template](https://bootstrapmade.com/demo/NiceAdmin/)
 
 https://pythonguides.com/convert-html-page-to-pdf-using-django/#:~:text=Django%20HTML%20to%20PDF%20example,-Firstly%2C%20you%20have&text=In%20the%20view%20class%2C%20we,in%20the%20process.py%20file.&text=In%20this%20urls.py%20file,py%20file%20will%20be%20called.
-
-
-- penambahan userstory add
-- filter report 
