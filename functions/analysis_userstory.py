@@ -150,24 +150,24 @@ class AnalysisData:
             )
 
         # # 3. preciseness
-        # self.preciseness_data = self.running_preciseness()
-        # for item in self.preciseness_data:
-        #     self.save_report(
-        #         item['userstory'],
-        #         item['status'],
-        #         ReportUserStory.ANALYS_TYPE.PRECISE,
-        #         {
-        #             'recommendation': item['recommendation'],
-        #         },
-        #         item['is_problem']
-        #     )
+        self.preciseness_data = self.running_preciseness()
+        for item in self.preciseness_data:
+            self.save_report(
+                item['userstory'],
+                item['status'],
+                ReportUserStory.ANALYS_TYPE.PRECISE,
+                {
+                    'recommendation': item['recommendation'],
+                },
+                item['is_problem']
+            )
         # print("stat_preciseness", self.preciseness_data)
 
         # # 4. consistency / consistent
-        # self.running_stat_consistency()
+        self.running_stat_consistency()
 
         # # 5. conceptually sound
-        # self.stat_conceptually_sound()
+        self.stat_conceptually_sound()
 
         # # 6. uniqueness
         self.stat_uniqueness_criteria()
