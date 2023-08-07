@@ -26,7 +26,16 @@ class AnalysisData:
     # 4. consistency / consistent
     # 5. conceptually sound
     # 6. uniqueness
-    def __init__(self, userstory_list_id=[], eps=0.5, min_samples=2, terms_role=5, terms_action=7, topics=10, similarity=None):
+    def __init__(
+        self,
+        userstory_list_id=[],
+        eps=0.5,
+        min_samples=2,
+        terms_role=5,
+        terms_action=7,
+        topics=10,
+        similarity=None,
+    ):
         self.eps = eps
         self.min_samples = min_samples
         self.terms_role = terms_role
@@ -34,9 +43,11 @@ class AnalysisData:
         self.topics = topics
         self.similarity = similarity
         self.userstory_list = userstory_list_id
-        core_nlp_parser_url = os.environ.get("CORE_NLP_URL","localhost")
-        core_nlp_parser_port = os.environ.get("CORE_NLP_PORT",9000)
-        self.corenlp_parser = CoreNLPParser(url=f"http://{core_nlp_parser_url}:{core_nlp_parser_port}")
+        core_nlp_parser_url = os.environ.get("CORE_NLP_URL", "localhost")
+        core_nlp_parser_port = os.environ.get("CORE_NLP_PORT", 9000)
+        self.corenlp_parser = CoreNLPParser(
+            url=f"http://{core_nlp_parser_url}:{core_nlp_parser_port}"
+        )
         self.nlp = spacy.load("en_core_web_sm")
         # Precise criteria
         self.keywords = {
@@ -99,9 +110,7 @@ class AnalysisData:
         # print(data)
         # print(is_problem)
         report, created = ReportUserStory.objects.get_or_create(
-            userstory=userstory,
-            status=status,
-            type=type
+            userstory=userstory, status=status, type=type
         )
         for key, value in data.items():
             setattr(report, key, value)
@@ -114,47 +123,44 @@ class AnalysisData:
             userstory.save()
         return report
 
-
     def start(self):
         # 1. well-formed
         self.well_formed_data = self.well_formed()
         # print("well_formed", self.well_formed_data)
         for item in self.well_formed_data:
             self.save_report(
-                item['userstory_obj'],
-                item['status'],
+                item["userstory_obj"],
+                item["status"],
                 ReportUserStory.ANALYS_TYPE.WELL_FORMED,
                 {
-                    'recommendation': item['recommendation'],
+                    "recommendation": item["recommendation"],
                 },
-                item['is_problem']
+                item["is_problem"],
             )
 
         # # 2. atomicity
         self.atomic_data = self.atomicity_stat()
         for item in self.atomic_data:
             self.save_report(
-                item['userstory_obj'],
-                item['atomicity_status'],
+                item["userstory_obj"],
+                item["atomicity_status"],
                 ReportUserStory.ANALYS_TYPE.ATOMICITY,
-                {
-                    'recommendation': item['atomicity_recommendation']
-                },
-                item['atomicity_is_problem']
+                {"recommendation": item["atomicity_recommendation"]},
+                item["atomicity_is_problem"],
             )
 
         # # 3. preciseness
-        self.preciseness_data = self.stat_preciseness()
-        for item in self.preciseness_data:
-            self.save_report(
-                item['userstory'],
-                item['status'],
-                ReportUserStory.ANALYS_TYPE.PRECISE,
-                {
-                    'recommendation': item['recommendation'],
-                },
-                item['is_problem']
-            )
+        self.preciseness_data = self.running_preciseness()
+        # for item in self.preciseness_data:
+        #     self.save_report(
+        #         item['userstory'],
+        #         item['status'],
+        #         ReportUserStory.ANALYS_TYPE.PRECISE,
+        #         {
+        #             'recommendation': item['recommendation'],
+        #         },
+        #         item['is_problem']
+        #     )
         # print("stat_preciseness", self.preciseness_data)
 
         # # 4. consistency / consistent
@@ -194,29 +200,60 @@ class AnalysisData:
                 if userstory.Who_full and userstory.What_full:
                     Who_full = userstory.Who_full
                     What_full = userstory.What_full
-                    if Who_full.Who_identifier != '' and Who_full.Who_action != '' and What_full.What_identifier != '' and What_full.What_action != '':
+                    if (
+                        Who_full.Who_identifier != ""
+                        and Who_full.Who_action != ""
+                        and What_full.What_identifier != ""
+                        and What_full.What_action != ""
+                    ):
                         Who_identifier = Who_full.Who_identifier.lower()
                         What_identifier = What_full.What_identifier.lower()
-                        if Who_identifier not in ("as an", "as a", "as") or What_identifier not in ("i want", "i want to"):
-                            status = 'Well-formed criteria is not achieved, anbiguity does not exist !'
+                        if Who_identifier not in (
+                            "as an",
+                            "as a",
+                            "as",
+                        ) or What_identifier not in ("i want", "i want to"):
+                            status = "Well-formed criteria is not achieved, anbiguity does not exist !"
                             is_problem = True
                         else:
-                            status = 'Well-formed criteria is achieved! User story is fine'
-                    elif Who_full.Who_identifier == '' and Who_full.Who_action == '' and What_full.What_identifier != '' and What_full.What_action != '':
-                        status = 'Well-formed is not achieved ! WHO segment is not not found !'
-                        recommendation = 'Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*'
+                            status = (
+                                "Well-formed criteria is achieved! User story is fine"
+                            )
+                    elif (
+                        Who_full.Who_identifier == ""
+                        and Who_full.Who_action == ""
+                        and What_full.What_identifier != ""
+                        and What_full.What_action != ""
+                    ):
+                        status = "Well-formed is not achieved ! WHO segment is not not found !"
+                        recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
                         is_problem = True
-                    elif Who_full.Who_identifier == '' and Who_full.Who_action != '' and What_full.What_identifier != '' and What_full.What_action != '':
-                        status = 'Well-formed is achieved ! WHO segment is not complete. WHO identifier does not found !'
-                        recommendation = 'Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*'
+                    elif (
+                        Who_full.Who_identifier == ""
+                        and Who_full.Who_action != ""
+                        and What_full.What_identifier != ""
+                        and What_full.What_action != ""
+                    ):
+                        status = "Well-formed is achieved ! WHO segment is not complete. WHO identifier does not found !"
+                        recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
                         is_problem = True
-                    elif Who_full.Who_identifier != '' and Who_full.Who_action != '' and What_full.What_identifier == '' and What_full.What_action != '':
-                        status = 'Well-formed is achieved ! WHAT segment is not complete. WHAT identifier does not found !'
-                        recommendation = 'Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*'
+                    elif (
+                        Who_full.Who_identifier != ""
+                        and Who_full.Who_action != ""
+                        and What_full.What_identifier == ""
+                        and What_full.What_action != ""
+                    ):
+                        status = "Well-formed is achieved ! WHAT segment is not complete. WHAT identifier does not found !"
+                        recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
                         is_problem = True
-                    elif Who_full.Who_identifier != '' and Who_full.Who_action != '' and What_full.What_identifier == '' and What_full.What_action == '':
-                        status = 'Well-formed is not achieved ! WHAT segment is not not found !'
-                        recommendation = 'Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*'
+                    elif (
+                        Who_full.Who_identifier != ""
+                        and Who_full.Who_action != ""
+                        and What_full.What_identifier == ""
+                        and What_full.What_action == ""
+                    ):
+                        status = "Well-formed is not achieved ! WHAT segment is not not found !"
+                        recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
                         is_problem = True
 
                 well_formed_result = {
@@ -228,7 +265,7 @@ class AnalysisData:
                     "goal": userstory.Why_full,
                     "status": status,
                     "recommendation": recommendation,
-                    "is_problem": is_problem
+                    "is_problem": is_problem,
                 }
                 well_formed_res.append(well_formed_result)
         return well_formed_res
@@ -291,7 +328,7 @@ class AnalysisData:
                 action = well_formed["action"]
                 goal = well_formed["goal"]
                 text = well_formed["userstory"]
-                
+
                 if actor and action:
                     if (
                         actor.Who_identifier
@@ -384,7 +421,7 @@ class AnalysisData:
                         dic_conciseness = {
                             "index": index,
                             "text": text,
-                            "userstory_obj": well_formed['userstory_obj'],
+                            "userstory_obj": well_formed["userstory_obj"],
                             "action_user": action.What_action,
                             "sbar_text": " ".join(sbar_text),
                             "removable_sbar_text": new_text,
@@ -450,7 +487,7 @@ class AnalysisData:
             # define dic_atomic
             dic_atomicity = {
                 "text": text,
-                "userstory_obj": item['userstory_obj'],
+                "userstory_obj": item["userstory_obj"],
                 "action_user": action_user,
                 "sbar_text": sbar_text,
                 "text_without_sbar": text_tanpa_SBAR,
@@ -474,59 +511,48 @@ class AnalysisData:
         atomicity_ambiguity = []
         atomicity_amb_status = ""
         atomicity_amb_recommendation = ""
-        
+
         for sbar_item in act_sbar:
             for atomic_item in atomic:
                 atomicity_amb_is_problem = False
                 if sbar_item["text"] == atomic_item["text"]:
                     if atomic_item["sbar_label"] == 0 and atomic_item["cc_label"] == 0:
                         # line kedua dijadikan recommendation
-                        atomicity_amb_status = (
-                            "User story meet conciseness and atomicity criteria and does not ambiguous."
-                        )
+                        atomicity_amb_status = "User story meet conciseness and atomicity criteria and does not ambiguous."
                         atomicity_amb_recommendation = "User story is fine !"
                     elif (
                         atomic_item["sbar_label"] == 0 and atomic_item["cc_label"] == 1
                     ):
                         if sbar_item["is_last_token_a_verb"] == True:
-                            atomicity_amb_status = (
-                                "User story meet conciseness but not atomicity criteria."
-                            )
+                            atomicity_amb_status = "User story meet conciseness but not atomicity criteria."
                             atomicity_amb_recommendation = "User story is ambiguous. It is recommended to split user story !"
-                            atomicity_amb_is_problem = True
+                            atomicity_amb_is_problem = False
                         else:
-                            atomicity_amb_status = (
-                                "User story meet conciseness but not atomicity criteria."
-                                
-                            )
+                            atomicity_amb_status = "User story meet conciseness but not atomicity criteria."
                             atomicity_amb_recommendation = "User story is not ambiguos ! However, it is recommended to split user story !"
-                            atomicity_amb_is_problem = True
+                            atomicity_amb_is_problem = False
                     elif (
                         atomic_item["sbar_label"] == 1 and atomic_item["cc_label"] == 0
                     ):
-                        atomicity_amb_status = (
-                            "User story does not meet conciseness but meet atomicity criteria."
-                        )
+                        atomicity_amb_status = "User story does not meet conciseness but meet atomicity criteria."
                         atomicity_amb_recommendation = "User story is not ambiguous ! However, it is recommended to remove subordinate conjunction !"
                         atomicity_amb_is_problem = True
                     elif (
                         atomic_item["sbar_label"] == 1 and atomic_item["cc_label"] == 1
                     ):
                         if sbar_item["is_last_token_a_verb"] == True:
-                            atomicity_amb_status = (
-                                "User story does not meet conciseness and atomicity criteria."
-                            )
+                            atomicity_amb_status = "User story does not meet conciseness and atomicity criteria."
                             atomicity_amb_recommendation = "\nUser story is potentially ambiguous. It is recommended to change user story structure and split it !"
                             atomicity_amb_is_problem = True
                         else:
-                            atomicity_amb_status = (
-                                "User story does not meet conciseness and atomicity criteria."
-                            )
+                            atomicity_amb_status = "User story does not meet conciseness and atomicity criteria."
                             atomicity_amb_recommendation = "User story is not ambiguous ! However, it is recommended to remove subordinate conjunction and split it !"
                             atomicity_amb_is_problem = True
 
                     atomic_item["atomicity_status"] = atomicity_amb_status
-                    atomic_item["atomicity_recommendation"] = atomicity_amb_recommendation
+                    atomic_item[
+                        "atomicity_recommendation"
+                    ] = atomicity_amb_recommendation
                     atomic_item["atomicity_is_problem"] = atomicity_amb_is_problem
                     dic_atom_concise = {
                         "index": sbar_item["index"],
@@ -539,7 +565,9 @@ class AnalysisData:
                         "cc_label": atomic_item["cc_label"],
                         "sbar_label": atomic_item["sbar_label"],
                         "atomicity_status": atomic_item["atomicity_status"],
-                        "atomicity_recommendation": atomic_item["atomicity_recommendation"],
+                        "atomicity_recommendation": atomic_item[
+                            "atomicity_recommendation"
+                        ],
                         "atomicity_is_problem": atomic_item["atomicity_is_problem"],
                     }
                     atomicity_ambiguity.append(dic_atom_concise)
@@ -585,7 +613,9 @@ class AnalysisData:
         # Group the role_s values and texts by their labels
         grouped_role_s = {}
         role_s_list = []
-        for role_s, text, userstory, label in zip(role_s_values, role_s_texts, userstory_values, labels):
+        for role_s, text, userstory, label in zip(
+            role_s_values, role_s_texts, userstory_values, labels
+        ):
             if label in grouped_role_s:
                 grouped_role_s[label].append((role_s, text, userstory))
             else:
@@ -750,84 +780,118 @@ class AnalysisData:
 
                     preciseness.append(cluster_texts)
 
-        # print("\n== Preciseness criterion analysis - finding lexical ambiguity: ==")
-        # for sc in preciseness:
-        #     Text = sc["text"]
-        #     # Finding the corresponding dictionary in "dic_sub" using "text" key
-        #     matching_sub = next((sub for sub in dic_sub if sub["text"] == Text), None)
-        #     matching_act = next(
-        #         (act for act in sentence_classifications if act["sentence"] == Text),
-        #         None,
-        #     )
-        #     if matching_sub or matching_act:
-        #         if Text:
-        #             # Accessing "actor" key from the "matching_sub" dictionary in "dic_sub"
-        #             print("Story #", matching_act["index"], ": ", Text)
-        #             print("Role:", matching_sub["actor"])
-        #             print("Action:", matching_act["act_action"])
-        #             print("Status:", matching_sub["status"])
-        #             print("Recommendation:", matching_sub["recommendation"])
+        return preciseness, sentence_classifications, dic_sub
 
-        #             if (
-        #                 matching_sub["cluster_label"] == -1
-        #                 and matching_act["label"] != "1"
-        #             ):
-        #                 print("Recommended terms: ")
-        #                 if (
-        #                     matching_sub["cluster_label"] == -1
-        #                     and matching_act["label"] == ""
-        #                 ):
-        #                     print(
-        #                         "Recommendation for the user are:",
-        #                         matching_sub["role_s_list"],
-        #                     )
-        #                     print(
-        #                         "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
-        #                     )
-        #                 elif (
-        #                     matching_sub["cluster_label"] == -1
-        #                     and matching_act["label"] == ">1"
-        #                 ):
-        #                     print(
-        #                         "Recommendation for the user are:",
-        #                         matching_sub["role_s_list"],
-        #                     )
-        #                     print(
-        #                         "Recommendation for the action are:",
-        #                         matching_act["keyword_words"],
-        #                     )
-        #             elif (
-        #                 matching_sub["cluster_label"] == -1
-        #                 and matching_act["label"] == "1"
-        #             ):
-        #                 print("Recommended terms: ")
-        #                 print(
-        #                     "Recommendation for the user are:",
-        #                     matching_sub["role_s_list"],
-        #                 )
-        #             elif (
-        #                 matching_sub["cluster_label"] != -1
-        #                 and matching_act["label"] != "1"
-        #             ):
-        #                 print("Recommended terms: ")
-        #                 if (
-        #                     matching_sub["cluster_label"] != -1
-        #                     and matching_act["label"] == ""
-        #                 ):
-        #                     print(
-        #                         "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
-        #                     )
-        #                 elif (
-        #                     matching_sub["cluster_label"] != -1
-        #                     and matching_act["label"] == ">1"
-        #                 ):
-        #                     print(
-        #                         "Recommendation for the action are:",
-        #                         matching_act["keyword_words"],
-        #                     )
-        #     else:
-        #         print("Role: Not Found")
-        return preciseness
+    def running_preciseness(self):
+        print("\n== Preciseness criterion analysis - finding lexical ambiguity: ==")
+        preciseness, sentence_classifications, dic_sub = self.stat_preciseness()
+        for sc in preciseness:
+            Text = sc["text"]
+            userstory = sc["userstory"]
+            is_problem = sc["is_problem"]
+            # Finding the corresponding dictionary in "dic_sub" using "text" key
+            matching_sub = next((sub for sub in dic_sub if sub["text"] == Text), None)
+            matching_act = next(
+                (act for act in sentence_classifications if act["sentence"] == Text),
+                None,
+            )
+            if matching_sub or matching_act:
+                if Text and userstory:
+                    # Accessing "actor" key from the "matching_sub" dictionary in "dic_sub"
+                    print("Story #", matching_act["index"], ": ", Text)
+                    print("Role:", matching_sub["actor"])
+                    print("Action:", matching_act["act_action"])
+                    print("Status:", matching_sub["status"])
+                    print("Recommendation:", matching_sub["recommendation"])
+
+                    description = f"""Role: {matching_sub["actor"]}
+                                    Action: {matching_act["act_action"]}"""
+
+                    if (
+                        matching_sub["cluster_label"] == -1
+                        and matching_act["label"] != "1"
+                    ):
+                        print("Recommended terms: ")
+                        if (
+                            matching_sub["cluster_label"] == -1
+                            and matching_act["label"] == ""
+                        ):
+                            print(
+                                "Recommendation for the user are:",
+                                matching_sub["role_s_list"],
+                            )
+                            print(
+                                "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
+                            )
+                            description += f"""Recommendation for the user are:
+                                {matching_sub["role_s_list"]}
+                                Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague.
+                            """
+                        elif (
+                            matching_sub["cluster_label"] == -1
+                            and matching_act["label"] == ">1"
+                        ):
+                            print(
+                                "Recommendation for the user are:",
+                                matching_sub["role_s_list"],
+                            )
+                            print(
+                                "Recommendation for the action are:",
+                                matching_act["keyword_words"],
+                            )
+                            description += f"""Recommendation for the user are:
+                                {matching_sub["role_s_list"]}
+                                Recommendation for the action are: 
+                                {matching_act["keyword_words"]}
+                            """
+                    elif (
+                        matching_sub["cluster_label"] == -1
+                        and matching_act["label"] == "1"
+                    ):
+                        print("Recommended terms: ")
+                        print(
+                            "Recommendation for the user are:",
+                            matching_sub["role_s_list"],
+                        )
+                        description += f"""Recommendation for the user are:
+                            {matching_sub["role_s_list"]}
+                        """
+                    elif (
+                        matching_sub["cluster_label"] != -1
+                        and matching_act["label"] != "1"
+                    ):
+                        print("Recommended terms: ")
+                        if (
+                            matching_sub["cluster_label"] != -1
+                            and matching_act["label"] == ""
+                        ):
+                            print(
+                                "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
+                            )
+                            description += "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
+                        elif (
+                            matching_sub["cluster_label"] != -1
+                            and matching_act["label"] == ">1"
+                        ):
+                            print(
+                                "Recommendation for the action are:",
+                                matching_act["keyword_words"],
+                            )
+                            description += f"""Recommendation for the user are:
+                                {matching_act["keyword_words"]}
+                            """
+                    self.save_report(
+                        userstory,
+                        matching_sub["status"],
+                        ReportUserStory.ANALYS_TYPE.PRECISE,
+                        {
+                            "recommendation": matching_sub["recommendation"],
+                            "description": description,
+                        },
+                        is_problem,
+                    )
+            else:
+                print("Role: Not Found")
 
     # ============ Consistent Criteria ============
     def get_top_terms_role(self, dic_role, num_terms):
@@ -1044,7 +1108,7 @@ class AnalysisData:
             )
 
         # Get the top terms for each act_cluster_label
-        #isian pertama, what is your preferred number of terms to be displayed in each class, jika tidak diisi gunakan default ini
+        # isian pertama, what is your preferred number of terms to be displayed in each class, jika tidak diisi gunakan default ini
         top_terms_act = self.get_top_terms_act(dic_action, self.terms_action)
 
         # Update dic_action with the top terms
@@ -1065,7 +1129,7 @@ class AnalysisData:
 
         status = ""
         recommendation = ""
-
+        is_problem = False
         for act in dic_action:
             for sub in dic_role:
                 if act["text"] == sub["text"]:
@@ -1079,6 +1143,7 @@ class AnalysisData:
                         recommendation = (
                             "Change the user role using the same terminology."
                         )
+                        is_problem = True
                     else:
                         status = (
                             "Consistency criterion is achieved. User story is good."
@@ -1087,6 +1152,7 @@ class AnalysisData:
 
                     sub["status"] = status
                     sub["recommendation"] = recommendation
+                    sub["is_problem"] = is_problem
                     sub["top_terms_role"] = top_terms_role
                     act["top_terms_act"] = top_terms_act
 
@@ -1097,7 +1163,8 @@ class AnalysisData:
                         "role_label": sub["role_cluster_label"],
                         "act_label": act["act_cluster_label"],
                         "status": sub["status"],
-                        "rekom": sub["recommendation"],
+                        "recommendation": sub["recommendation"],
+                        "is_problem": sub["is_problem"],
                     }
                     consistency.append(cons_texts)
         return consistency
@@ -1110,9 +1177,9 @@ class AnalysisData:
         print("== Consistent criterion analysis - finding lexical ambiguity: ==")
         for sc in consistency:
             Text = sc["text"]
+            is_problem = sc["is_problem"]
+            # default the preferred number of top terms to be displayed in each class (1), preferred number of top terms bisa diubah
 
-            #default the preferred number of top terms to be displayed in each class (1), preferred number of top terms bisa diubah
-    
             top_terms_role = self.get_top_terms_role(dic_role, self.terms_role)
             top_terms_act = self.get_top_terms_act(dic_action, self.terms_action)
 
@@ -1126,11 +1193,11 @@ class AnalysisData:
                 if Text:
                     # Accessing "actor" key from the "matching_sub" dictionary in "dic_sub"
                     userstory = None
-                    if matching_sub.get('userstory', None):
-                        userstory = matching_sub['userstory']
-                    if matching_act.get('userstory', None):
-                        userstory = matching_act['userstory']
-                    
+                    if matching_sub.get("userstory", None):
+                        userstory = matching_sub["userstory"]
+                    if matching_act.get("userstory", None):
+                        userstory = matching_act["userstory"]
+
                     # print(f'\n{userstory}')
                     # print("Story #", matching_act["index"], ": ", Text)
                     # print("Role:", matching_sub["actor"])
@@ -1139,24 +1206,21 @@ class AnalysisData:
                     # print("Recommendation:", matching_sub["recommendation"])
 
                     description = None
-                    is_problem = False
+                    # is_problem = False
                     if matching_sub["role_cluster_label"] == -1:
-                        description = f'Terms for role: {str(top_terms_role)}'
-                        # print("Recommendation terms: ")
-                        # print(description)
-                    
-                    if matching_sub["recommendation"] != "pass":
-                        is_problem = True
-                    
+                        description = f"""Role: {matching_sub["actor"]}
+                        Action: {matching_act["action"]}
+                        Terms for role: {str(top_terms_role)}
+                        """
                     self.save_report(
                         userstory,
                         matching_sub["status"],
                         ReportUserStory.ANALYS_TYPE.CONSISTENT,
                         {
-                            'recommendation': matching_sub["recommendation"],
-                            'description': description
+                            "recommendation": matching_sub["recommendation"],
+                            "description": description,
                         },
-                        is_problem
+                        is_problem,
                     )
             else:
                 print("Role: Not Found")
@@ -1396,7 +1460,10 @@ class AnalysisData:
             # print("Subject:", item["subject"])
             # print("Predicate:", item["predicate"])
             # print("Object:", item["object"])
-
+            description = f"""Subject: {item["subject"]}
+            Predicate: {item["predicate"]}
+            Object: {item["object"]}
+            """
             status = None
             recommendation = None
             is_problem = False
@@ -1405,8 +1472,8 @@ class AnalysisData:
                 #     "Status: "
                 # )
                 # print("Recommendation: Rewrite the predicate !")
-                status = 'The user story is potentially ambiguous. It might be underspecified.'
-                recommendation = 'Recommendation: Rewrite the predicate !'
+                status = "The user story is potentially ambiguous. It might be underspecified."
+                recommendation = "Recommendation: Rewrite the predicate !"
                 is_problem = True
             elif len(item["sentence_class"]) > 1:
                 # print(
@@ -1416,22 +1483,20 @@ class AnalysisData:
                 #     "Recommendation: Rewrite the predicate using one of these term : ",
                 #     item["sentence_class"],
                 # )
-                status = 'The user story is potentially ambiguous. It might be wrongly decode.'
+                status = "The user story is potentially ambiguous. It might be wrongly decode."
                 recommendation = f'Recommendation: Rewrite the predicate using one of these term :\n{item["sentence_class"]}'
                 is_problem = True
             elif len(item["sentence_class"]) == 1:
                 # print("Status: user story is fine !")
-                status = 'user story is fine !'
-            
+                status = "user story is fine !"
+
             if status or recommendation:
                 self.save_report(
                     item["userstory"],
                     status,
                     ReportUserStory.ANALYS_TYPE.CONCEPTUALLY,
-                    {
-                        'recommendation': recommendation
-                    },
-                    is_problem
+                    {"recommendation": recommendation, "description": description},
+                    is_problem,
                 )
 
     # ============ Uniqueness Criteria ============
@@ -1453,7 +1518,7 @@ class AnalysisData:
             role_user.append(item["actor"].Who_full)
             action_user.append(item["action"].What_full)
             goal_user.append(item["goal"].Why_full)
-            userstory_list.append(item['userstory_obj'])
+            userstory_list.append(item["userstory_obj"])
 
         # text=df_element['UserStory']
         # role=df_element['Role']
@@ -1534,39 +1599,69 @@ class AnalysisData:
             sim_score = float(tot["sim_score_tot"])
             sim_score = round(sim_score, 4)
 
-            #maximum level of similarity, role (who), action (what), and goal (why). 
-            #semua variabel (who, what, why) disamakan similaritynya. nilai default = 0.6 (untuk who/role dan what/action), 0.5 (untuk why/goal)
+            # maximum level of similarity, role (who), action (what), and goal (why).
+            # semua variabel (who, what, why) disamakan similaritynya. nilai default = 0.6 (untuk who/role dan what/action), 0.5 (untuk why/goal)
             is_problem = False
             who_score, what_score, why_score = 0.6, 0.6, 0.5
             if self.similarity:
-                who_score, what_score, why_score = self.similarity, self.similarity, self.similarity
+                who_score, what_score, why_score = (
+                    self.similarity,
+                    self.similarity,
+                    self.similarity,
+                )
 
-            if (role_score > who_score) and (action_score > what_score) and (goal_score > why_score):
+            if (
+                (role_score > who_score)
+                and (action_score > what_score)
+                and (goal_score > why_score)
+            ):
                 stat_sim = "Status: Uniqueness is not achieved. User stories might be ambiguous !"
                 sol_sim = "Recommendation: Delete one user story!"
                 is_problem = True
 
-            elif (role_score < who_score) and (action_score > what_score) and (goal_score > why_score):
+            elif (
+                (role_score < who_score)
+                and (action_score > what_score)
+                and (goal_score > why_score)
+            ):
                 stat_sim = "Result: Conflict-free may not be achieved. User stories might be ambiguous !"
                 sol_sim = "Recommendation: Need manual confirmation from the user"
                 is_problem = True
-            elif (role_score > who_score) and (action_score < what_score) and (goal_score > why_score):
+            elif (
+                (role_score > who_score)
+                and (action_score < what_score)
+                and (goal_score > why_score)
+            ):
                 stat_sim = "Result: Uniqueness is achieved !"
                 sol_sim = "User story is fine !"
 
-            elif (role_score > who_score) and (action_score > what_score) and (goal_score < why_score):
+            elif (
+                (role_score > who_score)
+                and (action_score > what_score)
+                and (goal_score < why_score)
+            ):
                 stat_sim = "Result: Uniqueness is achieved !"
                 sol_sim = "User story is fine !"
 
-            elif (role_score < who_score) and (action_score < what_score) and (goal_score > why_score):
+            elif (
+                (role_score < who_score)
+                and (action_score < what_score)
+                and (goal_score > why_score)
+            ):
                 stat_sim = "Result: Uniqueness is achieved !"
                 sol_sim = "User story is fine !"
 
-            elif (role_score < who_score) and (action_score < what_score) and (goal_score < why_score):
+            elif (
+                (role_score < who_score)
+                and (action_score < what_score)
+                and (goal_score < why_score)
+            ):
                 stat_sim = "Result: Conflict-free is achieved, Uniqueness is achieved !"
                 sol_sim = "User story is fine !"
 
-            elif (role_score < who_score) and ((action_score > what_score) or (goal_score > why_score)):
+            elif (role_score < who_score) and (
+                (action_score > what_score) or (goal_score > why_score)
+            ):
                 stat_sim = "Result: Conflict-free is achieved !"
                 sol_sim = "User story is fine !"
             else:
@@ -1575,7 +1670,7 @@ class AnalysisData:
 
             # row_i = df_segment.index[i]
             # row_j = df_segment.index[j]
-            
+
             # print("Story {}".format(userstory_list[i]))
             # print("Story {}".format(userstory_list[j]))
             # print('Role 1: ',role_user[i])
@@ -1594,7 +1689,7 @@ class AnalysisData:
             # print(stat_sim)
             # print(sol_sim)
 
-            description = f'''Story: {userstory_list[j]}\n
+            description = f"""Story: {userstory_list[j]}\n
             Role 1: {role_user[i]}
             Role 2: {role_user[j]}
             Similarity score in role: {role_score}\n
@@ -1602,16 +1697,13 @@ class AnalysisData:
             Goal 2: {goal_user[j]}
             Similarity score in goal: {goal_score}\n
             Total similarity score:  {sim_score}
-            '''
+            """
 
             self.save_report(
                 userstory_list[i],
                 stat_sim,
                 ReportUserStory.ANALYS_TYPE.UNIQUENESS,
-                {
-                    'recommendation': sol_sim,
-                    'description': description
-                },
-                is_problem
+                {"recommendation": sol_sim, "description": description},
+                is_problem,
             )
             # print("====================")

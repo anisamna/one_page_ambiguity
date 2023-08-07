@@ -56,9 +56,14 @@
 
 {% if userstory_list %}
 <div class="card p-0">
-  <div class="card-header p-3">
-    <h5 class="m-0">Result</h5>
-    <div class="d-flex justify-content-end">
+  <div class="card-header p-3 d-flex">
+    <div style="width: 60%;">
+      <h5 class="mb-2 text-dark">Result</h5>
+      <h6>Total Story: {{ userstory_list|length }}</h6>
+      <h6>Total Good Quality: <span class="total-good">-</span></h6>
+      <h6>Total Potential Ambiguity: <span class="total-potential">-</span></h6>
+    </div>
+    <div class="justify-content-end" style="width: 40%; align-items: center;display: flex;">
       {% if project_id %}
       <a href="{% url 'userstory_project_add' project_id  %}" class="btn btn-success">Add Userstory</a>
       {% endif %}
@@ -90,7 +95,7 @@
         <!-- render report list -->
         {% for report in item.id|get_report_list:request %}
         <tr>
-          <td>{{ report.status|default:"-" }}</td>
+          <td data-is_problem="{{ report.is_problem }}">{{ report.status|default:"-" }}</td>
           <td>{{ report.recommendation|default:"-" }}</td>
           <td>
             <p style="white-space: pre-line;">{{ report.description|default:"-" }}</p>
@@ -121,6 +126,13 @@
 {{ block.super }}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
 <script>
+  $(function(){
+    let is_good_elem = $('table tbody tr td[data-is_problem=False]').length;
+    $('span.total-good').html(is_good_elem);
+    let is_potential = $('table tbody tr td[data-is_problem=True]').length;
+    $('span.total-potential').html(is_potential);
+  })
+
   $('select').on('change', function(){
     console.log("change")
     $('form#form_filter_id').submit();
