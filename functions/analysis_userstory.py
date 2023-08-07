@@ -150,7 +150,7 @@ class AnalysisData:
             )
 
         # # 3. preciseness
-        self.preciseness_data = self.running_preciseness()
+        # self.preciseness_data = self.running_preciseness()
         # for item in self.preciseness_data:
         #     self.save_report(
         #         item['userstory'],
@@ -164,10 +164,10 @@ class AnalysisData:
         # print("stat_preciseness", self.preciseness_data)
 
         # # 4. consistency / consistent
-        self.running_stat_consistency()
+        # self.running_stat_consistency()
 
         # # 5. conceptually sound
-        self.stat_conceptually_sound()
+        # self.stat_conceptually_sound()
 
         # # 6. uniqueness
         self.stat_uniqueness_criteria()
@@ -1516,9 +1516,9 @@ class AnalysisData:
         goal_user = []
         userstory_list = []
         for item in self.well_formed_data:
-            role_user.append(item["actor"].Who_full)
-            action_user.append(item["action"].What_full)
-            goal_user.append(item["goal"].Why_full)
+            role_user.append(item["actor"].Who_action if item['actor'] else None)
+            action_user.append(item["action"].What_action if item['action'] else None)
+            goal_user.append(item["goal"].Why_action if item['goal'] else None)
             userstory_list.append(item["userstory_obj"])
 
         # text=df_element['UserStory']
@@ -1672,11 +1672,11 @@ class AnalysisData:
             # row_i = df_segment.index[i]
             # row_j = df_segment.index[j]
 
-            # print("Story {}".format(userstory_list[i]))
-            # print("Story {}".format(userstory_list[j]))
-            # print('Role 1: ',role_user[i])
-            # print('Role 2: ',role_user[j])
-            # print('Similarity score in role:', role_score)
+            print("Story {}".format(userstory_list[i]))
+            print("Story {}".format(userstory_list[j]))
+            print('Role 1: ',role_user[i])
+            print('Role 2: ',role_user[j])
+            print('Similarity score in role:', role_score)
             # print()
             # print('Action 1: ',action_user[i])
             # print('Action 2: ', action_user[j])
