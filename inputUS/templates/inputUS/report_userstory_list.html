@@ -42,10 +42,20 @@
       </div>
 
       <div class="form-group mt-2">
+        <label for="potential_problem_id">Potential Problem</label>
+        <select name="potential_problem" id="potential_problem_id" class="form-control">
+          <option value>All Potential Problem</option>
+          {% for item in potential_problem_list %}
+          <option value="{{ item.0 }}" {% if potential_problem == item.0 %}selected{% endif %}>{{ item.1 }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group mt-2">
         <label for="status_id">Status</label>
         <select name="status" id="status_id" class="form-control">
           <option value>All</option>
-          <option value="1" {% if status == 1 %}selected{% endif %}>Potential Ambiguity</option>
+          <option value="1" {% if status == 1 %}selected{% endif %}>Potentially Ambiguous</option>
           <option value="2" {% if status == 2 %}selected{% endif %}>Good Quality</option>
         </select>
       </div>
@@ -59,7 +69,7 @@
   <div class="card-header p-3 d-flex">
     <div style="width: 60%;">
       <h5 class="mb-2 text-dark">Result</h5>
-      <h6>Total Story: {{ userstory_list|length }}</h6>
+      <h6>Total Story: <span class="total-userstory">-</span></h6>
       <h6>Total Good Quality: <span class="total-good">-</span></h6>
       <h6>Total Potential Ambiguity: <span class="total-potential">-</span></h6>
     </div>
@@ -86,7 +96,7 @@
         {% for item in userstory_list %}
         {% if item.id|get_report_list:request %}
         <tr>
-          <td rowspan="{{ item.id|get_count_report:request }}">{{ forloop.counter }}</td>
+          <td rowspan="{{ item.id|get_count_report:request }}" class="userstory-number"></td>
           <td rowspan="{{ item.id|get_count_report:request }}">
             {{ item.UserStory_Full_Text }}
             <a href="{% url 'userstory_edit' item.id %}" class="btn btn-primary">Edit</a>
@@ -104,14 +114,14 @@
         </tr>
         {% endfor %}
         {% else %}
-        <tr>
+        <!-- <tr>
           <td>{{ forloop.counter }}</td>
           <td>
             {{ item.UserStory_Full_Text }}
             <a href="{% url 'userstory_edit' item.id %}" class="btn btn-primary">Edit</a>
           </td>
           <td colspan="4"></td>
-        </tr>
+        </tr> -->
         {% endif %}
         {% endfor %}
       </tbody>
@@ -131,6 +141,14 @@
     $('span.total-good').html(is_good_elem);
     let is_potential = $('table tbody tr td[data-is_problem=True]').length;
     $('span.total-potential').html(is_potential);
+
+    const userstory_list = $('table tbody tr td.userstory-number')
+    if (userstory_list.length > 0){
+      $('span.total-userstory').html(userstory_list.length)
+      userstory_list.map(index => {
+        userstory_list.eq(index).html(index+1);
+      })
+    }
   })
 
   $('select').on('change', function(){

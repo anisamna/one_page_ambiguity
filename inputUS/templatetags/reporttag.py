@@ -21,6 +21,36 @@ def get_report_list(userstory_id, request):
                 report_list = report_list.filter(is_problem=True)
             elif status == "2":
                 report_list = report_list.filter(is_problem=False)
+        potential_problem = request.GET.get('potential_problem', None)
+        if potential_problem:
+            if potential_problem == "1":
+                report_list = report_list.filter(
+                    type__in=[
+                        ReportUserStory.ANALYS_TYPE.PRECISE,
+                        ReportUserStory.ANALYS_TYPE.WELL_FORMED,
+                        ReportUserStory.ANALYS_TYPE.CONSISTENT,
+                    ]
+                )
+            elif potential_problem == "2":
+                report_list = report_list.filter(
+                    type__in=[
+                        ReportUserStory.ANALYS_TYPE.CONSISTENT,
+                        ReportUserStory.ANALYS_TYPE.ATOMICITY,
+                        ReportUserStory.ANALYS_TYPE.CONCEPTUALLY,
+                    ]
+                )
+            elif potential_problem == "3":
+                report_list = report_list.filter(
+                    type__in=[
+                        ReportUserStory.ANALYS_TYPE.CONCEPTUALLY,
+                    ]
+                )
+            elif potential_problem == "4":
+                report_list = report_list.filter(
+                    type__in=[
+                        ReportUserStory.ANALYS_TYPE.UNIQUENESS,
+                    ]
+                )
         return report_list
     return ReportUserStory.objects.none()
 

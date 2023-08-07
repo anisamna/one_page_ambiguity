@@ -24,6 +24,9 @@
     </div>
     <div class="card-footer">
       <button class="btn btn-warning">Submit</button>
+      {% if userstory.Project_Name  %}
+      <a href="{% url 'userstory_project_add' userstory.Project_Name_id  %}" class="btn btn-success">Add</a>
+      {% endif %}
     </div>
   </div>
 </form>

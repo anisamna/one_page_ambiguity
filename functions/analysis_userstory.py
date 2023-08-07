@@ -282,39 +282,40 @@ class AnalysisData:
             for well_formed in self.well_formed_data:
                 index += 1
                 # print(well_formed)
-                actor = well_formed["actor"]
-                action = well_formed["action"]
+                actor = well_formed.get("actor", None)
+                action = well_formed.get("action", None)
                 goal = well_formed["goal"]
                 text = well_formed["userstory"]
-                if (
-                    actor.Who_identifier
-                    and actor.Who_action
-                    and action.What_identifier
-                    and action.What_action
-                ):
-                    if "so" in action.What_action:
-                        # check if "so" is part of token
-                        token = word_tokenize(action.What_action)
-                        if "so" not in token:
-                            pass
-                        else:
-                            status = "Goal is detected..."
-                            s_action_user_part = s_action_user.split("so")
-                            action_text = "I want to " + s_action_user_part[0].strip()
-                            s_action_user = s_action_user_part[1].strip()
+                if actor and action:
+                    if (
+                        actor.Who_identifier
+                        and actor.Who_action
+                        and action.What_identifier
+                        and action.What_action
+                    ):
+                        if "so" in action.What_action:
+                            # check if "so" is part of token
+                            token = word_tokenize(action.What_action)
+                            if "so" not in token:
+                                pass
+                            else:
+                                status = "Goal is detected..."
+                                s_action_user_part = s_action_user.split("so")
+                                action_text = "I want to " + s_action_user_part[0].strip()
+                                s_action_user = s_action_user_part[1].strip()
 
-                            # Update the corresponding rows in df_segment and df_element
-                            # well_formed_res.append({
-                            #     "index": index,
-                            #     "userstory": text,
-                            # })
-                            # well_formed.update({
-                            # })
-                            action.What_action = s_action_user
-                            action.What_full = action_text
-                            action.save()
+                                # Update the corresponding rows in df_segment and df_element
+                                # well_formed_res.append({
+                                #     "index": index,
+                                #     "userstory": text,
+                                # })
+                                # well_formed.update({
+                                # })
+                                action.What_action = s_action_user
+                                action.What_full = action_text
+                                action.save()
 
-                            well_formed.update({"action": action})
+                                well_formed.update({"action": action})
                 well_formed_res.append(well_formed)
             return well_formed_res
 
@@ -598,7 +599,7 @@ class AnalysisData:
         #     role_s_texts.append(text)
         #     role_s_values.append(role)
         for item in self.well_formed_data:  # ganti menggunakan well formed data
-            role_s_values.append(item["actor"].Who_identifier)
+            role_s_values.append(item["actor"].Who_action)
             role_s_texts.append(item["userstory"])
             userstory_values.append(item["userstory_obj"])
 
@@ -645,7 +646,7 @@ class AnalysisData:
         index = 0
         for item in self.well_formed_data:  # ganti menggunakan well form data
             text = item.get("userstory")
-            action = item.get("action").What_identifier
+            action = item.get("action").What_action
             doc = self.nlp(action)
             sentence_class = set()
             keyword_words = set()
@@ -1074,8 +1075,8 @@ class AnalysisData:
         for item in self.well_formed_data:
             userstory = item["userstory_obj"]
             text = item["userstory"]
-            role = item["actor"].Who_identifier
-            action = item["action"].What_identifier
+            role = item["actor"].Who_action
+            action = item["action"].What_action
 
             # Remove punctuation from action
             action = action.translate(str.maketrans("", "", string.punctuation))
@@ -1234,12 +1235,12 @@ class AnalysisData:
         for item in self.well_formed_data:
             userstory = item["userstory_obj"]
             text = item["userstory"]
-            role = item["actor"]
-            action = item["action"]
+            role = item["actor"].Who_action if item["actor"] else None
+            action = item["action"].What_action if item["action"] else None
             goal = item["goal"]
             index = item["index"]
 
-            doc = self.nlp(action.What_full)
+            doc = self.nlp(action)
 
             subject = None
             predicate = None

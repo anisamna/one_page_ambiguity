@@ -231,8 +231,16 @@ def see_wellformed(request):
 
 
 def view_report_userstory_list(request):
+    potential_problem_list = (
+        (1, "Vagueness"),
+        (2, "Inconsistency"),
+        (3, "Insufficiency"),
+        (4, "Duplication"),
+    )
     extra_context = {
         'project_list': Project.objects.all(),
+        'potential_problem_list': potential_problem_list,
+        'analyze_type': ReportUserStory.ANALYS_TYPE.choices
     }
     project_id = request.GET.get('project_id', None)
     # status = request.GET.get('status', None)
@@ -253,7 +261,7 @@ def view_report_userstory_list(request):
             'project_id': int(project_id),
             'type': int(request.GET.get('type', None)) if request.GET.get('type', None) else None,
             'status': int(request.GET.get('status', None)) if request.GET.get('status', None) else None,
-            'analyze_type': ReportUserStory.ANALYS_TYPE.choices
+            'potential_problem': int(request.GET.get('potential_problem', None)) if request.GET.get('potential_problem', None) else None,
         })
     
     return render(request, "inputUS/report_userstory_list.html", extra_context)

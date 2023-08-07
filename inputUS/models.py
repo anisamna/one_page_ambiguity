@@ -266,10 +266,10 @@ class ReportUserStory(models.Model):
     class ANALYS_TYPE(models.IntegerChoices):
         WELL_FORMED = 1, "Well Formed"
         ATOMICITY = 2, "Atomicity"
-        PRECISE = 3, "Precise Criteria"
-        CONSISTENT = 4, "Consistent Criteria"
+        PRECISE = 3, "Preciseness"
+        CONSISTENT = 4, "Consistency"
         CONCEPTUALLY = 5, "Conceptually Sound"
-        UNIQUENESS = 6, "Uniqueness Criteria"
+        UNIQUENESS = 6, "Uniqueness"
 
 
     userstory = models.ForeignKey(UserStory_element, on_delete=models.CASCADE)
