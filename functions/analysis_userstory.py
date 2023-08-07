@@ -151,17 +151,6 @@ class AnalysisData:
 
         # # 3. preciseness
         self.preciseness_data = self.running_preciseness()
-        for item in self.preciseness_data:
-            self.save_report(
-                item['userstory'],
-                item['status'],
-                ReportUserStory.ANALYS_TYPE.PRECISE,
-                {
-                    'recommendation': item['recommendation'],
-                },
-                item['is_problem']
-            )
-        # print("stat_preciseness", self.preciseness_data)
 
         # # 4. consistency / consistent
         self.running_stat_consistency()
