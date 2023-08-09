@@ -232,30 +232,56 @@ def see_wellformed(request):
 
 def view_report_userstory_list(request):
     potential_problem_list = (
+        (0, "None"),
         (1, "Vagueness"),
         (2, "Inconsistency"),
         (3, "Insufficiency"),
         (4, "Duplication"),
     )
+    status_list = (
+        (0, "All"),
+        (1, "Potentially Ambiguous"),
+        (2, "Good Quality"),
+    )
+
     extra_context = {
         'project_list': Project.objects.all(),
         'potential_problem_list': potential_problem_list,
-        'analyze_type': ReportUserStory.ANALYS_TYPE.choices
+        'analyze_type': ReportUserStory.ANALYS_TYPE.choices,
+        'status_list': status_list,
     }
     project_id = request.GET.get('project_id', None)
     # status = request.GET.get('status', None)
     if project_id:
         userstory_list = UserStory_element.objects.filter(Project_Name_id=project_id, is_processed=True)
-        # if status:
-        #     if status == "1":
-        #         userstory_list = userstory_list.filter(
-        #             is_processed=True
-        #         )
-        #     elif status == "2":
-        #         userstory_list = userstory_list.filter(
-        #             is_processed=False
-        #         )
-        # report_list = ReportUserStory.objects.filter(userstory__Project_Name_id=project_id).order_by('userstory', 'id')
+        type_value = request.GET.get('type', None)
+        potential_problem_value = request.GET.get('potential_problem', None)
+        if not type_value and potential_problem_value == "0":
+            extra_context.update({
+                'status_list': (
+                    (2, "Good Quality"),
+                )
+            })
+        elif type_value in [ReportUserStory.ANALYS_TYPE.WELL_FORMED, ReportUserStory.ANALYS_TYPE.PRECISE]:
+            extra_context.update({
+                'potential_problem_list': (
+                    (1, "Vagueness"),
+                )
+            })
+        elif type_value in [ReportUserStory.ANALYS_TYPE.CONSISTENT, ReportUserStory.ANALYS_TYPE.ATOMICITY, ReportUserStory.ANALYS_TYPE.CONCEPTUALLY]:
+            extra_context.update({
+                'potential_problem_list': (
+                    (2, "Inconsistency"),
+                    (3, "Insufficiency"),
+                )
+            })
+        elif type_value in [ReportUserStory.ANALYS_TYPE.UNIQUENESS]:
+            extra_context.update({
+                'potential_problem_list': (
+                    (4, "Duplication"),
+                )
+            })
+
         extra_context.update({
             'userstory_list': userstory_list,
             'project_id': int(project_id),
@@ -294,13 +320,16 @@ def add_userstory(request, project_id):
         'project': project
     }
     if request.POST:
-        text_story = request.POST.get('userstory', None)
-        if text_story:
-            userstory = UserStory_element.objects.create(
-                UserStory_Full_Text=text_story,
-                Project_Name=project,
-            )
-            segmentation_edit_userstory(userstory.id, True)
+        userstory_list = request.POST.getlist("userstory[]", [])
+        
+        if userstory_list:
+            for item in userstory_list:
+                if item and item != "":
+                    userstory = UserStory_element.objects.create(
+                        UserStory_Full_Text=item,
+                        Project_Name=project,
+                    )
+                    segmentation_edit_userstory(userstory.id, True)
             messages.success(request, "Success add userstory.")
     return render(request, "inputUS/add_userstory.html", extra_context)
 

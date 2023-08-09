@@ -23,7 +23,11 @@ def get_report_list(userstory_id, request):
                 report_list = report_list.filter(is_problem=False)
         potential_problem = request.GET.get('potential_problem', None)
         if potential_problem:
-            if potential_problem == "1":
+            if potential_problem == "0":
+                report_list = report_list.filter(
+                    status__icontains="is achieved"
+                )
+            elif potential_problem == "1":
                 report_list = report_list.filter(
                     type__in=[
                         ReportUserStory.ANALYS_TYPE.PRECISE,

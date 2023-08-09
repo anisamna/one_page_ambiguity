@@ -514,11 +514,13 @@ class AnalysisData:
                         atomic_item["sbar_label"] == 0 and atomic_item["cc_label"] == 1
                     ):
                         if sbar_item["is_last_token_a_verb"] == True:
-                            atomicity_amb_status = "User story meet conciseness but not atomicity criteria."
+                            # atomicity_amb_status = "User story meet conciseness but not atomicity criteria."
+                            atomicity_amb_status = "User story meet conciseness but does not meet atomicity criteria."
                             atomicity_amb_recommendation = "User story is ambiguous. It is recommended to split user story !"
                             atomicity_amb_is_problem = False
                         else:
-                            atomicity_amb_status = "User story meet conciseness but not atomicity criteria."
+                            # atomicity_amb_status = "User story meet conciseness but not atomicity criteria."
+                            atomicity_amb_status = "User story meet conciseness but does not meet atomicity criteria."
                             atomicity_amb_recommendation = "User story is not ambiguos ! However, it is recommended to split user story !"
                             atomicity_amb_is_problem = False
                     elif (
@@ -796,6 +798,8 @@ class AnalysisData:
 
                     description = f"""Role: {matching_sub["actor"]}
                                     Action: {matching_act["act_action"]}"""
+                    
+                    recommendation = matching_sub["recommendation"]
 
                     if (
                         matching_sub["cluster_label"] == -1
@@ -813,7 +817,7 @@ class AnalysisData:
                             print(
                                 "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
                             )
-                            description += f"""Recommendation for the user are:
+                            recommendation += f"""Recommendation for the user are:
                                 {matching_sub["role_s_list"]}
                                 Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague.
                             """
@@ -829,7 +833,7 @@ class AnalysisData:
                                 "Recommendation for the action are:",
                                 matching_act["keyword_words"],
                             )
-                            description += f"""Recommendation for the user are:
+                            recommendation += f"""Recommendation for the user are:
                                 {matching_sub["role_s_list"]}
                                 Recommendation for the action are: 
                                 {matching_act["keyword_words"]}
@@ -843,7 +847,7 @@ class AnalysisData:
                             "Recommendation for the user are:",
                             matching_sub["role_s_list"],
                         )
-                        description += f"""Recommendation for the user are:
+                        recommendation += f"""Recommendation for the user are:
                             {matching_sub["role_s_list"]}
                         """
                     elif (
@@ -867,7 +871,7 @@ class AnalysisData:
                                 "Recommendation for the action are:",
                                 matching_act["keyword_words"],
                             )
-                            description += f"""Recommendation for the user are:
+                            recommendation += f"""Recommendation for the user are:
                                 {matching_act["keyword_words"]}
                             """
                     self.save_report(
@@ -875,7 +879,7 @@ class AnalysisData:
                         matching_sub["status"],
                         ReportUserStory.ANALYS_TYPE.PRECISE,
                         {
-                            "recommendation": matching_sub["recommendation"],
+                            "recommendation": recommendation,
                             "description": description,
                         },
                         is_problem,
@@ -990,8 +994,8 @@ class AnalysisData:
         for item in self.well_formed_data:
             text = item["userstory"]
             userstory = item["userstory_obj"]
-            role = item["actor"].Who_identifier
-            action = item["action"].What_identifier
+            role = item["actor"].Who_action
+            action = item["action"].What_action
             txt.append(text)
             r_txt.append(role)
             a_txt.append(action)

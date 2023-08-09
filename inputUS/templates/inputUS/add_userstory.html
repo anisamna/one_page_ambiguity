@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% block title %}Add Userstory{% endblock %}
+
 {% block contentLeft %}
 <form method="post">
   {% csrf_token %}
@@ -12,14 +14,53 @@
         <label for="project">Project</label>
         <input class="form-control" value="{{ project.Project_Name }}" disabled />
       </div>
-      <div class="form-group mt-2">
-        <label for="userstory_id">User Story</label>
-        <input name="userstory" class="form-control" id="userstory_id" />
+      <div id="list_form_story" class="my-2">
       </div>
+      <button class="btn btn-primary btn-sm" id="add_story_id" type="button">Add Story</button>
     </div>
     <div class="card-footer">
-      <button class="btn btn-warning">Submit</button>
+      <button class="btn btn-warning" type="submit">Submit</button>
     </div>
   </div>
 </form>
+{% endblock %}
+
+{% block extrajs %}
+{{ block.super }}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script>
+  const remote_user_story = (elem) => {
+    console.log('elem', elem)
+    $(`.${elem}`).remove();
+  }
+
+  $(function(){
+    const elem_list_story = $('#list_form_story')
+    elem_list_story.html(`
+      <div class="form-group mt-2">
+        <label for="userstory_id_1">User Story #1</label>
+        <input name="userstory[]" class="form-control" id="userstory_id_1" />
+      </div>
+    `)
+
+    $('#add_story_id').on('click', function(){
+      const elem_list_story = $('#list_form_story')
+      const input_story = elem_list_story.find('input')
+      if (input_story.length > 0){
+        const index_story = input_story.length+1
+        elem_list_story.append(`
+          <div class="form-group mt-2 form-input-userstory-${index_story}">
+            <label for="userstory_id_${index_story}">User Story #${index_story}</label>
+            <div class="input-group mb-3">
+              <input name="userstory[]" class="form-control" id="userstory_id_${index_story}" />
+              <div class="input-group-append">
+                <button class="btn btn-outline-danger" type="button" onclick="remote_user_story('form-input-userstory-${index_story}')">Remove</button>
+              </div>
+            </div>
+          </div>
+        `)
+      }
+    })
+  })
+</script>
 {% endblock %}
