@@ -1298,7 +1298,7 @@ class AnalysisData:
             index1 = dic_sent["index"]
             sent = dic_sent["sentence"]
             subject = dic_sent["subject"]
-            predicate = dic_sent["predicate"]
+            predicate = dic_sent["predicate"] if dic_sent["predicate"] else ""
             obj = dic_sent["object"]
             new_doc = "".join(predicate)
 
