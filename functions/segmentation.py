@@ -162,7 +162,7 @@ def segmentation(obj_id):
         userstory_obj.save()
 
 
-def segmentation_edit_userstory(userstory_id, is_add):
+def segmentation_edit_userstory(userstory_id, is_add=False):
     # userstory edit update spliting
     try:
         userstory_obj = UserStory_element.objects.get(id=userstory_id)

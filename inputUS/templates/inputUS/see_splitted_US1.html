@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %} User Stories {% endblock title %}
+{% block title %}User Stories{% endblock title %}
 
 {% block styles %}
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
@@ -104,7 +104,7 @@
   <!-- Input preferred criteria for analysis -->
   <div class="card top-selling overflow-auto form-process-assessment">
     <div class="card-body pb-0 mb-3">
-      <h5 class="card-title"> Input assessment criteria : </h5>
+      <h5 class="card-title">Input assessment criteria:</h5>
       <div class="container-fluidn">
         <div class="row">
           <div class="col-md-12">
@@ -119,7 +119,7 @@
             <div class="form-group">
               <input type="checkbox" id="min_samples_checkbox_id" name="min_samples_checkbox"/>
               <label for="min_samples_checkbox_id">What is the minimum number of samples that meet the max. distance that you allowed?</label>
-              <input type="number" class="form-control" name="min_samples_value" id="min_samples_value_id">
+              <input type="number" class="form-control" name="min_samples_value" id="min_samples_value_id" step="0.01">
               <span class="text-muted">Default: 2</span>
             </div>
 
@@ -127,14 +127,14 @@
             <div class="form-group">
               <input type="checkbox" id="terms_role_checkbox_id" name="terms_role_checkbox">
               <label for="terms_role_checkbox_id">What is your preferred number of role terms to be displayed?</label>
-              <input type="number" class="form-control" name="terms_role_value" id="terms_role_value_id">
+              <input type="number" class="form-control" name="terms_role_value" id="terms_role_value_id" step="0.01">
               <span class="text-muted">Default: 5</span>
             </div>
             
             <div class="form-group">
               <input type="checkbox" id="terms_action_checkbox_id" name="terms_action_checkbox">
               <label for="terms_action_checkbox_id">What is your preferred number of action terms to be displayed?</label>
-              <input type="number" class="form-control" name="terms_action_value" id="terms_action_value_id">
+              <input type="number" class="form-control" name="terms_action_value" id="terms_action_value_id" step="0.01">
               <span class="text-muted">Default: 7</span>
             </div>
 
@@ -142,14 +142,14 @@
             <div class="form-group">
               <input type="checkbox" id="topics_checkbox_id" name="topics_checkbox">
               <label for="topics_checkbox_id">What is your preferred number of topics for classifying the user stories?</label>
-              <input type="number" class="form-control" name="topics_value" id="topics_value_id">
+              <input type="number" class="form-control" name="topics_value" id="topics_value_id" step="0.01">
               <span class="text-muted">Default: 10</span>
             </div>
 
             <div class="form-group">
               <input type="checkbox" id="similarity_checkbox_id" name="similarity_checkbox">
               <label for="similarity_checkbox_id">What is the maximum level of similarity you can accept?</label>
-              <input type="number" class="form-control" name="similarity_value" id="similarity_value_id">
+              <input type="number" class="form-control" name="similarity_value" id="similarity_value_id" step="0.01">
             </div>
           </div>
         </div>
@@ -227,8 +227,6 @@
           {% endif %}
         </tbody>
       </table>
-      
-
     </div>
   </div>
 </form>
