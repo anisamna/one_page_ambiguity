@@ -36,12 +36,12 @@ class AnalysisData:
         topics=10,
         similarity=None,
     ):
-        self.eps = eps
-        self.min_samples = min_samples
-        self.terms_role = terms_role
-        self.terms_action = terms_action
-        self.topics = topics
-        self.similarity = similarity
+        self.eps = float(eps) if eps else 0.5
+        self.min_samples = float(min_samples) if min_samples else 2
+        self.terms_role = float(terms_role) if terms_role else 5
+        self.terms_action = float(terms_action) if terms_action else 7
+        self.topics = int(topics) if topics else 10
+        self.similarity = float(similarity) if similarity else None
         self.userstory_list = userstory_list_id
         core_nlp_parser_url = os.environ.get("CORE_NLP_URL", "localhost")
         core_nlp_parser_port = os.environ.get("CORE_NLP_PORT", 9000)
@@ -141,11 +141,21 @@ class AnalysisData:
         # # 2. atomicity
         self.atomic_data = self.atomicity_stat()
         for item in self.atomic_data:
+            description = None
+            userstory = item["userstory_obj"]
+            childs = userstory.get_childrens()
+            if childs.exists():
+                description = ""
+                for index, child in enumerate(childs):
+                    description += f'User Story #{index+1}: {child.UserStory_Full_Text}\n\n'
             self.save_report(
                 item["userstory_obj"],
                 item["atomicity_status"],
                 ReportUserStory.ANALYS_TYPE.ATOMICITY,
-                {"recommendation": item["atomicity_recommendation"]},
+                {
+                    "recommendation": item["atomicity_recommendation"],
+                    "description": description
+                },
                 item["atomicity_is_problem"],
             )
 
@@ -517,7 +527,7 @@ class AnalysisData:
                             # atomicity_amb_status = "User story meet conciseness but not atomicity criteria."
                             atomicity_amb_status = "User story meet conciseness but does not meet atomicity criteria."
                             atomicity_amb_recommendation = "User story is ambiguous. It is recommended to split user story !"
-                            atomicity_amb_is_problem = False
+                            atomicity_amb_is_problem = True
                         else:
                             # atomicity_amb_status = "User story meet conciseness but not atomicity criteria."
                             atomicity_amb_status = "User story meet conciseness but does not meet atomicity criteria."
@@ -599,7 +609,7 @@ class AnalysisData:
         X = vectorizer.fit_transform(role_s_values)
 
         # Apply DBSCAN clustering
-        dbscan = DBSCAN(eps=self.eps, min_samples=self.min_samples)
+        dbscan = DBSCAN(eps=self.eps, min_samples=int(self.min_samples))
         labels = dbscan.fit_predict(X)
         dic_sub = []
         # Group the role_s values and texts by their labels
@@ -862,7 +872,7 @@ class AnalysisData:
                             print(
                                 "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
                             )
-                            description += "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
+                            recommendation += "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
                         elif (
                             matching_sub["cluster_label"] != -1
                             and matching_act["label"] == ">1"
@@ -1006,7 +1016,7 @@ class AnalysisData:
         X = vectorizer.fit_transform(r_txt)
 
         # Apply DBSCAN clustering
-        dbscan = DBSCAN(eps=self.eps, min_samples=self.min_samples)
+        dbscan = DBSCAN(eps=self.eps, min_samples=int(self.min_samples))
         labels = dbscan.fit_predict(X)
 
         # Get unique cluster labels
@@ -1085,7 +1095,7 @@ class AnalysisData:
             X = vectorizer.fit_transform([lemmatized_sentence])
 
             # Apply DBSCAN clustering
-            dbscan = DBSCAN(eps=self.eps, min_samples=self.min_samples)
+            dbscan = DBSCAN(eps=self.eps, min_samples=int(self.min_samples))
             labels = dbscan.fit_predict(X)
 
             # Add the text, action, and cluster label to the dictionary
@@ -1103,7 +1113,7 @@ class AnalysisData:
 
         # Get the top terms for each act_cluster_label
         # isian pertama, what is your preferred number of terms to be displayed in each class, jika tidak diisi gunakan default ini
-        top_terms_act = self.get_top_terms_act(dic_action, self.terms_action)
+        top_terms_act = self.get_top_terms_act(dic_action, int(self.terms_action))
 
         # Update dic_action with the top terms
         for item in dic_action:
@@ -1174,8 +1184,8 @@ class AnalysisData:
             is_problem = sc["is_problem"]
             # default the preferred number of top terms to be displayed in each class (1), preferred number of top terms bisa diubah
 
-            top_terms_role = self.get_top_terms_role(dic_role, self.terms_role)
-            top_terms_act = self.get_top_terms_act(dic_action, self.terms_action)
+            top_terms_role = self.get_top_terms_role(dic_role, int(self.terms_role))
+            top_terms_act = self.get_top_terms_act(dic_action, int(self.terms_action))
 
             # Finding the corresponding dictionary in "dic_sub" using "text" key
             matching_sub = next((sub for sub in dic_role if sub["text"] == Text), None)
@@ -1665,11 +1675,11 @@ class AnalysisData:
             # row_i = df_segment.index[i]
             # row_j = df_segment.index[j]
 
-            print("Story {}".format(userstory_list[i]))
-            print("Story {}".format(userstory_list[j]))
-            print('Role 1: ',role_user[i])
-            print('Role 2: ',role_user[j])
-            print('Similarity score in role:', role_score)
+            # print("Story {}".format(userstory_list[i]))
+            # print("Story {}".format(userstory_list[j]))
+            # print('Role 1: ',role_user[i])
+            # print('Role 2: ',role_user[j])
+            # print('Similarity score in role:', role_score)
             # print()
             # print('Action 1: ',action_user[i])
             # print('Action 2: ', action_user[j])
@@ -1682,15 +1692,24 @@ class AnalysisData:
             # print('Total similarity score: ',sim_score)
             # print(stat_sim)
             # print(sol_sim)
+            
+            story_a_id = userstory_list[i].id if userstory_list[i] else ""
+            story_b_id = userstory_list[j].id if userstory_list[j] else ""
 
-            description = f"""Story: {userstory_list[j]}\n
+            description = f"""Story #{story_a_id}: {userstory_list[i]}
+            Story #{story_b_id}: {userstory_list[j]}\n
             Role 1: {role_user[i]}
             Role 2: {role_user[j]}
             Similarity score in role: {role_score}\n
+            Action 1: {action_user[i]}
+            Action 2: {action_user[j]}
+            Similarity score in action: {action_score}\n
             Goal 1: {goal_user[i]}
             Goal 2: {goal_user[j]}
             Similarity score in goal: {goal_score}\n
             Total similarity score:  {sim_score}
+            {stat_sim}
+            {sol_sim}
             """
 
             self.save_report(

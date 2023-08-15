@@ -116,12 +116,13 @@ admin.site.register(UserStory_Why, UserStory_WhyAdmin)
 class UserStory_elementAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "UserStory_Full_Text",
         "Who_full",
         "What_full",
         "Why_full",
-        "UserStory_Full_Text",
         "Project_Name",
         "UserStory_File_ID",
+        "parent"
     )
 
 

@@ -92,6 +92,7 @@ class UserStory_element(models.Model):
     UserStory_File_ID = models.ForeignKey(US_Upload, on_delete=models.CASCADE, null=True)
     is_processed = models.BooleanField(default=False)
     is_problem = models.BooleanField(default=False)
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.UserStory_Full_Text
@@ -101,6 +102,10 @@ class UserStory_element(models.Model):
     
     def get_count_report(self):
         return self.get_report_list().count()+1
+    
+    def get_childrens(self):
+        return self.userstory_element_set.all()
+    
     class Meta:
         verbose_name = "UserStory"
         verbose_name_plural = "UserStories"

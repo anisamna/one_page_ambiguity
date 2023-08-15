@@ -256,13 +256,28 @@ def view_report_userstory_list(request):
         userstory_list = UserStory_element.objects.filter(Project_Name_id=project_id, is_processed=True)
         type_value = request.GET.get('type', None)
         potential_problem_value = request.GET.get('potential_problem', None)
-        if not type_value and potential_problem_value == "0":
+        search = request.GET.get('q', None)
+        if search:
+            userstory_list = userstory_list.filter(
+                UserStory_Full_Text__icontains=search
+            )
+
+        if type_value:
+            type_value = int(type_value)
+        if not type_value and not potential_problem_value:
+            extra_context.update({
+                'status_list': (
+                    (1, "Potentially Ambiguous"),
+                )
+            })
+        elif not type_value and potential_problem_value == "0":
             extra_context.update({
                 'status_list': (
                     (2, "Good Quality"),
                 )
             })
         elif type_value in [ReportUserStory.ANALYS_TYPE.WELL_FORMED, ReportUserStory.ANALYS_TYPE.PRECISE]:
+            print("masuk sini")
             extra_context.update({
                 'potential_problem_list': (
                     (1, "Vagueness"),
@@ -300,15 +315,28 @@ def edit_userstory(request, userstory_id):
 
     if request.POST:
         text_story = request.POST.get('userstory', None)
+        userstory_list = request.POST.getlist("userstory_list[]", [])
+        print(text_story)
+        print(userstory_list)
+
         if text_story:
             userstory.UserStory_Full_Text = text_story
             userstory.is_processed = False
             userstory.save()
-            segmentation_edit_userstory(userstory_id)
 
+            segmentation_edit_userstory(userstory_id)
             if userstory.get_report_list().exists():
                 # delete data report
                 userstory.get_report_list().delete()
+
+            if len(userstory_list):
+                for item in userstory_list:
+                    userstory_child = UserStory_element.objects.create(
+                        UserStory_Full_Text=item,
+                        Project_Name=userstory.Project_Name,
+                        parent=userstory
+                    )
+                    segmentation_edit_userstory(userstory_child.id, True)
             
             messages.success(request, "Success update userstory.")
             return redirect(reverse('report_userstory_list')+"?project_id="+str(userstory.Project_Name_id))
