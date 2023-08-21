@@ -5,7 +5,8 @@ from django.contrib import messages
 # from django.http import JsonResponse
 # from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.contrib.auth.decorators import login_required
 
 from functions.segmentation import segmentation, segmentation_edit_userstory
 # from functions.well_formed import well_formed_an
@@ -20,9 +21,7 @@ from .models import (
     ReportUserStory
 )
 
-# # Create your views here.
-
-
+@login_required(login_url=reverse_lazy('login_'))
 def Upload_UserStory(request):
 
     if request.method == "POST":
@@ -79,6 +78,7 @@ def Upload_UserStory(request):
     )
 
 
+@login_required(login_url=reverse_lazy('login_'))
 def show_uploaded_UserStory(request):
 
     # show table US_File_Upload
@@ -129,6 +129,7 @@ def split_user_story_to_segment(request, id):
         {"see_splitted_user_stories": see_splitted_user_stories},
     )
 
+@login_required(login_url=reverse_lazy('login_'))
 def show_splitted_UserStory(request):
     # show table user story
     project = request.GET.get('project', None)
@@ -209,7 +210,7 @@ def analyze_data(request):
     
     return redirect(reverse('show_splitted_UserStory'))
     
-
+@login_required(login_url=reverse_lazy('login_'))
 def see_wellformed(request):
     project = request.GET.get('project', None)
     wellformed_list = Result.objects.filter(
@@ -229,7 +230,7 @@ def see_wellformed(request):
         })
     return render(request, "inputUS/see_well_formed_US.html", extra_context)
 
-
+@login_required(login_url=reverse_lazy('login_'))
 def view_report_userstory_list(request):
     potential_problem_list = (
         (0, "None"),
@@ -307,6 +308,7 @@ def view_report_userstory_list(request):
     
     return render(request, "inputUS/report_userstory_list.html", extra_context)
 
+@login_required(login_url=reverse_lazy('login_'))
 def edit_userstory(request, userstory_id):
     userstory = get_object_or_404(UserStory_element, id=userstory_id)
     extra_context = {
@@ -342,6 +344,7 @@ def edit_userstory(request, userstory_id):
             return redirect(reverse('report_userstory_list')+"?project_id="+str(userstory.Project_Name_id))
     return render(request, "inputUS/edit_userstory.html", extra_context)
 
+@login_required(login_url=reverse_lazy('login_'))
 def add_userstory(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     extra_context = {
@@ -361,6 +364,7 @@ def add_userstory(request, project_id):
             messages.success(request, "Success add userstory.")
     return render(request, "inputUS/add_userstory.html", extra_context)
 
+@login_required(login_url=reverse_lazy('login_'))
 def view_list_project(request):
     projects = Project.objects.all()
     extra_context = {
@@ -368,6 +372,7 @@ def view_list_project(request):
     }
     return render(request, "inputUS/project/view.html", extra_context)
 
+@login_required(login_url=reverse_lazy('login_'))
 def view_add_project(request):
     extra_context = {
         
@@ -385,6 +390,7 @@ def view_add_project(request):
             return redirect(reverse('projects_list_view'))
     return render(request, "inputUS/project/add.html", extra_context)
 
+@login_required(login_url=reverse_lazy('login_'))
 def view_edit_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     extra_context = {
@@ -401,6 +407,7 @@ def view_edit_project(request, project_id):
             return redirect(reverse('projects_list_view'))
     return render(request, "inputUS/project/edit.html", extra_context)
 
+@login_required(login_url=reverse_lazy('login_'))
 def view_delete_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     if project:

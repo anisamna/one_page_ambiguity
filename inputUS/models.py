@@ -279,7 +279,7 @@ class ReportUserStory(models.Model):
 
     userstory = models.ForeignKey(UserStory_element, on_delete=models.CASCADE)
     status = models.CharField(max_length=255, null=True, blank=True)
-    recommendation = models.CharField(max_length=400, null=True, blank=True)
+    recommendation = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     type = models.IntegerField(
         choices=ANALYS_TYPE.choices, null=True

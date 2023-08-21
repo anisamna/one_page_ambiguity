@@ -155,3 +155,5 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "https://furiosa.my.id", "http://furiosa.my.id"]
+
+AUTHENTICATION_BACKENDS = ('one_page_ambiguity_base.backends.EmailBackend',)

@@ -1,0 +1,42 @@
+{% extends 'registration/noauth_base.html' %}
+{% load widgets %}
+
+{% block title %}Login{% endblock %}
+
+{% block contain %}
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="pt-4 pb-2">
+            <h5 class="card-title text-center pb-0 fs-4">Login to Your Account</h5>
+            <p class="text-center small">Enter your username or email & password to login</p>
+        </div>
+        <form class="row g-3 needs-validation" novalidate method="post">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <div class="col-12">
+                    {% if field.name == "username" %}
+                    <label for="id_username">Username or Email:</label>
+                    {% else %}
+                    {{ field.label_tag }} 
+                    {% endif %}
+                    {{ field|addcls:"form-control" }}
+                    {% if field.errors %}
+                        <small class="text-help">{{ field.errors|striptags }}</small> 
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <div class="col-12">
+                <button class="btn btn-primary w-100" type="submit">Login</button>
+            </div>
+            <div class="col-12">
+                <p class="small mb-0">Don't have account? <a href="{% url 'signup' %}">Create an account</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="credits">
+    <!-- Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a> -->
+  </div>
+{% endblock %}

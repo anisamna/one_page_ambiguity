@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load widgets %}
+
+{% block contentLeft %}
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title pb-0 fs-4">Profile</h5>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group col-12">
+                {{ field.label_tag }}
+                {{ field|addcls:"form-control" }}
+                <div class="text-help">
+                    {{ field.errors }}
+                </div>
+                {% if field.help_text %}
+                    <small class="text-help">{{ field.help_text|safe }}</small>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <div class="col-12 mt-3">
+                <button type="submit" class="btn btn-primary">Update</button>
+                <a class="btn btn-secondary" href="{% url 'index' %}">Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

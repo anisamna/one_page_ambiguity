@@ -50,12 +50,12 @@
 
   $(function(){
     const elem_list_story = $('#list_form_story')
-    elem_list_story.html(`
-      <div class="form-group mt-2">
-        <label for="userstory_id_1">User Story #1</label>
-        <input name="userstory_list[]" class="form-control" id="userstory_id_1" />
-      </div>
-    `)
+    // elem_list_story.html(`
+    //   <div class="form-group mt-2">
+    //     <label for="userstory_id_1">User Story #1</label>
+    //     <input name="userstory_list[]" class="form-control" id="userstory_id_1" />
+    //   </div>
+    // `)
 
     $('#add_story_id').on('click', function(){
       const elem_list_story = $('#list_form_story')
@@ -71,6 +71,13 @@
                 <button class="btn btn-outline-danger" type="button" onclick="remote_user_story('form-input-userstory-${index_story}')">Remove</button>
               </div>
             </div>
+          </div>
+        `)
+      } else {
+        elem_list_story.html(`
+          <div class="form-group mt-2">
+            <label for="userstory_id_1">User Story #1</label>
+            <input name="userstory_list[]" class="form-control" id="userstory_id_1" />
           </div>
         `)
       }

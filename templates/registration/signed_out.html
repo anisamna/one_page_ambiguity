@@ -1,0 +1,15 @@
+{% extends 'registration/noauth_base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block contain %}
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="pt-4 pb-2">
+            <h5 class="card-title pb-0 fs-4">Logged out</h5>
+            <p>Thanks for spending some quality time with the web site today.</p>
+            <p>Click <a href="{% url 'login_' %}">here</a> to sign in again.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

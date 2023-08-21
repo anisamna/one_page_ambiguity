@@ -5,7 +5,7 @@ import numpy as np
 import string
 import random
 import bitermplus as btm
-from inputUS.models import UserStory_element, ReportUserStory
+from inputUS.models import UserStory_element, ReportUserStory, KeywordGlossary
 
 from collections import Counter, defaultdict
 
@@ -577,16 +577,23 @@ class AnalysisData:
 
     # ============ Precise Criteria ============
     def get_word_class(self, word):
-        for word_class, class_keywords in self.keywords.items():
-            if word.lower() in class_keywords:
-                return word_class
+        # for word_class, class_keywords in self.keywords.items():
+        #     if word.lower() in class_keywords:
+        #         return word_class
+        if word:
+            keyword_list = KeywordGlossary.objects.filter(item_name__Action_item=word.lower())
+            return keyword_list.last()
         return None
 
     def get_synset_class(self, synset):
-        for word_class, class_keywords in self.keywords.items():
+        # for word_class, class_keywords in self.keywords.items():
+        #     for lemma in synset.lemma_names():
+        #         if lemma.lower() in class_keywords:
+        #             return word_class
+        if synset:
             for lemma in synset.lemma_names():
-                if lemma.lower() in class_keywords:
-                    return word_class
+                keyword_list = KeywordGlossary.objects.filter(item_name__Action_item=lemma.lower())
+                return keyword_list.last()
         return None
 
     def actor_precise(self):
@@ -655,12 +662,12 @@ class AnalysisData:
                 if token.pos_ == "VERB":
                     word_class = self.get_word_class(token.text)
                     if word_class:
-                        sentence_class.add(word_class)
+                        sentence_class.add(word_class.keyword)
                         keyword_words.add(token.text)
                         for keyword_word in keyword_words:
                             if keyword_word not in keyword_to_sentence_class:
                                 keyword_to_sentence_class[keyword_word] = set()
-                            keyword_to_sentence_class[keyword_word].add(word_class)
+                            keyword_to_sentence_class[keyword_word].add(word_class.keyword)
                     else:
                         synsets = wordnet.synsets(token.text)
                         for synset in synsets:
@@ -672,7 +679,7 @@ class AnalysisData:
                                     if keyword_word not in keyword_to_sentence_class:
                                         keyword_to_sentence_class[keyword_word] = set()
                                     keyword_to_sentence_class[keyword_word].add(
-                                        synset_class
+                                        synset_class.keyword
                                     )
 
             labels = []
@@ -816,50 +823,75 @@ class AnalysisData:
                         and matching_act["label"] != "1"
                     ):
                         print("Recommended terms: ")
+                        #Perubahan disini, identify problematic terms in role and action, give recommended terms for role and actions
+                        print("Problematic terms:")
                         if (
                             matching_sub["cluster_label"] == -1
                             and matching_act["label"] == ""
                         ):
-                            print(
-                                "Recommendation for the user are:",
-                                matching_sub["role_s_list"],
-                            )
-                            print(
-                                "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
-                            )
-                            recommendation += f"""Recommendation for the user are:
-                                {matching_sub["role_s_list"]}
-                                Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague.
-                            """
+                            # print(
+                            #     "Recommendation for the user are:",
+                            #     matching_sub["role_s_list"],
+                            # )
+                            # print(
+                            #     "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
+                            # )
+                            # recommendation += f"""Recommendation for the user are:
+                            #     {matching_sub["role_s_list"]}
+                            #     Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague.
+                            # """
+
+                            #ini untuk mengambil data role, bisa diambil dari Who_actor table Who
+                            print('Role:', matching_sub["actor"])
+                            #ini diambil dari role_s_list, data disimpan di tabel baru (ato gausah disimpan?) dengan nama role
+                            print("Recommendation terms for the user:", matching_sub["role_s_list"])
+                            print("Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.")
                         elif (
                             matching_sub["cluster_label"] == -1
                             and matching_act["label"] == ">1"
                         ):
-                            print(
-                                "Recommendation for the user are:",
-                                matching_sub["role_s_list"],
-                            )
-                            print(
-                                "Recommendation for the action are:",
-                                matching_act["keyword_words"],
-                            )
-                            recommendation += f"""Recommendation for the user are:
-                                {matching_sub["role_s_list"]}
-                                Recommendation for the action are: 
-                                {matching_act["keyword_words"]}
-                            """
+                            # print(
+                            #     "Recommendation for the user are:",
+                            #     matching_sub["role_s_list"],
+                            # )
+                            # print(
+                            #     "Recommendation for the action are:",
+                            #     matching_act["keyword_words"],
+                            # )
+                            # recommendation += f"""Recommendation for the user are:
+                            #     {matching_sub["role_s_list"]}
+                            #     Recommendation for the action are: 
+                            #     {matching_act["keyword_words"]}
+                            # """
+                            # perubahan disini, get key values from dic matching_act["keyword_word"] 
+                            # to identify problematic terms and the recommended actions
+                            data_act = matching_act["keyword_words"]
+                            key_act = next(iter(data_act))
+                            values_act = data_act[key_act]
+                            # ini untuk mengambil data role, bisa diambil dari Who_actor table Who
+                            print('Role:', matching_sub["actor"])
+                            # ini untuk mengambil data action -have-, diambil dari key_act, 
+                            # disimpan sebagai tambahan anggota di tabel keyword glossary
+                            print('Action:', key_act)
+                            print("Recommendation terms for the user:", matching_sub["role_s_list"])
+                            # ini tidak disimpan, harusnya indexnya sudah ada di tabel keyword glossary -CRUD...-
+                            print("Recommendation terms for the action:", values_act)
                     elif (
                         matching_sub["cluster_label"] == -1
                         and matching_act["label"] == "1"
                     ):
-                        print("Recommended terms: ")
-                        print(
-                            "Recommendation for the user are:",
-                            matching_sub["role_s_list"],
-                        )
-                        recommendation += f"""Recommendation for the user are:
-                            {matching_sub["role_s_list"]}
-                        """
+                        # print("Recommended terms: ")
+                        # print(
+                        #     "Recommendation for the user are:",
+                        #     matching_sub["role_s_list"],
+                        # )
+                        # recommendation += f"""Recommendation for the user are:
+                        #     {matching_sub["role_s_list"]}
+                        # """
+                        #Perubahan disini, identify problematic terms in role and action, give recommended terms for role and actions
+                        print("Problematic terms:")
+                        print('Role:', matching_sub["actor"])
+                        print("Recommendation terms for the user:", matching_sub["role_s_list"])                          
                     elif (
                         matching_sub["cluster_label"] != -1
                         and matching_act["label"] != "1"
@@ -869,21 +901,30 @@ class AnalysisData:
                             matching_sub["cluster_label"] != -1
                             and matching_act["label"] == ""
                         ):
-                            print(
-                                "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
-                            )
-                            recommendation += "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
+                            # print(
+                            #     "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
+                            # )
+                            # recommendation += "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
+                            print("Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.")
                         elif (
                             matching_sub["cluster_label"] != -1
                             and matching_act["label"] == ">1"
                         ):
-                            print(
-                                "Recommendation for the action are:",
-                                matching_act["keyword_words"],
-                            )
-                            recommendation += f"""Recommendation for the user are:
-                                {matching_act["keyword_words"]}
-                            """
+                            # print(
+                            #     "Recommendation for the action are:",
+                            #     matching_act["keyword_words"],
+                            # )
+                            # recommendation += f"""Recommendation for the user are:
+                            #     {matching_act["keyword_words"]}
+                            # """
+                            # perubahan disini, get key values from dic matching_act["keyword_word"] 
+                            # to identify problematic terms and the recommended actions
+                            data_act = matching_act["keyword_words"]
+                            key_act = next(iter(data_act))
+                            values_act = data_act[key_act]
+                            print("Problematic terms:")
+                            print("Action:", key_act)
+                            print("Recommendation terms for the action:", values_act) 
                     self.save_report(
                         userstory,
                         matching_sub["status"],
@@ -1401,13 +1442,13 @@ class AnalysisData:
                     word_class = self.get_word_class(token.text)
 
                     if word_class:
-                        sentence_class.add(word_class)
+                        sentence_class.add(word_class.keyword)
                         keyword_words.add(token.text)
 
                         for keyword_word in keyword_words:
                             if keyword_word not in keyword_to_sentence_class:
                                 keyword_to_sentence_class[keyword_word] = set()
-                            keyword_to_sentence_class[keyword_word].add(word_class)
+                            keyword_to_sentence_class[keyword_word].add(word_class.keyword)
                     else:
                         synsets = wordnet.synsets(token.text)
                         for synset in synsets:
@@ -1419,7 +1460,7 @@ class AnalysisData:
                                     if keyword_word not in keyword_to_sentence_class:
                                         keyword_to_sentence_class[keyword_word] = set()
                                     keyword_to_sentence_class[keyword_word].add(
-                                        synset_class
+                                        synset_class.keyword
                                     )
             labels = []
             sentence_classify = {
