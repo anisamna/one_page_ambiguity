@@ -1,5 +1,6 @@
 from django import template
-from inputUS.models import UserStory_element, ReportUserStory
+
+from inputUS.models import ReportUserStory, UserStory_element
 
 register = template.Library()
 

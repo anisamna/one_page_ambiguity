@@ -1,26 +1,19 @@
 from django.contrib import admin
 
 # Register your models here.
-from inputUS.models import (
+from inputUS.models import (  # Well_Formed,; N_gram,; Parser,; ParsingDetail,; Concise_for_brackets,; Conceptual,; Coherence_lex,
     Glossary,
     KeywordGlossary,
     Project,
+    ReportUserStory,
+    Role,
     Similarity_Analysis,
+    US_Upload,
     UserStory_element,
     UserStory_What,
     UserStory_Who,
     UserStory_Why,
     WordNet_classification,
-    US_Upload,
-    ReportUserStory,
-    Role
-    # Well_Formed,
-    # N_gram,
-    # Parser,
-    # ParsingDetail,
-    # Concise_for_brackets,
-    # Conceptual,
-    # Coherence_lex,
 )
 
 admin.site.register(US_Upload)
@@ -168,4 +161,4 @@ class ReportUserStoryAdmin(admin.ModelAdmin):
 
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'role')
+    list_display = ("id", "role")

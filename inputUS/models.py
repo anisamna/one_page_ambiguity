@@ -1,6 +1,6 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import JSONField
-from django.contrib.auth.models import User
 
 
 class MetaAttribute(models.Model):
@@ -321,11 +321,11 @@ class ReportUserStory(MetaAttribute):
         verbose_name_plural = "Report User Story"
 
 
-
 class Role(models.Model):
     role = models.CharField(max_length=100, null=True)
-    userstory = models.ForeignKey(UserStory_element, null=True, on_delete=models.CASCADE)
-    
+    userstory = models.ForeignKey(
+        UserStory_element, null=True, on_delete=models.CASCADE
+    )
 
     class Meta:
         verbose_name = "Role"
@@ -333,11 +333,12 @@ class Role(models.Model):
 
 
 class ReportTerms(MetaAttribute):
-    userstory = models.ForeignKey(UserStory_element, null=True, on_delete=models.CASCADE)
+    userstory = models.ForeignKey(
+        UserStory_element, null=True, on_delete=models.CASCADE
+    )
     type = models.IntegerField(choices=ReportUserStory.ANALYS_TYPE.choices, null=True)
     action = models.CharField(null=True, max_length=100)
     terms_actions = models.JSONField(null=True)
-
 
     class Meta:
         verbose_name = "Report Terms"

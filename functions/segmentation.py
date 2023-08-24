@@ -1,10 +1,11 @@
 import re
+
 from inputUS.models import (
+    US_Upload,
     UserStory_element,
     UserStory_What,
     UserStory_Who,
     UserStory_Why,
-    US_Upload,
 )
 
 ROLE_DEL = "As an|As a|As"
@@ -133,7 +134,7 @@ def segmentation(obj_id):
         # print('goal_usr:', goal_usr)
         # print()
 
-        userstory_obj_who, created = UserStory_Who.objects.get_or_create(
+        userstory_obj_who = UserStory_Who.objects.create(
             Who_identifier=role_id,
             Who_action=role_act,
             Who_full=who,
@@ -142,7 +143,7 @@ def segmentation(obj_id):
 
         userstory_obj_who.save()
 
-        userstory_obj_what, created = UserStory_What.objects.get_or_create(
+        userstory_obj_what = UserStory_What.objects.create(
             What_identifier=action_id,
             What_action=action_usr,
             What_full=what,
@@ -151,7 +152,7 @@ def segmentation(obj_id):
 
         userstory_obj_what.save()
 
-        userstory_obj_why, created = UserStory_Why.objects.get_or_create(
+        userstory_obj_why = UserStory_Why.objects.create(
             Why_identifier=goal_id,
             Why_action=goal_usr,
             Why_full=why,

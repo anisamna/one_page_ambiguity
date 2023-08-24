@@ -1,22 +1,28 @@
-import re
 import os
-import spacy
-import numpy as np
-import string
 import random
-import bitermplus as btm
-from inputUS.models import UserStory_element, ReportUserStory, KeywordGlossary, Role, Glossary, ReportTerms
-
+import re
+import string
 from collections import Counter, defaultdict
 
-from nltk import word_tokenize, Tree, pos_tag
-from nltk.corpus import wordnet, stopwords
+import bitermplus as btm
+import numpy as np
+import spacy
+from nltk import Tree, pos_tag, word_tokenize
+from nltk.corpus import stopwords, wordnet
 from nltk.parse import CoreNLPParser
 from nltk.stem import WordNetLemmatizer
-
+from sentence_transformers import SentenceTransformer, util
 from sklearn.cluster import DBSCAN
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sentence_transformers import SentenceTransformer, util
+
+from inputUS.models import (
+    Glossary,
+    KeywordGlossary,
+    ReportTerms,
+    ReportUserStory,
+    Role,
+    UserStory_element,
+)
 
 
 class AnalysisData:
@@ -868,11 +874,12 @@ class AnalysisData:
                                 "Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
                             )
 
-                            if matching_sub["role_s_list"] and len(matching_sub["role_s_list"]):
+                            if matching_sub["role_s_list"] and len(
+                                matching_sub["role_s_list"]
+                            ):
                                 for role_item in matching_sub["role_s_list"]:
                                     Role.objects.get_or_create(
-                                        role=role_item,
-                                        userstory=userstory
+                                        role=role_item, userstory=userstory
                                     )
 
                             description += f"""Role: {matching_sub["actor"]}\n
@@ -916,7 +923,7 @@ class AnalysisData:
                             if key_act:
                                 terms_obj, created = ReportTerms.objects.get_or_create(
                                     userstory=userstory,
-                                    type=ReportUserStory.ANALYS_TYPE.PRECISE
+                                    type=ReportUserStory.ANALYS_TYPE.PRECISE,
                                 )
                                 terms_obj.action = key_act
                                 if len(values_act):
@@ -927,7 +934,7 @@ class AnalysisData:
                             #         keyword=key_act
                             #     )
                             #     terms_obj.keyword = keyword_obj
-                                
+
                             #     if len(values_act):
                             #         for act in values_act:
                             #             glossary_obj, created = Glossary.objects.get_or_create(
@@ -962,11 +969,12 @@ class AnalysisData:
                             "Recommendation terms for the user:",
                             matching_sub["role_s_list"],
                         )
-                        if matching_sub["role_s_list"] and len(matching_sub["role_s_list"]):
+                        if matching_sub["role_s_list"] and len(
+                            matching_sub["role_s_list"]
+                        ):
                             for role_item in matching_sub["role_s_list"]:
                                 Role.objects.get_or_create(
-                                    role=role_item,
-                                    userstory=userstory
+                                    role=role_item, userstory=userstory
                                 )
                         description += f"""\n\nProblematic terms:\n\n Role: {matching_sub["actor"]}\n
                         Recommendation terms for the user: {matching_sub["role_s_list"]}\n
@@ -1009,7 +1017,7 @@ class AnalysisData:
                             print("Recommendation terms for the action:", values_act)
                             terms_obj, created = ReportTerms.objects.get_or_create(
                                 userstory=userstory,
-                                type=ReportUserStory.ANALYS_TYPE.PRECISE
+                                type=ReportUserStory.ANALYS_TYPE.PRECISE,
                             )
                             terms_obj.action = key_act
                             if len(values_act):

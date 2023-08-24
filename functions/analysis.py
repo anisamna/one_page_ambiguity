@@ -1,49 +1,43 @@
-import pandas as pd
-import numpy as np
-import os
-
-import nltk
-import math
-import re
 import difflib
-import spacy
-import bitermplus as btm
+import math
+import os
+import re
 import string
-import matplotlib.pyplot as plt
-
 from collections import Counter
-from numpy.linalg import norm
-from scipy.sparse import csc_matrix, spdiags
-
-from gensim.parsing.preprocessing import remove_stopwords
-
-from nltk import pos_tag
-from nltk.tree import Tree
-from nltk.corpus import wordnet, stopwords
-from nltk.tokenize import word_tokenize, TreebankWordTokenizer, sent_tokenize
-from nltk.stem import WordNetLemmatizer
-from nltk.parse import CoreNLPParser
-from nltk.parse.corenlp import CoreNLPServer, CoreNLPParser
+from difflib import SequenceMatcher
 from string import punctuation
 
+import bitermplus as btm
+import matplotlib.pyplot as plt
+import nltk
+import numpy as np
+import pandas as pd
+import spacy
+from gensim.parsing.preprocessing import remove_stopwords
+from nltk import pos_tag
+from nltk.corpus import stopwords, wordnet
+from nltk.parse import CoreNLPParser
+from nltk.parse.corenlp import CoreNLPParser, CoreNLPServer
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import TreebankWordTokenizer, sent_tokenize, word_tokenize
+from nltk.tree import Tree
+from numpy.linalg import norm
+from scipy.sparse import csc_matrix, spdiags
+from sentence_transformers import SentenceTransformer, util
 from sklearn.cluster import DBSCAN
-from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.metrics import euclidean_distances
-
-
-from difflib import SequenceMatcher
-from sentence_transformers import SentenceTransformer, util
+from sklearn.metrics.pairwise import cosine_similarity
 
 from inputUS.models import (
     KeywordGlossary,
     Result,
     Similarity_Analysis,
-    UserStory_element,
-    UserStory_Who,
-    UserStory_What,
-    UserStory_Why,
     US_Upload,
+    UserStory_element,
+    UserStory_What,
+    UserStory_Who,
+    UserStory_Why,
 )
 
 ROLE_DEL = "As an|As a|As"

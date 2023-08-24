@@ -11,7 +11,7 @@
             <div class="form-group col-12">
                 {{ field.label_tag }}
                 {{ field|addcls:"form-control" }}
-                <div class="text-help">
+                <div class="text-help text-danger">
                     {{ field.errors }}
                 </div>
                 {% if field.help_text %}

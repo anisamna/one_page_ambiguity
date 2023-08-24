@@ -1,31 +1,30 @@
 import re
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 # from django.http import JsonResponse
 # from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
-from django.contrib.auth.decorators import login_required
 
 from functions.segmentation import segmentation, segmentation_edit_userstory
 
-# from functions.well_formed import well_formed_an
-# from functions.analysis import well_formed_an, stat_preciseness
-
 from .forms import InputUserStory_Form
 from .models import (
-    US_Upload,
-    UserStory_element,
-    Result,
-    Project,
-    ReportUserStory,
     Glossary,
     KeywordGlossary,
-    Role,
+    Project,
     ReportTerms,
-    Glossary
+    ReportUserStory,
+    Result,
+    Role,
+    US_Upload,
+    UserStory_element,
 )
+
+# from functions.well_formed import well_formed_an
+# from functions.analysis import well_formed_an, stat_preciseness
 
 
 @login_required(login_url=reverse_lazy("login_"))
@@ -89,7 +88,7 @@ def Upload_UserStory(request):
 def show_uploaded_UserStory(request):
     # show table US_File_Upload
     upload_user_story = US_Upload.objects.all()
-    if request.user:
+    if not request.user.is_superuser:
         upload_user_story = upload_user_story.filter(created_by=request.user)
 
     return render(
@@ -143,9 +142,12 @@ def split_user_story_to_segment(request, id):
 def show_splitted_UserStory(request):
     # show table user story
     project = request.GET.get("project", None)
-    userstory_list = UserStory_element.objects.filter(
-        created_by=request.user, is_processed=False
-    ).order_by("-id")
+    userstory_list = UserStory_element.objects.filter(is_processed=False).order_by(
+        "-id"
+    )
+
+    if not request.user.is_superuser:
+        userstory_list = userstory_list.filter(created_by=request.user)
     extra_context = {"view_all": userstory_list, "project_list": Project.objects.all()}
     if project:
         userstory_list = userstory_list.filter(Project_Name_id=project)
@@ -259,8 +261,12 @@ def view_report_userstory_list(request):
         (2, "Good Quality"),
     )
 
+    project_list = Project.objects.all()
+    if not request.user.is_superuser:
+        project_list = project_list.filter(created_by=request.user)
+
     extra_context = {
-        "project_list": Project.objects.all(),
+        "project_list": project_list,
         "potential_problem_list": potential_problem_list,
         "analyze_type": ReportUserStory.ANALYS_TYPE.choices,
         "status_list": status_list,
@@ -271,6 +277,9 @@ def view_report_userstory_list(request):
         userstory_list = UserStory_element.objects.filter(
             Project_Name_id=project_id, is_processed=True
         )
+
+        if not request.user.is_superuser:
+            userstory_list = userstory_list.filter(created_by=request.user)
         type_value = request.GET.get("type", None)
         potential_problem_value = request.GET.get("potential_problem", None)
         search = request.GET.get("q", None)
@@ -332,8 +341,7 @@ def edit_userstory(request, userstory_id):
     type = request.GET.get("type", None)
     status = request.GET.get("status", None)
 
-
-    path_url = request.get_full_path().split('?')
+    path_url = request.get_full_path().split("?")
 
     extra_context = {}
 
@@ -354,22 +362,26 @@ def edit_userstory(request, userstory_id):
     ):
         improved_terms_show = True
         role_list = Role.objects.filter(userstory__Project_Name=userstory.Project_Name)
-        extra_context.update({
-            'role_list': role_list,
-            'keywords': KeywordGlossary.objects.all(),
-            'glossarys': Glossary.objects.all()
-        })
+        extra_context.update(
+            {
+                "role_list": role_list,
+                "keywords": KeywordGlossary.objects.all(),
+                "glossarys": Glossary.objects.all(),
+            }
+        )
 
         if type == ReportUserStory.ANALYS_TYPE.PRECISE:
-            reportterms = userstory.reportterms_set.filter(type=ReportUserStory.ANALYS_TYPE.PRECISE)
-            print('reportterms', reportterms)
+            reportterms = userstory.reportterms_set.filter(
+                type=ReportUserStory.ANALYS_TYPE.PRECISE
+            )
+            print("reportterms", reportterms)
             if reportterms.exists():
-                extra_context.update({
-                    'reportterms': reportterms.last()
-                })
+                extra_context.update({"reportterms": reportterms.last()})
             # ReportTerms.objects.filter()
 
-    extra_context.update({"userstory": userstory, "improved_terms_show": improved_terms_show})
+    extra_context.update(
+        {"userstory": userstory, "improved_terms_show": improved_terms_show}
+    )
 
     if request.POST:
         text_story = request.POST.get("userstory", None)
@@ -397,24 +409,27 @@ def edit_userstory(request, userstory_id):
 
             messages.success(request, "Success update userstory.")
             return redirect(
-                reverse("report_userstory_list")
-                + f'?{path_url[1]}' if len(path_url) > 1 else ''
+                reverse("report_userstory_list") + f"?{path_url[1]}"
+                if len(path_url) > 1
+                else ""
             )
         else:
             is_edit = False
-            problematic_role = request.POST.get('problematic_role', None)
-            improved_role = request.POST.get('improved_role', None)
+            problematic_role = request.POST.get("problematic_role", None)
+            improved_role = request.POST.get("improved_role", None)
             print(problematic_role, improved_role)
             if problematic_role and improved_role:
                 old_text = userstory.UserStory_Full_Text
-                textstory = userstory.UserStory_Full_Text.replace(problematic_role, improved_role)
+                textstory = userstory.UserStory_Full_Text.replace(
+                    problematic_role, improved_role
+                )
                 userstory.UserStory_Full_Text = textstory
                 userstory.old_userstory = old_text
                 userstory.save()
                 is_edit = True
-            
-            problematic_action = request.POST.get('problematic_action', None)
-            improved_action = request.POST.get('improved_action', None)
+
+            problematic_action = request.POST.get("problematic_action", None)
+            improved_action = request.POST.get("improved_action", None)
             print(problematic_action, improved_action)
             if problematic_action and improved_action:
                 glosasry_obj, created = Glossary.objects.get_or_create(
@@ -427,7 +442,7 @@ def edit_userstory(request, userstory_id):
                 keyword_obj.item_name.add(glosasry_obj)
                 keyword_obj.save()
                 is_edit = True
-            
+
             if is_edit:
                 userstory.is_processed = False
                 userstory.save()
@@ -437,8 +452,9 @@ def edit_userstory(request, userstory_id):
                     userstory.get_report_list().delete()
                 messages.success(request, "Success update userstory.")
                 return redirect(
-                    reverse("report_userstory_list")
-                    + f'?{path_url[1]}' if len(path_url) > 1 else ''
+                    reverse("report_userstory_list") + f"?{path_url[1]}"
+                    if len(path_url) > 1
+                    else ""
                 )
     return render(request, "inputUS/edit_userstory.html", extra_context)
 
@@ -465,6 +481,8 @@ def add_userstory(request, project_id):
 @login_required(login_url=reverse_lazy("login_"))
 def view_list_project(request):
     projects = Project.objects.all()
+    if not request.user.is_superuser:
+        projects = projects.filter(created_by=request.user)
     extra_context = {"projects": projects}
     return render(request, "inputUS/project/view.html", extra_context)
 
@@ -478,7 +496,9 @@ def view_add_project(request):
         project_description = request.POST.get("project_description", None)
         if project_name:
             Project.objects.create(
-                Project_Name=project_name, Project_Desc=project_description
+                Project_Name=project_name,
+                Project_Desc=project_description,
+                created_by=request.user,
             )
             messages.success(request, "Success add project.")
             return redirect(reverse("projects_list_view"))

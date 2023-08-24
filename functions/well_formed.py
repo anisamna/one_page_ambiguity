@@ -1,26 +1,25 @@
 import re
+from difflib import SequenceMatcher
+
 import nltk
+from django.db.models import F
 from nltk import word_tokenize
 from nltk.parse import CoreNLPParser
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-
-from difflib import SequenceMatcher
 from sentence_transformers import SentenceTransformer, util
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # from nltk.parse.chart import ChartParser
 # from nltk.parse.chart import demo_grammar
 from inputUS.models import (
-    Well_Formed,
-    Parser,
+    Parser,  # , Who, What, UserStory_joined
     ParsingDetail,
     Similarity_Analysis,
     UserStory_element,
-    UserStory_Who,
     UserStory_What,
-)  # , Who, What, UserStory_joined
-from django.db.models import F
-
+    UserStory_Who,
+    Well_Formed,
+)
 
 ROLE_DEL = "As an|As a|As"
 ACTION_DEL = (
