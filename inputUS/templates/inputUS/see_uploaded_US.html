@@ -32,6 +32,7 @@
                         <th scope="col">File Name</th>
                         <th scope="col">Attachment</th> 
                         <th scope="col">Created at</th>
+                        <th scope="col">Created by</th>
                         <th scope="col">Actions</th>
                     </tr>
                     </thead>
@@ -44,6 +45,9 @@
                         <td>{{dt.US_File_Txt}}</td>
                         <td>
                             <nobr>{{dt.US_File_DateCreated}}</nobr>
+                        </td>
+                        <td>
+                            <nobr>{{dt.created_by}}</nobr>
                         </td>
                         <td>
                             <a href="{% url 'split_user_story_to_segment' dt.id %}" class="btn btn-primary btn-sm d-inline" type="submit">

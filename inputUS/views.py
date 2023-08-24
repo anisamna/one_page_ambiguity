@@ -285,7 +285,6 @@ def view_report_userstory_list(request):
             ReportUserStory.ANALYS_TYPE.WELL_FORMED,
             ReportUserStory.ANALYS_TYPE.PRECISE,
         ]:
-            print("masuk sini")
             extra_context.update({"potential_problem_list": ((1, "Vagueness"),)})
         elif type_value in [
             ReportUserStory.ANALYS_TYPE.CONSISTENT,

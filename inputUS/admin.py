@@ -13,6 +13,7 @@ from inputUS.models import (
     WordNet_classification,
     US_Upload,
     ReportUserStory,
+    Role
     # Well_Formed,
     # N_gram,
     # Parser,
@@ -163,3 +164,8 @@ class ReportUserStoryAdmin(admin.ModelAdmin):
     )
     list_filter = ("userstory__Project_Name", "type")
     search_fields = ("userstory__UserStory_Full_Text", "status", "recommendation")
+
+
+@admin.register(Role)
+class RoleAdmin(admin.ModelAdmin):
+    list_display = ('id', 'role')

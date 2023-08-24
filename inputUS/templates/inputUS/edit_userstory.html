@@ -15,6 +15,12 @@
         <input type="text" class="form-control" disabled value="{{ userstory.Project_Name }}">
       </div>
 
+      {% if improved_terms_show %}
+      <div class="form-group">
+        <label for="userstory_id">User Story</label>
+        <input class="form-control" id="userstory_id" value="{{ userstory.UserStory_Full_Text }}" disabled />
+      </div>
+      {% else %}
       <div class="form-group">
         <label for="userstory_id">User Story</label>
         <input name="userstory" class="form-control" id="userstory_id" value="{{ userstory.UserStory_Full_Text }}" />
@@ -24,6 +30,7 @@
       </div>
 
       <button class="btn btn-primary btn-sm" id="add_story_id" type="button">Add Story</button>
+      {% endif %}
 
       {% if improved_terms_show %}
       <div class="row" style="margin-top: 25px;">
@@ -36,7 +43,7 @@
             </div>
             <div class="form-group">
               <label for="">Action</label>
-              <input class="form-control" placeholder="Action" disabled value="{{ userstory.What_full.What_action }}" />
+              <input class="form-control" placeholder="Action" disabled value="{{ userstory.reportterms.keyword }}" />
             </div>
           </div>
         </div>

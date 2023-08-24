@@ -318,3 +318,24 @@ class ReportUserStory(MetaAttribute):
     class Meta:
         verbose_name = "Report User Story"
         verbose_name_plural = "Report User Story"
+
+
+
+class Role(models.Model):
+    role = models.CharField(max_length=100, null=True)
+    project = models.ForeignKey(Project, null=True, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "Role"
+        verbose_name_plural = "Role"
+
+
+class ReportTerms(MetaAttribute):
+    userstory = models.OneToOneField(UserStory_element, null=True, on_delete=models.CASCADE)
+    # roles = models.ManyToManyField(Role)
+    keyword = models.ForeignKey(KeywordGlossary, null=True, on_delete=models.SET_NULL)
+    glossarys = models.ManyToManyField(Glossary)
+
+    class Meta:
+        verbose_name = "Report Terms"
+        verbose_name_plural = "Report Terms"
