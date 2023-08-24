@@ -1,5 +1,6 @@
 from django import template
 from inputUS.models import UserStory_element, ReportUserStory
+
 register = template.Library()
 
 
@@ -13,20 +14,18 @@ def get_report_list(userstory_id, request):
         pass
     else:
         report_list = userstory.get_report_list()
-        if request.GET.get('type', None):
-            report_list = report_list.filter(type=request.GET.get('type', None))
-        status = request.GET.get('status', None)
+        if request.GET.get("type", None):
+            report_list = report_list.filter(type=request.GET.get("type", None))
+        status = request.GET.get("status", None)
         if status:
             if status == "1":
                 report_list = report_list.filter(is_problem=True)
             elif status == "2":
                 report_list = report_list.filter(is_problem=False)
-        potential_problem = request.GET.get('potential_problem', None)
+        potential_problem = request.GET.get("potential_problem", None)
         if potential_problem:
             if potential_problem == "0":
-                report_list = report_list.filter(
-                    status__icontains="is achieved"
-                )
+                report_list = report_list.filter(status__icontains="is achieved")
             elif potential_problem == "1":
                 report_list = report_list.filter(
                     type__in=[
@@ -58,7 +57,8 @@ def get_report_list(userstory_id, request):
         return report_list
     return ReportUserStory.objects.none()
 
+
 @register.filter(name="get_count_report")
 def get_count_report(userstory_id, request):
     report_list = get_report_list(userstory_id, request)
-    return report_list.count()+1
+    return report_list.count() + 1

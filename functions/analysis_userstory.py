@@ -35,7 +35,7 @@ class AnalysisData:
         terms_action=7,
         topics=10,
         similarity=None,
-        user=None
+        user=None,
     ):
         self.eps = float(eps) if eps else 0.5
         self.min_samples = float(min_samples) if min_samples else 2
@@ -151,14 +151,16 @@ class AnalysisData:
             if childs.exists():
                 description = ""
                 for index, child in enumerate(childs):
-                    description += f'User Story #{index+1}: {child.UserStory_Full_Text}\n\n'
+                    description += (
+                        f"User Story #{index+1}: {child.UserStory_Full_Text}\n\n"
+                    )
             self.save_report(
                 item["userstory_obj"],
                 item["atomicity_status"],
                 ReportUserStory.ANALYS_TYPE.ATOMICITY,
                 {
                     "recommendation": item["atomicity_recommendation"],
-                    "description": description
+                    "description": description,
                 },
                 item["atomicity_is_problem"],
             )
@@ -304,7 +306,9 @@ class AnalysisData:
                             else:
                                 status = "Goal is detected..."
                                 s_action_user_part = s_action_user.split("so")
-                                action_text = "I want to " + s_action_user_part[0].strip()
+                                action_text = (
+                                    "I want to " + s_action_user_part[0].strip()
+                                )
                                 s_action_user = s_action_user_part[1].strip()
 
                                 # Update the corresponding rows in df_segment and df_element
@@ -585,7 +589,9 @@ class AnalysisData:
         #     if word.lower() in class_keywords:
         #         return word_class
         if word:
-            keyword_list = KeywordGlossary.objects.filter(item_name__Action_item=word.lower())
+            keyword_list = KeywordGlossary.objects.filter(
+                item_name__Action_item=word.lower()
+            )
             return keyword_list.last()
         return None
 
@@ -596,7 +602,9 @@ class AnalysisData:
         #             return word_class
         if synset:
             for lemma in synset.lemma_names():
-                keyword_list = KeywordGlossary.objects.filter(item_name__Action_item=lemma.lower())
+                keyword_list = KeywordGlossary.objects.filter(
+                    item_name__Action_item=lemma.lower()
+                )
                 return keyword_list.last()
         return None
 
@@ -671,7 +679,9 @@ class AnalysisData:
                         for keyword_word in keyword_words:
                             if keyword_word not in keyword_to_sentence_class:
                                 keyword_to_sentence_class[keyword_word] = set()
-                            keyword_to_sentence_class[keyword_word].add(word_class.keyword)
+                            keyword_to_sentence_class[keyword_word].add(
+                                word_class.keyword
+                            )
                     else:
                         synsets = wordnet.synsets(token.text)
                         for synset in synsets:
@@ -819,7 +829,7 @@ class AnalysisData:
 
                     description = f"""Role: {matching_sub["actor"]}
                                     Action: {matching_act["act_action"]}"""
-                    
+
                     recommendation = matching_sub["recommendation"]
 
                     if (
@@ -827,10 +837,10 @@ class AnalysisData:
                         and matching_act["label"] != "1"
                     ):
                         print("Recommended terms: ")
-                        #Perubahan disini, identify problematic terms in role and action, give recommended terms for role and actions
+                        # Perubahan disini, identify problematic terms in role and action, give recommended terms for role and actions
                         print("Problematic terms:")
 
-                        description += '\n\nProblematic terms:\n\n'
+                        description += "\n\nProblematic terms:\n\n"
 
                         if (
                             matching_sub["cluster_label"] == -1
@@ -847,16 +857,21 @@ class AnalysisData:
                             #     {matching_sub["role_s_list"]}
                             #     Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague.
                             # """
-                            #ini untuk mengambil data role, bisa diambil dari Who_actor table Who
-                            print('Role:', matching_sub["actor"])
-                            #ini diambil dari role_s_list, data disimpan di tabel baru (ato gausah disimpan?) dengan nama role
-                            print("Recommendation terms for the user:", matching_sub["role_s_list"])
-                            print("Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.")
+                            # ini untuk mengambil data role, bisa diambil dari Who_actor table Who
+                            print("Role:", matching_sub["actor"])
+                            # ini diambil dari role_s_list, data disimpan di tabel baru (ato gausah disimpan?) dengan nama role
+                            print(
+                                "Recommendation terms for the user:",
+                                matching_sub["role_s_list"],
+                            )
+                            print(
+                                "Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
+                            )
 
-                            description += f'''Role: {matching_sub["actor"]}\n
+                            description += f"""Role: {matching_sub["actor"]}\n
                             Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                             Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.\n
-                            '''
+                            """
                         elif (
                             matching_sub["cluster_label"] == -1
                             and matching_act["label"] == ">1"
@@ -871,28 +886,31 @@ class AnalysisData:
                             # )
                             # recommendation += f"""Recommendation for the user are:
                             #     {matching_sub["role_s_list"]}
-                            #     Recommendation for the action are: 
+                            #     Recommendation for the action are:
                             #     {matching_act["keyword_words"]}
                             # """
-                            # perubahan disini, get key values from dic matching_act["keyword_word"] 
+                            # perubahan disini, get key values from dic matching_act["keyword_word"]
                             # to identify problematic terms and the recommended actions
                             data_act = matching_act["keyword_words"]
                             key_act = next(iter(data_act))
                             values_act = data_act[key_act]
                             # ini untuk mengambil data role, bisa diambil dari Who_actor table Who
-                            print('Role:', matching_sub["actor"])
-                            # ini untuk mengambil data action -have-, diambil dari key_act, 
+                            print("Role:", matching_sub["actor"])
+                            # ini untuk mengambil data action -have-, diambil dari key_act,
                             # disimpan sebagai tambahan anggota di tabel keyword glossary
-                            print('Action:', key_act)
-                            print("Recommendation terms for the user:", matching_sub["role_s_list"])
+                            print("Action:", key_act)
+                            print(
+                                "Recommendation terms for the user:",
+                                matching_sub["role_s_list"],
+                            )
                             # ini tidak disimpan, harusnya indexnya sudah ada di tabel keyword glossary -CRUD...-
                             print("Recommendation terms for the action:", values_act)
 
-                            description += f'''Role: {matching_sub["actor"]}\n
+                            description += f"""Role: {matching_sub["actor"]}\n
                             Action: {key_act}\n
                             Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                             Recommendation terms for the action: {values_act}\n
-                            '''
+                            """
                     elif (
                         matching_sub["cluster_label"] == -1
                         and matching_act["label"] == "1"
@@ -905,13 +923,16 @@ class AnalysisData:
                         # recommendation += f"""Recommendation for the user are:
                         #     {matching_sub["role_s_list"]}
                         # """
-                        #Perubahan disini, identify problematic terms in role and action, give recommended terms for role and actions
+                        # Perubahan disini, identify problematic terms in role and action, give recommended terms for role and actions
                         print("Problematic terms:")
-                        print('Role:', matching_sub["actor"])
-                        print("Recommendation terms for the user:", matching_sub["role_s_list"])
-                        description += f'''\n\nProblematic terms:\n\n Role: {matching_sub["actor"]}\n
+                        print("Role:", matching_sub["actor"])
+                        print(
+                            "Recommendation terms for the user:",
+                            matching_sub["role_s_list"],
+                        )
+                        description += f"""\n\nProblematic terms:\n\n Role: {matching_sub["actor"]}\n
                         Recommendation terms for the user: {matching_sub["role_s_list"]}\n
-                        '''
+                        """
                     elif (
                         matching_sub["cluster_label"] != -1
                         and matching_act["label"] != "1"
@@ -925,8 +946,10 @@ class AnalysisData:
                             #     "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
                             # )
                             # recommendation += "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
-                            print("Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.")
-                            description += '\n\nRecommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.'
+                            print(
+                                "Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
+                            )
+                            description += "\n\nRecommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
                         elif (
                             matching_sub["cluster_label"] != -1
                             and matching_act["label"] == ">1"
@@ -938,17 +961,17 @@ class AnalysisData:
                             # recommendation += f"""Recommendation for the user are:
                             #     {matching_act["keyword_words"]}
                             # """
-                            # perubahan disini, get key values from dic matching_act["keyword_word"] 
+                            # perubahan disini, get key values from dic matching_act["keyword_word"]
                             # to identify problematic terms and the recommended actions
                             data_act = matching_act["keyword_words"]
                             key_act = next(iter(data_act))
                             values_act = data_act[key_act]
                             print("Problematic terms:")
                             print("Action:", key_act)
-                            print("Recommendation terms for the action:", values_act) 
-                            description += f'''\n\nProblematic terms:\n\n Action: {key_act}\n
+                            print("Recommendation terms for the action:", values_act)
+                            description += f"""\n\nProblematic terms:\n\n Action: {key_act}\n
                             Recommendation terms for the action: {values_act}\n
-                            '''
+                            """
                     self.save_report(
                         userstory,
                         matching_sub["status"],
@@ -1475,7 +1498,9 @@ class AnalysisData:
                         for keyword_word in keyword_words:
                             if keyword_word not in keyword_to_sentence_class:
                                 keyword_to_sentence_class[keyword_word] = set()
-                            keyword_to_sentence_class[keyword_word].add(word_class.keyword)
+                            keyword_to_sentence_class[keyword_word].add(
+                                word_class.keyword
+                            )
                     else:
                         synsets = wordnet.synsets(token.text)
                         for synset in synsets:
@@ -1533,7 +1558,7 @@ class AnalysisData:
             # print("Predicate:", item["predicate"])
             # print("Object:", item["object"])
 
-            print("Topic #",item["cluster_topic"])
+            print("Topic #", item["cluster_topic"])
             print("Top terms: ", item["terms_in_cluster_topic"])
             print("Action terms: ", item["keyword_words"])
             description = f"""Subject: {item["subject"]}
@@ -1557,7 +1582,7 @@ class AnalysisData:
                 #     "Recommendation: Rewrite the predicate using one of these term : ",
                 #     item["sentence_class"],
                 # )
-                #perubahan disini, identify problematic terms in user story
+                # perubahan disini, identify problematic terms in user story
                 data_act = item["keyword_words"]
                 key_act = next(iter(data_act))
                 values_act = data_act[key_act]
@@ -1568,8 +1593,10 @@ class AnalysisData:
             elif len(item["sentence_class"]) == 1 and item["object"] == None:
                 # print("Status: The user story is potentially ambiguous. The object is not exist.")
                 # print("Recommendation: Rewrite the user story !")
-                status = 'The user story is potentially ambiguous. The object is not exist.'
-                recommendation = 'Rewrite the user story !'
+                status = (
+                    "The user story is potentially ambiguous. The object is not exist."
+                )
+                recommendation = "Rewrite the user story !"
             elif len(item["sentence_class"]) == 1:
                 # print("Status: user story is fine !")
                 status = "user story is fine !"
@@ -1599,9 +1626,9 @@ class AnalysisData:
         goal_user = []
         userstory_list = []
         for item in self.well_formed_data:
-            role_user.append(item["actor"].Who_action if item['actor'] else None)
-            action_user.append(item["action"].What_action if item['action'] else None)
-            goal_user.append(item["goal"].Why_action if item['goal'] else None)
+            role_user.append(item["actor"].Who_action if item["actor"] else None)
+            action_user.append(item["action"].What_action if item["action"] else None)
+            goal_user.append(item["goal"].Why_action if item["goal"] else None)
             userstory_list.append(item["userstory_obj"])
 
         # text=df_element['UserStory']
@@ -1772,7 +1799,7 @@ class AnalysisData:
             # print('Total similarity score: ',sim_score)
             # print(stat_sim)
             # print(sol_sim)
-            
+
             story_a_id = userstory_list[i].id if userstory_list[i] else ""
             story_b_id = userstory_list[j].id if userstory_list[j] else ""
 

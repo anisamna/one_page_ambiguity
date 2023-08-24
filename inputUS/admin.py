@@ -29,15 +29,18 @@ admin.site.register(US_Upload)
 # admin.site.register(Conceptual)
 # admin.site.register(Coherence_lex)
 
+
 class ParserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'results', 'well_formed', 'Solution_Name', 'Action_Name')
+    list_display = ("id", "results", "well_formed", "Solution_Name", "Action_Name")
+
 
 # admin.site.register(Parser, ParserAdmin)
 # admin.site.register(ParsingDetail)
 
+
 class GlossaryAdmin(admin.ModelAdmin):
     list_display = ("id", "Action_item")
-    search_fields = ('Action_item',)
+    search_fields = ("Action_item",)
 
 
 admin.site.register(Glossary, GlossaryAdmin)
@@ -65,7 +68,7 @@ class WordNet_classificationAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "well_formed",
-        #"WordNet_element_type",
+        # "WordNet_element_type",
         "get_Keyword_Glossary",
         "Item_Glossary_name",
         "Status_Name",
@@ -122,7 +125,7 @@ class UserStory_elementAdmin(admin.ModelAdmin):
         "Why_full",
         "Project_Name",
         "UserStory_File_ID",
-        "parent"
+        "parent",
     )
 
 
@@ -150,6 +153,13 @@ admin.site.register(Similarity_Analysis, Similarity_AnalysisAdmin)
 
 @admin.register(ReportUserStory)
 class ReportUserStoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'userstory', 'status', 'recommendation', 'description', 'type')
-    list_filter = ('userstory__Project_Name', 'type')
-    search_fields = ('userstory__UserStory_Full_Text', 'status', 'recommendation')
+    list_display = (
+        "id",
+        "userstory",
+        "status",
+        "recommendation",
+        "description",
+        "type",
+    )
+    list_filter = ("userstory__Project_Name", "type")
+    search_fields = ("userstory__UserStory_Full_Text", "status", "recommendation")

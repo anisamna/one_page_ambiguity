@@ -13,21 +13,21 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
-from . import views
-from django.conf.urls.static import static
 from django.conf import settings
-from django.contrib.auth import views as auth_views
+from django.conf.urls.static import static
+from django.contrib import admin
+# from django.contrib.auth import views as auth_views
+from django.urls import include, path
+
+from . import views
 
 urlpatterns = [
-    
-    path('', views.index, name='index'),
-    path('login/', views.ToLoginView.as_view(), name='login_'),
+    path("", views.index, name="index"),
+    path("login/", views.ToLoginView.as_view(), name="login_"),
     # path('login/', auth_views.login, {'template_name': 'users/login.html'}, name='login'),
-    path('signedout/', views.SignedOutView.as_view(), name='signedout'),
-    path('signup/', views.SignUpView.as_view(), name='signup'),
-    path('profile/<int:pk>/', views.ProfileView.as_view(), name='profile'),
-    path('inputUS/', include('inputUS.urls') ),
-    path('admin/', admin.site.urls),
+    path("signedout/", views.SignedOutView.as_view(), name="signedout"),
+    path("signup/", views.SignUpView.as_view(), name="signup"),
+    path("profile/<int:pk>/", views.ProfileView.as_view(), name="profile"),
+    path("inputUS/", include("inputUS.urls")),
+    path("admin/", admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

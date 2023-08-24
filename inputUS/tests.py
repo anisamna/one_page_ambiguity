@@ -1,5 +1,6 @@
 from django.test import TestCase
 from inputUS.models import Project, UserStory_element, Glossary, KeywordGlossary
+
 # from functions.analysis_userstory import AnalysisData
 
 # def test_analysis(project_id):
@@ -67,13 +68,9 @@ def test_create_keyword():
 
     for word_class, class_keywords in keywords.items():
         print(word_class, class_keywords)
-        keyword, created =  KeywordGlossary.objects.get_or_create(
-            keyword=word_class
-        )
+        keyword, created = KeywordGlossary.objects.get_or_create(keyword=word_class)
         for item in class_keywords:
             print(item)
-            glossary, created = Glossary.objects.get_or_create(
-                Action_item = item
-            )
+            glossary, created = Glossary.objects.get_or_create(Action_item=item)
             keyword.item_name.add(glossary)
             keyword.save()

@@ -14,7 +14,14 @@ from functions.segmentation import segmentation, segmentation_edit_userstory
 # from functions.analysis import well_formed_an, stat_preciseness
 
 from .forms import InputUserStory_Form
-from .models import US_Upload, UserStory_element, Result, Project, ReportUserStory, KeywordGlossary
+from .models import (
+    US_Upload,
+    UserStory_element,
+    Result,
+    Project,
+    ReportUserStory,
+    KeywordGlossary,
+)
 
 
 @login_required(login_url=reverse_lazy("login_"))
@@ -109,6 +116,7 @@ def del_Upload_US(request, id):
             {"update_user_story": update_user_story},
         )
 
+
 @login_required(login_url=reverse_lazy("login_"))
 def split_user_story_to_segment(request, id):
     retrieve_UserStory_data = get_object_or_404(US_Upload, pk=id)
@@ -116,7 +124,9 @@ def split_user_story_to_segment(request, id):
     messages.success(request, "User stories have been successfully splitted")
     see_splitted_user_stories = UserStory_element.objects.all()
     if retrieve_UserStory_data.US_Project_Domain:
-        see_splitted_user_stories = see_splitted_user_stories.filter(Project_Name=retrieve_UserStory_data.US_Project_Domain)
+        see_splitted_user_stories = see_splitted_user_stories.filter(
+            Project_Name=retrieve_UserStory_data.US_Project_Domain
+        )
 
     return render(
         request,
@@ -138,6 +148,7 @@ def show_splitted_UserStory(request):
         extra_context.update({"view_all": userstory_list, "project_id": int(project)})
 
     return render(request, "inputUS/see_splitted_US1.html", extra_context)
+
 
 @login_required(login_url=reverse_lazy("login_"))
 def analyze_data(request):
@@ -202,7 +213,7 @@ def analyze_data(request):
         terms_action_value,
         topics_value,
         similarity_value,
-        request.user
+        request.user,
     ).start()
     messages.success(
         request,
@@ -315,16 +326,24 @@ def view_report_userstory_list(request):
 def edit_userstory(request, userstory_id):
     userstory = get_object_or_404(UserStory_element, id=userstory_id)
     improved_terms_show = False
-    type = request.GET.get('type', None)
-    status = request.GET.get('status', None)
+    type = request.GET.get("type", None)
+    status = request.GET.get("status", None)
 
     if type:
         type = int(type)
-    
+
     if status:
         status = int(status)
-    
-    if type in [ReportUserStory.ANALYS_TYPE.PRECISE, ReportUserStory.ANALYS_TYPE.CONSISTENT, ReportUserStory.ANALYS_TYPE.CONCEPTUALLY] and status == 1:
+
+    if (
+        type
+        in [
+            ReportUserStory.ANALYS_TYPE.PRECISE,
+            ReportUserStory.ANALYS_TYPE.CONSISTENT,
+            ReportUserStory.ANALYS_TYPE.CONCEPTUALLY,
+        ]
+        and status == 1
+    ):
         improved_terms_show = True
 
     extra_context = {"userstory": userstory, "improved_terms_show": improved_terms_show}
@@ -408,9 +427,7 @@ def view_add_project(request):
 @login_required(login_url=reverse_lazy("login_"))
 def view_edit_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
-    extra_context = {
-        "project": project
-    }
+    extra_context = {"project": project}
     if request.POST:
         project_name = request.POST.get("project_name", None)
         project_description = request.POST.get("project_description", None)
@@ -570,10 +587,12 @@ def print_report(request):
         )
     return render(request, "inputUS/report/userstory.html", extra_context)
 
+
 @login_required(login_url=reverse_lazy("login_"))
 def view_list_keyword(request):
     keyword_list = KeywordGlossary.objects.all()
-    return render(request, "inputUS/keyword/view.html", {
-        'title': 'Keyword',
-        'keyword_list': keyword_list
-    })
+    return render(
+        request,
+        "inputUS/keyword/view.html",
+        {"title": "Keyword", "keyword_list": keyword_list},
+    )
