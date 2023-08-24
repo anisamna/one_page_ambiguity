@@ -35,6 +35,7 @@ class AnalysisData:
         terms_action=7,
         topics=10,
         similarity=None,
+        user=None
     ):
         self.eps = float(eps) if eps else 0.5
         self.min_samples = float(min_samples) if min_samples else 2
@@ -43,6 +44,7 @@ class AnalysisData:
         self.topics = int(topics) if topics else 10
         self.similarity = float(similarity) if similarity else None
         self.userstory_list = userstory_list_id
+        self.user = user
         core_nlp_parser_url = os.environ.get("CORE_NLP_URL", "localhost")
         core_nlp_parser_port = os.environ.get("CORE_NLP_PORT", 9000)
         self.corenlp_parser = CoreNLPParser(
@@ -114,6 +116,8 @@ class AnalysisData:
         )
         for key, value in data.items():
             setattr(report, key, value)
+        if self.user:
+            report.created_by = self.user
         report.is_problem = is_problem
         report.save()
 

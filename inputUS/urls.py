@@ -21,4 +21,5 @@ urlpatterns = [
     path('userstory/projects/add', views.view_add_project, name="projects_add_view"),
     path('userstory/projects/<int:project_id>/edit', views.view_edit_project, name="projects_edit_view"),
     path('userstory/projects/<int:project_id>/delete', views.view_delete_project, name="projects_delete_view"),
+    path('keyword', views.view_list_keyword, name="master_keyword")
 ]

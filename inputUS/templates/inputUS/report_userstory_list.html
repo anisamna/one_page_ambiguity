@@ -107,6 +107,10 @@
           <td rowspan="{{ item.id|get_count_report:request }}">
             {{ item.UserStory_Full_Text }}
             <a href="{% url 'userstory_edit' item.id %}" class="btn btn-primary">Edit</a>
+            {% if item.created_by %}
+            <br><br>
+            <span>Created by: {{ item.created_by }}</span>
+            {% endif %}
           </td>
         </tr>
         <!-- render report list -->

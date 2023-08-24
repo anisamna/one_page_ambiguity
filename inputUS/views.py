@@ -9,21 +9,16 @@ from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 
 from functions.segmentation import segmentation, segmentation_edit_userstory
+
 # from functions.well_formed import well_formed_an
 # from functions.analysis import well_formed_an, stat_preciseness
 
 from .forms import InputUserStory_Form
-from .models import (
-    US_Upload,
-    UserStory_element,
-    Result,
-    Project,
-    ReportUserStory
-)
+from .models import US_Upload, UserStory_element, Result, Project, ReportUserStory, KeywordGlossary
 
-@login_required(login_url=reverse_lazy('login_'))
+
+@login_required(login_url=reverse_lazy("login_"))
 def Upload_UserStory(request):
-
     if request.method == "POST":
         upload_US_File = InputUserStory_Form(request.POST, request.FILES)
         readFile = request.FILES["US_File_Txt"]
@@ -43,13 +38,12 @@ def Upload_UserStory(request):
                 File_content.append(newLine)
 
         if upload_US_File.is_valid():
-
             Project_Name = upload_US_File.cleaned_data["US_Project_Domain"]
             File_Name = upload_US_File.cleaned_data["US_File_Name"]
             File_text = readFile
 
             upload_user_story = US_Upload()
-
+            upload_user_story.created_by = request.user
             upload_user_story.US_Project_Domain = Project_Name
             upload_user_story.US_File_Name = File_Name
             upload_user_story.US_File_Txt = File_text
@@ -57,14 +51,16 @@ def Upload_UserStory(request):
 
             upload_user_story.save()
 
-            messages.success(request, "New set of user stories have been successfully added")
+            messages.success(
+                request, "New set of user stories have been successfully added"
+            )
             # upload_user_story = InputUserStory_Form()
             # return render(
             #     request,
             #     "inputUS/upload_US.html",
             #     {"form": upload_US_File, "upload_user_story": upload_user_story},
             # )
-            return redirect(reverse('show_UserStory'))
+            return redirect(reverse("show_UserStory"))
         else:
             return redirect("/")
     else:
@@ -78,11 +74,12 @@ def Upload_UserStory(request):
     )
 
 
-@login_required(login_url=reverse_lazy('login_'))
+@login_required(login_url=reverse_lazy("login_"))
 def show_uploaded_UserStory(request):
-
     # show table US_File_Upload
     upload_user_story = US_Upload.objects.all()
+    if request.user:
+        upload_user_story = upload_user_story.filter(created_by=request.user)
 
     return render(
         request,
@@ -90,13 +87,13 @@ def show_uploaded_UserStory(request):
         {"upload_user_story": upload_user_story},
     )
 
+
 def del_Upload_US(request, id):
-    
     delete_user_story = get_object_or_404(US_Upload, pk=id)
 
     if delete_user_story:
         delete_segmented_US = UserStory_element.objects.filter(
-            UserStory_File_ID=delete_user_story 
+            UserStory_File_ID=delete_user_story
         )
 
         delete_user_story.delete()
@@ -114,13 +111,9 @@ def del_Upload_US(request, id):
 
 
 def split_user_story_to_segment(request, id):
-
     retrieve_UserStory_data = get_object_or_404(US_Upload, pk=id)
-
     segmentation(retrieve_UserStory_data.id)
-
     messages.success(request, "User stories have been successfully splitted")
-
     see_splitted_user_stories = UserStory_element.objects.all()
 
     return render(
@@ -129,69 +122,74 @@ def split_user_story_to_segment(request, id):
         {"see_splitted_user_stories": see_splitted_user_stories},
     )
 
-@login_required(login_url=reverse_lazy('login_'))
+
+@login_required(login_url=reverse_lazy("login_"))
 def show_splitted_UserStory(request):
     # show table user story
-    project = request.GET.get('project', None)
-    userstory_list = UserStory_element.objects.filter(is_processed=False).order_by('-id')
-    extra_context = {
-        "view_all": userstory_list,
-        "project_list": Project.objects.all()
-    }
+    project = request.GET.get("project", None)
+    userstory_list = UserStory_element.objects.filter(
+        created_by=request.user, is_processed=False
+    ).order_by("-id")
+    extra_context = {"view_all": userstory_list, "project_list": Project.objects.all()}
     if project:
         userstory_list = userstory_list.filter(Project_Name_id=project)
-        extra_context.update({
-            "view_all": userstory_list,
-            "project_id": int(project)
-        })
+        extra_context.update({"view_all": userstory_list, "project_id": int(project)})
 
     return render(request, "inputUS/see_splitted_US1.html", extra_context)
 
-
+@login_required(login_url=reverse_lazy("login_"))
 def analyze_data(request):
     from functions.analysis_userstory import AnalysisData
-    eps_value, min_samples_value, terms_role_value, terms_action_value, topics_value, similarity_value = 0.5, 2, 5, 7, 10, None
-    eps_checkbox = request.POST.get('eps_checkbox', None)
-    if eps_checkbox == 'on':
-        eps_value = request.POST.get('eps_value', None)
 
-    min_samples_checkbox = request.POST.get('min_samples_checkbox', None)
-    if min_samples_checkbox == 'on':
-        min_samples_value = request.POST.get('min_samples_value', None)
-    
-    terms_role_checkbox = request.POST.get('terms_role_checkbox', None)
-    if terms_role_checkbox == 'on':
-        terms_role_value = request.POST.get('terms_role_value', None)
-    
-    terms_action_checkbox = request.POST.get('terms_action_checkbox', None)
-    if terms_action_checkbox == 'on':
-        terms_action_value = request.POST.get('terms_action_value', None)
-    
-    topics_checkbox = request.POST.get('topics_checkbox', None)
-    if topics_checkbox == 'on':
-        topics_value = request.POST.get('topics_value', None)
-    
-    similarity_checkbox = request.POST.get('similarity_checkbox', None)
-    if similarity_checkbox == 'on':
-        similarity_value = request.POST.get('similarity_value', None)
+    (
+        eps_value,
+        min_samples_value,
+        terms_role_value,
+        terms_action_value,
+        topics_value,
+        similarity_value,
+    ) = (0.5, 2, 5, 7, 10, None)
+    eps_checkbox = request.POST.get("eps_checkbox", None)
+    if eps_checkbox == "on":
+        eps_value = request.POST.get("eps_value", None)
+
+    min_samples_checkbox = request.POST.get("min_samples_checkbox", None)
+    if min_samples_checkbox == "on":
+        min_samples_value = request.POST.get("min_samples_value", None)
+
+    terms_role_checkbox = request.POST.get("terms_role_checkbox", None)
+    if terms_role_checkbox == "on":
+        terms_role_value = request.POST.get("terms_role_value", None)
+
+    terms_action_checkbox = request.POST.get("terms_action_checkbox", None)
+    if terms_action_checkbox == "on":
+        terms_action_value = request.POST.get("terms_action_value", None)
+
+    topics_checkbox = request.POST.get("topics_checkbox", None)
+    if topics_checkbox == "on":
+        topics_value = request.POST.get("topics_value", None)
+
+    similarity_checkbox = request.POST.get("similarity_checkbox", None)
+    if similarity_checkbox == "on":
+        similarity_value = request.POST.get("similarity_value", None)
 
     data_list_id = request.POST.getlist("userstory_id", [])
-    
+
     if len(data_list_id) < 2:
         # jika user story hanya dipilih hanya 1 akan muncul message
         messages.warning(
             request,
             "Warning, please select more than 1 user story !",
         )
-        return redirect(reverse('show_splitted_UserStory'))
-    
+        return redirect(reverse("show_splitted_UserStory"))
+
     print(
         eps_value,
         min_samples_value,
         terms_role_value,
         terms_action_value,
         topics_value,
-        similarity_value
+        similarity_value,
     )
 
     AnalysisData(
@@ -201,36 +199,35 @@ def analyze_data(request):
         terms_role_value,
         terms_action_value,
         topics_value,
-        similarity_value
-        ).start()
+        similarity_value,
+        request.user
+    ).start()
     messages.success(
         request,
         "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
     )
-    
-    return redirect(reverse('show_splitted_UserStory'))
-    
-@login_required(login_url=reverse_lazy('login_'))
+
+    return redirect(reverse("show_splitted_UserStory"))
+
+
+@login_required(login_url=reverse_lazy("login_"))
 def see_wellformed(request):
-    project = request.GET.get('project', None)
+    project = request.GET.get("project", None)
     wellformed_list = Result.objects.filter(
         result_desc__icontains="has been achieved",
     )
 
-    extra_context = {
-        "view_all": wellformed_list,
-        "project_list": Project.objects.all()
-    }
+    extra_context = {"view_all": wellformed_list, "project_list": Project.objects.all()}
 
     if project:
-        wellformed_list = wellformed_list.filter(UserStory_Segment_ID__Project_Name_id=project)
-        extra_context.update({
-            "view_all": wellformed_list,
-            "project_id": int(project)
-        })
+        wellformed_list = wellformed_list.filter(
+            UserStory_Segment_ID__Project_Name_id=project
+        )
+        extra_context.update({"view_all": wellformed_list, "project_id": int(project)})
     return render(request, "inputUS/see_well_formed_US.html", extra_context)
 
-@login_required(login_url=reverse_lazy('login_'))
+
+@login_required(login_url=reverse_lazy("login_"))
 def view_report_userstory_list(request):
     potential_problem_list = (
         (0, "None"),
@@ -246,18 +243,20 @@ def view_report_userstory_list(request):
     )
 
     extra_context = {
-        'project_list': Project.objects.all(),
-        'potential_problem_list': potential_problem_list,
-        'analyze_type': ReportUserStory.ANALYS_TYPE.choices,
-        'status_list': status_list,
+        "project_list": Project.objects.all(),
+        "potential_problem_list": potential_problem_list,
+        "analyze_type": ReportUserStory.ANALYS_TYPE.choices,
+        "status_list": status_list,
     }
-    project_id = request.GET.get('project_id', None)
+    project_id = request.GET.get("project_id", None)
     # status = request.GET.get('status', None)
     if project_id:
-        userstory_list = UserStory_element.objects.filter(Project_Name_id=project_id, is_processed=True)
-        type_value = request.GET.get('type', None)
-        potential_problem_value = request.GET.get('potential_problem', None)
-        search = request.GET.get('q', None)
+        userstory_list = UserStory_element.objects.filter(
+            Project_Name_id=project_id, is_processed=True
+        )
+        type_value = request.GET.get("type", None)
+        potential_problem_value = request.GET.get("potential_problem", None)
+        search = request.GET.get("q", None)
         if search:
             userstory_list = userstory_list.filter(
                 UserStory_Full_Text__icontains=search
@@ -266,57 +265,57 @@ def view_report_userstory_list(request):
         if type_value:
             type_value = int(type_value)
         if not type_value and not potential_problem_value:
-            extra_context.update({
-                'status_list': (
-                    (1, "Potentially Ambiguous"),
-                )
-            })
+            extra_context.update({"status_list": ((1, "Potentially Ambiguous"),)})
         elif not type_value and potential_problem_value == "0":
-            extra_context.update({
-                'status_list': (
-                    (2, "Good Quality"),
-                )
-            })
-        elif type_value in [ReportUserStory.ANALYS_TYPE.WELL_FORMED, ReportUserStory.ANALYS_TYPE.PRECISE]:
+            extra_context.update({"status_list": ((2, "Good Quality"),)})
+        elif type_value in [
+            ReportUserStory.ANALYS_TYPE.WELL_FORMED,
+            ReportUserStory.ANALYS_TYPE.PRECISE,
+        ]:
             print("masuk sini")
-            extra_context.update({
-                'potential_problem_list': (
-                    (1, "Vagueness"),
-                )
-            })
-        elif type_value in [ReportUserStory.ANALYS_TYPE.CONSISTENT, ReportUserStory.ANALYS_TYPE.ATOMICITY, ReportUserStory.ANALYS_TYPE.CONCEPTUALLY]:
-            extra_context.update({
-                'potential_problem_list': (
-                    (2, "Inconsistency"),
-                    (3, "Insufficiency"),
-                )
-            })
+            extra_context.update({"potential_problem_list": ((1, "Vagueness"),)})
+        elif type_value in [
+            ReportUserStory.ANALYS_TYPE.CONSISTENT,
+            ReportUserStory.ANALYS_TYPE.ATOMICITY,
+            ReportUserStory.ANALYS_TYPE.CONCEPTUALLY,
+        ]:
+            extra_context.update(
+                {
+                    "potential_problem_list": (
+                        (2, "Inconsistency"),
+                        (3, "Insufficiency"),
+                    )
+                }
+            )
         elif type_value in [ReportUserStory.ANALYS_TYPE.UNIQUENESS]:
-            extra_context.update({
-                'potential_problem_list': (
-                    (4, "Duplication"),
-                )
-            })
+            extra_context.update({"potential_problem_list": ((4, "Duplication"),)})
 
-        extra_context.update({
-            'userstory_list': userstory_list,
-            'project_id': int(project_id),
-            'type': int(request.GET.get('type', None)) if request.GET.get('type', None) else None,
-            'status': int(request.GET.get('status', None)) if request.GET.get('status', None) else None,
-            'potential_problem': int(request.GET.get('potential_problem', None)) if request.GET.get('potential_problem', None) else None,
-        })
-    
+        extra_context.update(
+            {
+                "userstory_list": userstory_list,
+                "project_id": int(project_id),
+                "type": int(request.GET.get("type", None))
+                if request.GET.get("type", None)
+                else None,
+                "status": int(request.GET.get("status", None))
+                if request.GET.get("status", None)
+                else None,
+                "potential_problem": int(request.GET.get("potential_problem", None))
+                if request.GET.get("potential_problem", None)
+                else None,
+            }
+        )
+
     return render(request, "inputUS/report_userstory_list.html", extra_context)
 
-@login_required(login_url=reverse_lazy('login_'))
+
+@login_required(login_url=reverse_lazy("login_"))
 def edit_userstory(request, userstory_id):
     userstory = get_object_or_404(UserStory_element, id=userstory_id)
-    extra_context = {
-        'userstory': userstory
-    }
+    extra_context = {"userstory": userstory}
 
     if request.POST:
-        text_story = request.POST.get('userstory', None)
+        text_story = request.POST.get("userstory", None)
         userstory_list = request.POST.getlist("userstory_list[]", [])
         print(text_story)
         print(userstory_list)
@@ -336,23 +335,26 @@ def edit_userstory(request, userstory_id):
                     userstory_child = UserStory_element.objects.create(
                         UserStory_Full_Text=item,
                         Project_Name=userstory.Project_Name,
-                        parent=userstory
+                        parent=userstory,
                     )
                     segmentation_edit_userstory(userstory_child.id, True)
-            
+
             messages.success(request, "Success update userstory.")
-            return redirect(reverse('report_userstory_list')+"?project_id="+str(userstory.Project_Name_id))
+            return redirect(
+                reverse("report_userstory_list")
+                + "?project_id="
+                + str(userstory.Project_Name_id)
+            )
     return render(request, "inputUS/edit_userstory.html", extra_context)
 
-@login_required(login_url=reverse_lazy('login_'))
+
+@login_required(login_url=reverse_lazy("login_"))
 def add_userstory(request, project_id):
     project = get_object_or_404(Project, id=project_id)
-    extra_context = {
-        'project': project
-    }
+    extra_context = {"project": project}
     if request.POST:
         userstory_list = request.POST.getlist("userstory[]", [])
-        
+
         if userstory_list:
             for item in userstory_list:
                 if item and item != "":
@@ -364,56 +366,54 @@ def add_userstory(request, project_id):
             messages.success(request, "Success add userstory.")
     return render(request, "inputUS/add_userstory.html", extra_context)
 
-@login_required(login_url=reverse_lazy('login_'))
+
+@login_required(login_url=reverse_lazy("login_"))
 def view_list_project(request):
     projects = Project.objects.all()
-    extra_context = {
-        'projects': projects
-    }
+    extra_context = {"projects": projects}
     return render(request, "inputUS/project/view.html", extra_context)
 
-@login_required(login_url=reverse_lazy('login_'))
+
+@login_required(login_url=reverse_lazy("login_"))
 def view_add_project(request):
-    extra_context = {
-        
-    }
+    extra_context = {}
 
     if request.POST:
-        project_name = request.POST.get('project_name', None)
-        project_description = request.POST.get('project_description', None)
+        project_name = request.POST.get("project_name", None)
+        project_description = request.POST.get("project_description", None)
         if project_name:
             Project.objects.create(
-                Project_Name=project_name,
-                Project_Desc=project_description
+                Project_Name=project_name, Project_Desc=project_description
             )
             messages.success(request, "Success add project.")
-            return redirect(reverse('projects_list_view'))
+            return redirect(reverse("projects_list_view"))
     return render(request, "inputUS/project/add.html", extra_context)
 
-@login_required(login_url=reverse_lazy('login_'))
+
+@login_required(login_url=reverse_lazy("login_"))
 def view_edit_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
-    extra_context = {
-        'project': project
-    }
+    extra_context = {"project": project}
     if request.POST:
-        project_name = request.POST.get('project_name', None)
-        project_description = request.POST.get('project_description', None)
+        project_name = request.POST.get("project_name", None)
+        project_description = request.POST.get("project_description", None)
         if project_name:
             project.Project_Name = project_name
             project.Project_Desc = project_description
             project.save()
             messages.success(request, "Success update project.")
-            return redirect(reverse('projects_list_view'))
+            return redirect(reverse("projects_list_view"))
     return render(request, "inputUS/project/edit.html", extra_context)
 
-@login_required(login_url=reverse_lazy('login_'))
+
+@login_required(login_url=reverse_lazy("login_"))
 def view_delete_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     if project:
         project.delete()
         messages.success(request, "Success delete project.")
-    return redirect(reverse('projects_list_view'))
+    return redirect(reverse("projects_list_view"))
+
 
 # def see_precise(request):
 
@@ -492,7 +492,7 @@ def view_delete_project(request, project_id):
 #     is_selected = False
 #     if is_selected_value == 'true':
 #         is_selected = True
-        
+
 #     if parsing_id:
 #         try:
 #             parsing_obj = ParsingDetail.objects.get(id=parsing_id)
@@ -503,6 +503,7 @@ def view_delete_project(request, project_id):
 #             parsing_obj.save()
 #             response = {'success': True, 'message': 'Success'}
 #     return JsonResponse(response)
+
 
 # def save_improvement(request):
 #     response = {'success': False, 'message': 'parsing detail not found'}
@@ -530,16 +531,32 @@ def view_delete_project(request, project_id):
 #             response = {'success': True, 'message': 'Success save'}
 #     return JsonResponse(response)
 def print_report(request):
-    project_id = request.GET.get('project_id', None)
+    project_id = request.GET.get("project_id", None)
     project = get_object_or_404(Project, pk=project_id)
     extra_context = {}
     if project_id:
-        userstory_list = UserStory_element.objects.filter(Project_Name_id=project_id, is_processed=True)
-        extra_context.update({
-            'userstory_list': userstory_list,
-            'project': project,
-            'type': request.GET.get('type', None) if request.GET.get('type', None) else None,
-            'status': request.GET.get('status', None) if request.GET.get('status', None) else None,
-            'analyze_type': ReportUserStory.ANALYS_TYPE.choices
-        })
-    return render(request,'inputUS/report/userstory.html', extra_context)
+        userstory_list = UserStory_element.objects.filter(
+            Project_Name_id=project_id, is_processed=True
+        )
+        extra_context.update(
+            {
+                "userstory_list": userstory_list,
+                "project": project,
+                "type": request.GET.get("type", None)
+                if request.GET.get("type", None)
+                else None,
+                "status": request.GET.get("status", None)
+                if request.GET.get("status", None)
+                else None,
+                "analyze_type": ReportUserStory.ANALYS_TYPE.choices,
+            }
+        )
+    return render(request, "inputUS/report/userstory.html", extra_context)
+
+@login_required(login_url=reverse_lazy("login_"))
+def view_list_keyword(request):
+    keyword_list = KeywordGlossary.objects.all()
+    return render(request, "inputUS/keyword/view.html", {
+        'title': 'Keyword',
+        'keyword_list': keyword_list
+    })

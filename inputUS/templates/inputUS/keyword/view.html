@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block contentLeft %}
+<div class="card">
+  <div class="card-header">
+    <h5>Keyword List</h5>
+    <div class="d-flex justify-content-end">
+      <a href="{% url 'projects_add_view' %}" class="btn btn-success">Add</a>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Keyword</th>
+          <th>Action</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in keyword_list %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ item.keyword }}</td>
+          <td>
+            {% if item.item_name.all %}
+            {% for action in item.item_name.all %}
+            {{ action }},
+            {% endfor %}
+            {% endif %}
+          </td>
+          <td>
+            <!-- <a href="{% url 'projects_edit_view' item.id %}" class="btn btn-primary">Edit</a>
+            <a href="{% url 'projects_delete_view' item.id %}" class="btn btn-danger">Delete</a> -->
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,7 +1,20 @@
 from django.db import models
 from django.db.models import JSONField
+from django.contrib.auth.models import User
 
-# Create your models here.
+
+class MetaAttribute(models.Model):
+    created_by = models.ForeignKey(User, related_name="%(app_label)s_%(class)s_create_by_user",
+        verbose_name="Dibuat Oleh",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
 
 
 class Glossary(models.Model):
@@ -30,15 +43,14 @@ class KeywordGlossary(models.Model):
 
 #class Upload User Story
 
-class Project(models.Model):
+class Project(MetaAttribute):
     Project_Name = models.CharField(max_length=100)
     Project_Desc = models.CharField(max_length=500)
 
     def __str__(self):
         return self.Project_Name
 
-class US_Upload(models.Model):
-    
+class US_Upload(MetaAttribute):
     US_File_Name = models.CharField(max_length=100)
     US_File_Txt = models.FileField(upload_to='file/', null=True)
     US_File_Content = JSONField()
@@ -83,7 +95,7 @@ class UserStory_Why(models.Model):
         return self.Why_full
 
 
-class UserStory_element(models.Model):
+class UserStory_element(MetaAttribute):
     Who_full = models.ForeignKey(UserStory_Who, on_delete=models.CASCADE, null=True)
     What_full = models.ForeignKey(UserStory_What, on_delete=models.CASCADE, null=True)
     Why_full = models.ForeignKey(UserStory_Why, on_delete=models.CASCADE, null=True)
@@ -267,7 +279,7 @@ class WordNet_classification(models.Model):
 #         verbose_name = "Conceptual_Topic_Modeling"
 #         verbose_name_plural = "Conceptual_Topic_Modeling"
 
-class ReportUserStory(models.Model):
+class ReportUserStory(MetaAttribute):
     class ANALYS_TYPE(models.IntegerChoices):
         WELL_FORMED = 1, "Well Formed"
         ATOMICITY = 2, "Atomicity"
