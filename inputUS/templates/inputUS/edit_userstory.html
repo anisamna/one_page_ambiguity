@@ -40,11 +40,25 @@
             <div class="form-group">
               <label for="">Role</label>
               <input class="form-control" placeholder="Role" disabled value="{{ userstory.Who_full.Who_action }}" />
+              <input type="hidden" name="problematic_role" value="{{ userstory.Who_full.Who_action }}"/>
             </div>
+            {% if reportterms %}
             <div class="form-group">
               <label for="">Action</label>
-              <input class="form-control" placeholder="Action" disabled value="{{ userstory.reportterms.keyword }}" />
+              <input class="form-control" placeholder="Action" disabled value="{{ reportterms.action }}" />
+              <input type="hidden" name="problematic_action" value="{{ reportterms.action }}"/>
             </div>
+            {% else %}
+            <div class="form-group">
+              <label for="">Action</label>
+              <select class="form-control select2" name="problematic_action">
+                <option value="">Select</option>
+                {% for item in glossarys %}
+                <option value="{{ item.Action_item }}">{{ item.Action_item }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            {% endif %}
           </div>
         </div>
         <div class="col-6">
@@ -52,24 +66,38 @@
           <div style="padding-left: 10px;">
             <div class="form-group">
               <label for="">Role</label>
-              <select name="role" id="role_id" class="form-control">
+              <select name="improved_role" id="role_id" class="form-control select2">
                 <option value="">Select Role</option>
+                {% for item in role_list %}
+                <option value="{{ item.role }}">{{ item.role }}</option>
+                {% endfor %}
               </select>
             </div>
+            {% if reportterms %}
             <div class="form-group">
               <label for="">Action</label>
-              <select name="action" id="action_id" class="form-control">
+              <select name="improved_action" class="form-control select2">
                 <option value="">Select Action</option>
+                {% for item in reportterms.terms_actions %}
+                <option value="{{ item }}">{{ item }}</option>
+                {% endfor %}
               </select>
             </div>
+            {% else %}
+            <div class="form-group">
+              <label for="">Action</label>
+              <select name="improved_action" class="form-control select2">
+                <option value="">Select</option>
+                {% for item in keywords %}
+                <option value="{{ item.keyword }}">{{ item.keyword }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            {% endif %}
           </div>
         </div>
       </div>
       {% endif %}
-      <!-- <div class="form-group">
-        <label for="who_id">Role of actor (Who-)</label>
-        <input name="who" type="text" class="form-control" id="who_id">
-      </div> -->
     </div>
     <div class="card-footer">
       <button class="btn btn-warning">Submit</button>
@@ -82,9 +110,28 @@
 </form>
 {% endblock %}
 
+{% block styles %}
+{{ block.super }}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+  .select2-selection.select2-selection--single {
+    height: 37px;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__rendered{
+    line-height: 37px;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__arrow {
+    top: 4px;
+  }
+</style>
+{% endblock %}
+
 {% block extrajs %}
 {{ block.super }}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
   const remote_user_story = (elem) => {
     console.log('elem', elem)
@@ -92,6 +139,8 @@
   }
 
   $(function(){
+    $('.select2').select2();
+
     const elem_list_story = $('#list_form_story')
     // elem_list_story.html(`
     //   <div class="form-group mt-2">

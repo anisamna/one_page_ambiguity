@@ -868,17 +868,12 @@ class AnalysisData:
                                 "Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
                             )
 
-                            # if matching_sub["role_s_list"] and len(matching_sub["role_s_list"]):
-                            #     terms_obj, created = ReportTerms.objects.get_or_create(
-                            #         userstory=userstory
-                            #     )
-                                
-                            #     for role_item in matching_sub["role_s_list"]:
-                            #         role_obj, created = Role.objects.get_or_create(
-                            #             role=role_item.strip().lower()
-                            #         )
-                            #         terms_obj.roles.add(role_obj)
-                            #     terms_obj.save()
+                            if matching_sub["role_s_list"] and len(matching_sub["role_s_list"]):
+                                for role_item in matching_sub["role_s_list"]:
+                                    Role.objects.get_or_create(
+                                        role=role_item,
+                                        userstory=userstory
+                                    )
 
                             description += f"""Role: {matching_sub["actor"]}\n
                             Recommendation terms for the user: {matching_sub["role_s_list"]}\n
@@ -918,10 +913,15 @@ class AnalysisData:
                             # ini tidak disimpan, harusnya indexnya sudah ada di tabel keyword glossary -CRUD...-
                             print("Recommendation terms for the action:", values_act)
 
-                            # if key_act:
-                            #     terms_obj, created = ReportTerms.objects.get_or_create(
-                            #         userstory=userstory
-                            #     )
+                            if key_act:
+                                terms_obj, created = ReportTerms.objects.get_or_create(
+                                    userstory=userstory,
+                                    type=ReportUserStory.ANALYS_TYPE.PRECISE
+                                )
+                                terms_obj.action = key_act
+                                if len(values_act):
+                                    terms_obj.terms_actions = values_act
+                                terms_obj.save()
 
                             #     keyword_obj, created = KeywordGlossary.objects.get_or_create(
                             #         keyword=key_act
@@ -962,16 +962,12 @@ class AnalysisData:
                             "Recommendation terms for the user:",
                             matching_sub["role_s_list"],
                         )
-                        # if matching_sub["role_s_list"] and len(matching_sub["role_s_list"]):
-                        #     terms_obj, created = ReportTerms.objects.get_or_create(
-                        #             userstory=userstory
-                        #         )
-                        #     for role_item in matching_sub["role_s_list"]:
-                        #         role_obj, created = Role.objects.get_or_create(
-                        #             role=role_item.strip().lower()
-                        #         )
-                        #         terms_obj.roles.add(role_obj)
-                        #     terms_obj.save()
+                        if matching_sub["role_s_list"] and len(matching_sub["role_s_list"]):
+                            for role_item in matching_sub["role_s_list"]:
+                                Role.objects.get_or_create(
+                                    role=role_item,
+                                    userstory=userstory
+                                )
                         description += f"""\n\nProblematic terms:\n\n Role: {matching_sub["actor"]}\n
                         Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                         """
@@ -1011,25 +1007,14 @@ class AnalysisData:
                             print("Problematic terms:")
                             print("Action:", key_act)
                             print("Recommendation terms for the action:", values_act)
-                            # if key_act:
-                            #     terms_obj, created = ReportTerms.objects.get_or_create(
-                            #         userstory=userstory
-                            #     )
-                            #     keyword_obj, created = KeywordGlossary.objects.get_or_create(
-                            #         keyword=key_act
-                            #     )
-                            #     terms_obj.keyword = keyword_obj
-                                
-                            #     if len(values_act):
-                            #         for act in values_act:
-                            #             glossary_obj, created = Glossary.objects.get_or_create(
-                            #                 Action_item=act
-                            #             )
-                            #             terms_obj.glossarys.add(glossary_obj)
-                            #             keyword_obj.item_name.add(glossary_obj)
-                            #             keyword_obj.save()
-                            #     terms_obj.save()
-
+                            terms_obj, created = ReportTerms.objects.get_or_create(
+                                userstory=userstory,
+                                type=ReportUserStory.ANALYS_TYPE.PRECISE
+                            )
+                            terms_obj.action = key_act
+                            if len(values_act):
+                                terms_obj.terms_actions = values_act
+                            terms_obj.save()
                             description += f"""\n\nProblematic terms:\n\n Action: {key_act}\n
                             Recommendation terms for the action: {values_act}\n
                             """
@@ -1302,6 +1287,7 @@ class AnalysisData:
                             "Consistency criterion is achieved. User story is good."
                         )
                         recommendation = "pass"
+                        is_problem = False
 
                     sub["status"] = status
                     sub["recommendation"] = recommendation

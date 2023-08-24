@@ -108,6 +108,7 @@ class UserStory_element(MetaAttribute):
     What_full = models.ForeignKey(UserStory_What, on_delete=models.CASCADE, null=True)
     Why_full = models.ForeignKey(UserStory_Why, on_delete=models.CASCADE, null=True)
     UserStory_Full_Text = models.CharField(max_length=800, null=True)
+    old_userstory = models.CharField(max_length=800, null=True)
     Project_Name = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
     UserStory_File_ID = models.ForeignKey(
         US_Upload, on_delete=models.CASCADE, null=True
@@ -323,7 +324,8 @@ class ReportUserStory(MetaAttribute):
 
 class Role(models.Model):
     role = models.CharField(max_length=100, null=True)
-    project = models.ForeignKey(Project, null=True, on_delete=models.CASCADE)
+    userstory = models.ForeignKey(UserStory_element, null=True, on_delete=models.CASCADE)
+    
 
     class Meta:
         verbose_name = "Role"
@@ -331,10 +333,11 @@ class Role(models.Model):
 
 
 class ReportTerms(MetaAttribute):
-    userstory = models.OneToOneField(UserStory_element, null=True, on_delete=models.CASCADE)
-    # roles = models.ManyToManyField(Role)
-    keyword = models.ForeignKey(KeywordGlossary, null=True, on_delete=models.SET_NULL)
-    glossarys = models.ManyToManyField(Glossary)
+    userstory = models.ForeignKey(UserStory_element, null=True, on_delete=models.CASCADE)
+    type = models.IntegerField(choices=ReportUserStory.ANALYS_TYPE.choices, null=True)
+    action = models.CharField(null=True, max_length=100)
+    terms_actions = models.JSONField(null=True)
+
 
     class Meta:
         verbose_name = "Report Terms"

@@ -15,7 +15,6 @@
           <th>No.</th>
           <th>Keyword</th>
           <th>Action</th>
-          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -24,15 +23,7 @@
           <td>{{ forloop.counter }}</td>
           <td>{{ item.keyword }}</td>
           <td>
-            {% if item.item_name.all %}
-            {% for action in item.item_name.all %}
-            {{ action }},
-            {% endfor %}
-            {% endif %}
-          </td>
-          <td>
-            <!-- <a href="{% url 'projects_edit_view' item.id %}" class="btn btn-primary">Edit</a>
-            <a href="{% url 'projects_delete_view' item.id %}" class="btn btn-danger">Delete</a> -->
+            {{ item.item_name.all|join:', ' }}
           </td>
         </tr>
         {% endfor %}

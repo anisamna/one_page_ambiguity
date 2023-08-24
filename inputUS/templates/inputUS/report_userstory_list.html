@@ -15,12 +15,12 @@
 {% endblock contentTitle %}
 
 {% block contentLeft %}
-<div class="card">
-  <div class="card-header">
-    <h5>Filter</h5>
-  </div>
-  <div class="card-body">
-    <form method="get" id="form_filter_id">
+<form method="get" id="form_filter_id">
+  <div class="card">
+    <div class="card-header">
+      <h5>Filter</h5>
+    </div>
+    <div class="card-body">
       <div class="form-group">
         <label for="project_id">Project</label>
         <select name="project_id" id="project_id" class="form-control">
@@ -62,13 +62,18 @@
         </select>
       </div>
 
-      <div class="form-group mt-2">
-        <label for="search_id">Search</label>
-        <input type="text" class="form-control" placeholder="Search Userstory.." name="q" value="{{ request.GET.q }}">
+      <div class="input-group my-4">
+        <input type="text" class="form-control" placeholder="Search Userstory.." aria-label="Search Userstory.." aria-describedby="basic-addon2" name="q" value="{{ request.GET.q }}">
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i> Search</button>
+        </div>
       </div>
-    </form>
+    </div>
+    <div class="card-footer d-flex justify-content-end">
+      <button class="btn btn-primary" type="submit">Filter</button>
+    </div>
   </div>
-</div>
+</form>
 
 
 {% if userstory_list %}
@@ -142,10 +147,29 @@
 {% endif %}
 {% endblock %}
 
+{% block styles %}
+{{ block.super }}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+  .select2-selection.select2-selection--single {
+    height: 37px;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__rendered{
+    line-height: 37px;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__arrow {
+    top: 4px;
+  }
+</style>
+{% endblock %}
+
 
 {% block extrajs %}
 {{ block.super }}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
   $(function(){
     let is_good_elem = $('table tbody tr td[data-is_problem=False]').length;
@@ -166,11 +190,13 @@
       let elem = $('a.link-edit').eq(item)
       let path = elem.attr('href') + window.location.search;
       elem.attr('href', path)
-    })
+    });
+
+    $('#form_filter_id select').select2();
   })
 
-  $('select').on('change', function(){
-    console.log("change")
+  $('select#project_id').on('change', function(){
+    // console.log("change")
     $('form#form_filter_id').submit();
   })
 

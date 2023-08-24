@@ -20,7 +20,11 @@ from .models import (
     Result,
     Project,
     ReportUserStory,
+    Glossary,
     KeywordGlossary,
+    Role,
+    ReportTerms,
+    Glossary
 )
 
 
@@ -328,6 +332,11 @@ def edit_userstory(request, userstory_id):
     type = request.GET.get("type", None)
     status = request.GET.get("status", None)
 
+
+    path_url = request.get_full_path().split('?')
+
+    extra_context = {}
+
     if type:
         type = int(type)
 
@@ -344,15 +353,29 @@ def edit_userstory(request, userstory_id):
         and status == 1
     ):
         improved_terms_show = True
+        role_list = Role.objects.filter(userstory__Project_Name=userstory.Project_Name)
+        extra_context.update({
+            'role_list': role_list,
+            'keywords': KeywordGlossary.objects.all(),
+            'glossarys': Glossary.objects.all()
+        })
 
-    extra_context = {"userstory": userstory, "improved_terms_show": improved_terms_show}
+        if type == ReportUserStory.ANALYS_TYPE.PRECISE:
+            reportterms = userstory.reportterms_set.filter(type=ReportUserStory.ANALYS_TYPE.PRECISE)
+            print('reportterms', reportterms)
+            if reportterms.exists():
+                extra_context.update({
+                    'reportterms': reportterms.last()
+                })
+            # ReportTerms.objects.filter()
+
+    extra_context.update({"userstory": userstory, "improved_terms_show": improved_terms_show})
 
     if request.POST:
         text_story = request.POST.get("userstory", None)
         userstory_list = request.POST.getlist("userstory_list[]", [])
         print(text_story)
         print(userstory_list)
-
         if text_story:
             userstory.UserStory_Full_Text = text_story
             userstory.is_processed = False
@@ -375,9 +398,48 @@ def edit_userstory(request, userstory_id):
             messages.success(request, "Success update userstory.")
             return redirect(
                 reverse("report_userstory_list")
-                + "?project_id="
-                + str(userstory.Project_Name_id)
+                + f'?{path_url[1]}' if len(path_url) > 1 else ''
             )
+        else:
+            is_edit = False
+            problematic_role = request.POST.get('problematic_role', None)
+            improved_role = request.POST.get('improved_role', None)
+            print(problematic_role, improved_role)
+            if problematic_role and improved_role:
+                old_text = userstory.UserStory_Full_Text
+                textstory = userstory.UserStory_Full_Text.replace(problematic_role, improved_role)
+                userstory.UserStory_Full_Text = textstory
+                userstory.old_userstory = old_text
+                userstory.save()
+                is_edit = True
+            
+            problematic_action = request.POST.get('problematic_action', None)
+            improved_action = request.POST.get('improved_action', None)
+            print(problematic_action, improved_action)
+            if problematic_action and improved_action:
+                glosasry_obj, created = Glossary.objects.get_or_create(
+                    Action_item=problematic_action
+                )
+
+                keyword_obj, created = KeywordGlossary.objects.get_or_create(
+                    keyword=improved_action
+                )
+                keyword_obj.item_name.add(glosasry_obj)
+                keyword_obj.save()
+                is_edit = True
+            
+            if is_edit:
+                userstory.is_processed = False
+                userstory.save()
+                segmentation_edit_userstory(userstory_id)
+                if userstory.get_report_list().exists():
+                    # delete data report
+                    userstory.get_report_list().delete()
+                messages.success(request, "Success update userstory.")
+                return redirect(
+                    reverse("report_userstory_list")
+                    + f'?{path_url[1]}' if len(path_url) > 1 else ''
+                )
     return render(request, "inputUS/edit_userstory.html", extra_context)
 
 
