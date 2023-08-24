@@ -677,7 +677,7 @@ class AnalysisData:
                         for synset in synsets:
                             synset_class = self.get_synset_class(synset)
                             if synset_class:
-                                sentence_class.add(synset_class)
+                                sentence_class.add(synset_class.keyword)
                                 keyword_words.add(token.text)
                                 for keyword_word in keyword_words:
                                     if keyword_word not in keyword_to_sentence_class:
@@ -829,6 +829,9 @@ class AnalysisData:
                         print("Recommended terms: ")
                         #Perubahan disini, identify problematic terms in role and action, give recommended terms for role and actions
                         print("Problematic terms:")
+
+                        description += '\n\nProblematic terms:\n\n'
+
                         if (
                             matching_sub["cluster_label"] == -1
                             and matching_act["label"] == ""
@@ -844,12 +847,16 @@ class AnalysisData:
                             #     {matching_sub["role_s_list"]}
                             #     Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague.
                             # """
-
                             #ini untuk mengambil data role, bisa diambil dari Who_actor table Who
                             print('Role:', matching_sub["actor"])
                             #ini diambil dari role_s_list, data disimpan di tabel baru (ato gausah disimpan?) dengan nama role
                             print("Recommendation terms for the user:", matching_sub["role_s_list"])
                             print("Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.")
+
+                            description += f'''Role: {matching_sub["actor"]}\n
+                            Recommendation terms for the user: {matching_sub["role_s_list"]}\n
+                            Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.\n
+                            '''
                         elif (
                             matching_sub["cluster_label"] == -1
                             and matching_act["label"] == ">1"
@@ -880,6 +887,12 @@ class AnalysisData:
                             print("Recommendation terms for the user:", matching_sub["role_s_list"])
                             # ini tidak disimpan, harusnya indexnya sudah ada di tabel keyword glossary -CRUD...-
                             print("Recommendation terms for the action:", values_act)
+
+                            description += f'''Role: {matching_sub["actor"]}\n
+                            Action: {key_act}\n
+                            Recommendation terms for the user: {matching_sub["role_s_list"]}\n
+                            Recommendation terms for the action: {values_act}\n
+                            '''
                     elif (
                         matching_sub["cluster_label"] == -1
                         and matching_act["label"] == "1"
@@ -895,7 +908,10 @@ class AnalysisData:
                         #Perubahan disini, identify problematic terms in role and action, give recommended terms for role and actions
                         print("Problematic terms:")
                         print('Role:', matching_sub["actor"])
-                        print("Recommendation terms for the user:", matching_sub["role_s_list"])                          
+                        print("Recommendation terms for the user:", matching_sub["role_s_list"])
+                        description += f'''\n\nProblematic terms:\n\n Role: {matching_sub["actor"]}\n
+                        Recommendation terms for the user: {matching_sub["role_s_list"]}\n
+                        '''
                     elif (
                         matching_sub["cluster_label"] != -1
                         and matching_act["label"] != "1"
@@ -910,6 +926,7 @@ class AnalysisData:
                             # )
                             # recommendation += "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
                             print("Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.")
+                            description += '\n\nRecommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.'
                         elif (
                             matching_sub["cluster_label"] != -1
                             and matching_act["label"] == ">1"
@@ -929,6 +946,9 @@ class AnalysisData:
                             print("Problematic terms:")
                             print("Action:", key_act)
                             print("Recommendation terms for the action:", values_act) 
+                            description += f'''\n\nProblematic terms:\n\n Action: {key_act}\n
+                            Recommendation terms for the action: {values_act}\n
+                            '''
                     self.save_report(
                         userstory,
                         matching_sub["status"],
@@ -1259,6 +1279,9 @@ class AnalysisData:
                     if matching_sub["role_cluster_label"] == -1:
                         description = f"""Role: {matching_sub["actor"]}
                         Action: {matching_act["action"]}
+                        \n\n
+                        Problematic terms: {matching_sub["actor"]}\n\n
+                        Recommendation terms: 
                         Terms for role: {str(top_terms_role)}
                         """
                     self.save_report(
@@ -1458,7 +1481,7 @@ class AnalysisData:
                         for synset in synsets:
                             synset_class = self.get_synset_class(synset)
                             if synset_class:
-                                sentence_class.add(synset_class)
+                                sentence_class.add(synset_class.keyword)
                                 keyword_words.add(token.text)
                                 for keyword_word in keyword_words:
                                     if keyword_word not in keyword_to_sentence_class:
@@ -1509,6 +1532,10 @@ class AnalysisData:
             # print("Subject:", item["subject"])
             # print("Predicate:", item["predicate"])
             # print("Object:", item["object"])
+
+            print("Topic #",item["cluster_topic"])
+            print("Top terms: ", item["terms_in_cluster_topic"])
+            print("Action terms: ", item["keyword_words"])
             description = f"""Subject: {item["subject"]}
             Predicate: {item["predicate"]}
             Object: {item["object"]}
@@ -1516,15 +1543,13 @@ class AnalysisData:
             status = None
             recommendation = None
             is_problem = False
-            if not item["sentence_class"]:
-                # print(
-                #     "Status: "
-                # )
-                # print("Recommendation: Rewrite the predicate !")
+            if not item["sentence_class"] or item["object"] == None:
+                # print("Status: The user story is potentially ambiguous. It might be underspecified.")
+                # print("Recommendation: Rewrite the predicate or the object ! ")
                 status = "The user story is potentially ambiguous. It might be underspecified."
                 recommendation = "Recommendation: Rewrite the predicate !"
                 is_problem = True
-            elif len(item["sentence_class"]) > 1:
+            elif len(item["sentence_class"]) > 1 or item["object"] == None:
                 # print(
                 #     "Status: The user story is potentially ambiguous. It might be wrongly decode."
                 # )
@@ -1532,9 +1557,19 @@ class AnalysisData:
                 #     "Recommendation: Rewrite the predicate using one of these term : ",
                 #     item["sentence_class"],
                 # )
+                #perubahan disini, identify problematic terms in user story
+                data_act = item["keyword_words"]
+                key_act = next(iter(data_act))
+                values_act = data_act[key_act]
+                # print("Problematic terms:", key_act)
                 status = "The user story is potentially ambiguous. It might be wrongly decode."
                 recommendation = f'Recommendation: Rewrite the predicate using one of these term :\n{item["sentence_class"]}'
                 is_problem = True
+            elif len(item["sentence_class"]) == 1 and item["object"] == None:
+                # print("Status: The user story is potentially ambiguous. The object is not exist.")
+                # print("Recommendation: Rewrite the user story !")
+                status = 'The user story is potentially ambiguous. The object is not exist.'
+                recommendation = 'Rewrite the user story !'
             elif len(item["sentence_class"]) == 1:
                 # print("Status: user story is fine !")
                 status = "user story is fine !"

@@ -109,12 +109,14 @@ def del_Upload_US(request, id):
             {"update_user_story": update_user_story},
         )
 
-
+@login_required(login_url=reverse_lazy("login_"))
 def split_user_story_to_segment(request, id):
     retrieve_UserStory_data = get_object_or_404(US_Upload, pk=id)
     segmentation(retrieve_UserStory_data.id)
     messages.success(request, "User stories have been successfully splitted")
     see_splitted_user_stories = UserStory_element.objects.all()
+    if retrieve_UserStory_data.US_Project_Domain:
+        see_splitted_user_stories = see_splitted_user_stories.filter(Project_Name=retrieve_UserStory_data.US_Project_Domain)
 
     return render(
         request,
@@ -312,7 +314,20 @@ def view_report_userstory_list(request):
 @login_required(login_url=reverse_lazy("login_"))
 def edit_userstory(request, userstory_id):
     userstory = get_object_or_404(UserStory_element, id=userstory_id)
-    extra_context = {"userstory": userstory}
+    improved_terms_show = False
+    type = request.GET.get('type', None)
+    status = request.GET.get('status', None)
+
+    if type:
+        type = int(type)
+    
+    if status:
+        status = int(status)
+    
+    if type in [ReportUserStory.ANALYS_TYPE.PRECISE, ReportUserStory.ANALYS_TYPE.CONSISTENT, ReportUserStory.ANALYS_TYPE.CONCEPTUALLY] and status == 1:
+        improved_terms_show = True
+
+    extra_context = {"userstory": userstory, "improved_terms_show": improved_terms_show}
 
     if request.POST:
         text_story = request.POST.get("userstory", None)
@@ -393,7 +408,9 @@ def view_add_project(request):
 @login_required(login_url=reverse_lazy("login_"))
 def view_edit_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
-    extra_context = {"project": project}
+    extra_context = {
+        "project": project
+    }
     if request.POST:
         project_name = request.POST.get("project_name", None)
         project_description = request.POST.get("project_description", None)

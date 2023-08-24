@@ -24,6 +24,41 @@
       </div>
 
       <button class="btn btn-primary btn-sm" id="add_story_id" type="button">Add Story</button>
+
+      {% if improved_terms_show %}
+      <div class="row" style="margin-top: 25px;">
+        <div class="col-6">
+          <strong>Problematic terms:</strong>
+          <div style="padding-left: 10px;">
+            <div class="form-group">
+              <label for="">Role</label>
+              <input class="form-control" placeholder="Role" disabled value="{{ userstory.Who_full.Who_action }}" />
+            </div>
+            <div class="form-group">
+              <label for="">Action</label>
+              <input class="form-control" placeholder="Action" disabled value="{{ userstory.What_full.What_action }}" />
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <strong>Improved terms:</strong>
+          <div style="padding-left: 10px;">
+            <div class="form-group">
+              <label for="">Role</label>
+              <select name="role" id="role_id" class="form-control">
+                <option value="">Select Role</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="">Action</label>
+              <select name="action" id="action_id" class="form-control">
+                <option value="">Select Action</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
       <!-- <div class="form-group">
         <label for="who_id">Role of actor (Who-)</label>
         <input name="who" type="text" class="form-control" id="who_id">
@@ -31,6 +66,7 @@
     </div>
     <div class="card-footer">
       <button class="btn btn-warning">Submit</button>
+      <button type="button" class="btn btn-secondary" onclick="history.back()">Back</button>
       {% if userstory.Project_Name  %}
       <!-- <a href="{% url 'userstory_project_add' userstory.Project_Name_id  %}" class="btn btn-success">Add</a> -->
       {% endif %}

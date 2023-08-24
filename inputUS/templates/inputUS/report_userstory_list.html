@@ -106,7 +106,7 @@
           <td rowspan="{{ item.id|get_count_report:request }}" class="userstory-number"></td>
           <td rowspan="{{ item.id|get_count_report:request }}">
             {{ item.UserStory_Full_Text }}
-            <a href="{% url 'userstory_edit' item.id %}" class="btn btn-primary">Edit</a>
+            <a href="{% url 'userstory_edit' item.id %}" class="btn btn-primary link-edit">Edit</a>
             {% if item.created_by %}
             <br><br>
             <span>Created by: {{ item.created_by }}</span>
@@ -160,6 +160,13 @@
         userstory_list.eq(index).html(index+1);
       })
     }
+
+
+    $('a.link-edit').map(item => {
+      let elem = $('a.link-edit').eq(item)
+      let path = elem.attr('href') + window.location.search;
+      elem.attr('href', path)
+    })
   })
 
   $('select').on('change', function(){
