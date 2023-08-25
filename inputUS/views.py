@@ -159,6 +159,10 @@ def show_splitted_UserStory(request):
 @login_required(login_url=reverse_lazy("login_"))
 def analyze_data(request):
     from functions.analysis_userstory import AnalysisData
+    import gc
+    import torch
+    gc.collect()
+    torch.cuda.empty_cache()
 
     (
         eps_value,
@@ -192,39 +196,60 @@ def analyze_data(request):
     if similarity_checkbox == "on":
         similarity_value = request.POST.get("similarity_value", None)
 
-    data_list_id = request.POST.getlist("userstory_id", [])
-
-    if len(data_list_id) < 2:
-        # jika user story hanya dipilih hanya 1 akan muncul message
-        messages.warning(
+    all_in_project = request.POST.get('all_in_project', None)
+    if all_in_project == "on":
+        project_id = request.POST.get('project', None)
+        project = get_object_or_404(Project, id=project_id)
+        userstory_list = UserStory_element.objects.filter(Project_Name=project).values_list('id', flat=True)
+        story_list_id = list(set(userstory_list))
+        AnalysisData(
+            story_list_id,
+            eps_value,
+            min_samples_value,
+            terms_role_value,
+            terms_action_value,
+            topics_value,
+            similarity_value,
+            request.user,
+        ).start()
+        messages.success(
             request,
-            "Warning, please select more than 1 user story !",
+            "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
         )
-        return redirect(reverse("show_splitted_UserStory"))
+    else:
+        data_list_id = request.POST.getlist("userstory_id", [])
 
-    print(
-        eps_value,
-        min_samples_value,
-        terms_role_value,
-        terms_action_value,
-        topics_value,
-        similarity_value,
-    )
+        if len(data_list_id) < 2:
+            # jika user story hanya dipilih hanya 1 akan muncul message
+            messages.warning(
+                request,
+                "Warning, please select more than 1 user story !",
+            )
+            return redirect(reverse("show_splitted_UserStory"))
 
-    AnalysisData(
-        data_list_id,
-        eps_value,
-        min_samples_value,
-        terms_role_value,
-        terms_action_value,
-        topics_value,
-        similarity_value,
-        request.user,
-    ).start()
-    messages.success(
-        request,
-        "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
-    )
+        # print(
+        #     eps_value,
+        #     min_samples_value,
+        #     terms_role_value,
+        #     terms_action_value,
+        #     topics_value,
+        #     similarity_value,
+        # )
+
+        AnalysisData(
+            data_list_id,
+            eps_value,
+            min_samples_value,
+            terms_role_value,
+            terms_action_value,
+            topics_value,
+            similarity_value,
+            request.user,
+        ).start()
+        messages.success(
+            request,
+            "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
+        )
 
     return redirect(reverse("show_splitted_UserStory"))
 

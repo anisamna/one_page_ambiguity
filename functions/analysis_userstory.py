@@ -1,3 +1,4 @@
+import gc
 import os
 import random
 import re
@@ -7,6 +8,7 @@ from collections import Counter, defaultdict
 import bitermplus as btm
 import numpy as np
 import spacy
+import torch
 from nltk import Tree, pos_tag, word_tokenize
 from nltk.corpus import stopwords, wordnet
 from nltk.parse import CoreNLPParser
@@ -182,6 +184,8 @@ class AnalysisData:
 
         # # 6. uniqueness
         self.stat_uniqueness_criteria()
+        gc.collect()
+        torch.cuda.empty_cache()
 
     # ============ Well Formed ============
     def well_formed(self):
@@ -1380,7 +1384,7 @@ class AnalysisData:
                     )
             else:
                 print("Role: Not Found")
-            # print("\n--------------------")
+        return consistency
 
     # ============ Conceptually Sound ============
 
@@ -1680,10 +1684,12 @@ class AnalysisData:
                     {"recommendation": recommendation, "description": description},
                     is_problem,
                 )
+        return sent_concept
 
     # ============ Uniqueness Criteria ============
 
     def stat_uniqueness_criteria(self):
+        model_st = SentenceTransformer("all-MiniLM-L6-v2")
         pair_role = []
         pair_action = []
         pair_goal = []
@@ -1702,21 +1708,19 @@ class AnalysisData:
             goal_user.append(item["goal"].Why_action if item["goal"] else None)
             userstory_list.append(item["userstory_obj"])
 
-        # text=df_element['UserStory']
-        # role=df_element['Role']
-        # action=df_element['Action']
-        # role_user = df_segment["Role_user"]
-        # action_user = df_segment['Action_user']
-        # goal_user = df_segment["Goal_user"]
-        # goal=df_element['Goal']
-
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        # # text=df_element['UserStory']
+        # # role=df_element['Role']
+        # # action=df_element['Action']
+        # # role_user = df_segment["Role_user"]
+        # # action_user = df_segment['Action_user']
+        # # goal_user = df_segment["Goal_user"]
+        # # goal=df_element['Goal']
 
         # if not role.empty and not action.empty:
-        role_embeddings = model.encode(role_user)
+        role_embeddings = model_st.encode(role_user)
         # action_embeddings=model.encode(df_element['Action'].values)
-        action_embeddings = model.encode(action_user)
-        goal_embeddings = model.encode(goal_user)
+        action_embeddings = model_st.encode(action_user)
+        goal_embeddings = model_st.encode(goal_user)
         # print(action_embeddings)
 
         score_role = util.cos_sim(role_embeddings, role_embeddings)
@@ -1850,27 +1854,6 @@ class AnalysisData:
                 stat_sim = "Result: Uniqueness is achieved !"
                 sol_sim = "User story is fine !"
 
-            # row_i = df_segment.index[i]
-            # row_j = df_segment.index[j]
-
-            # print("Story {}".format(userstory_list[i]))
-            # print("Story {}".format(userstory_list[j]))
-            # print('Role 1: ',role_user[i])
-            # print('Role 2: ',role_user[j])
-            # print('Similarity score in role:', role_score)
-            # print()
-            # print('Action 1: ',action_user[i])
-            # print('Action 2: ', action_user[j])
-            # print('Similarity score in action: ',action_score)
-            # print()
-            # print('Goal 1: ',goal_user[i])
-            # print('Goal 2: ', goal_user[j])
-            # print('Similarity score in goal: ',goal_score)
-            # print('')
-            # print('Total similarity score: ',sim_score)
-            # print(stat_sim)
-            # print(sol_sim)
-
             story_a_id = userstory_list[i].id if userstory_list[i] else ""
             story_b_id = userstory_list[j].id if userstory_list[j] else ""
 
@@ -1897,4 +1880,3 @@ class AnalysisData:
                 {"recommendation": sol_sim, "description": description},
                 is_problem,
             )
-            # print("====================")

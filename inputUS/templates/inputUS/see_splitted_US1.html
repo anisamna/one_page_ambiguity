@@ -5,6 +5,20 @@
 {% block styles %}
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+  .select2-selection.select2-selection--single {
+    height: 37px;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__rendered{
+    line-height: 37px;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__arrow {
+    top: 4px;
+  }
+</style>
 <style>
   .mylabel {
     vertical-align: top;
@@ -19,11 +33,13 @@
 
 {% block extrajs %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>  
 {% if view_all %}
 <script>
   $(document).ready(function () {
+    $('.select2').select2();
     $('#table_result_id').DataTable({
       scrollX: true,
       ordering: false,
@@ -169,7 +185,7 @@
         <div class="col-4">
           <div class="form-group ms-3">
             <label for="domain_filter_id">Project Domain</label>
-            <select class="form-select" aria-label="Project Domain" id="domain_filter_id" name="project_domain_id">
+            <select class="form-control select2" aria-label="Project Domain" id="domain_filter_id" name="project_domain_id">
               <option selected="">Select Project Domain</option>
               {% for item in project_list %}
               {% if item.id == project_id %}
@@ -182,6 +198,21 @@
           </div>
         </div>
       </div>
+      {% if request.GET.project %}
+      <input type="hidden" name="project" value="{{ request.GET.project }}">
+      <div class="row">
+        <div class="col-4 ms-3">
+          <div class="form-group">
+            <div class="form-check">
+              <input class="form-check-input" name="all_in_project" type="checkbox" id="flexCheckDefault">
+              <label class="form-check-label" for="flexCheckDefault">
+                Select all User Story this Project
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
       
       <table class="table table-striped" id="table_result_id">
         <thead>

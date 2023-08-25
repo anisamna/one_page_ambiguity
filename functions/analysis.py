@@ -23,7 +23,6 @@ from nltk.tokenize import TreebankWordTokenizer, sent_tokenize, word_tokenize
 from nltk.tree import Tree
 from numpy.linalg import norm
 from scipy.sparse import csc_matrix, spdiags
-from sentence_transformers import SentenceTransformer, util
 from sklearn.cluster import DBSCAN
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.metrics import euclidean_distances

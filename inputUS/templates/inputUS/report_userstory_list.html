@@ -114,6 +114,10 @@
             <a href="{% url 'userstory_edit' item.id %}" class="btn btn-primary link-edit">Edit</a>
             {% if item.created_by %}
             <br><br>
+            {% if item.old_userstory %}
+            previous user stories: {{ item.old_userstory }}
+            {% endif %}
+            <br>
             <span>Created by: {{ item.created_by }}</span>
             {% endif %}
           </td>

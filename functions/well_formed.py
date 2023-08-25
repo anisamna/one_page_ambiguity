@@ -5,7 +5,6 @@ import nltk
 from django.db.models import F
 from nltk import word_tokenize
 from nltk.parse import CoreNLPParser
-from sentence_transformers import SentenceTransformer, util
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
