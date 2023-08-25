@@ -2,10 +2,16 @@ from django import forms
 from django.forms import ModelForm
 from django.utils.translation import gettext_lazy as _
 
-from .models import US_Upload, UserStory_element
+from .models import US_Upload, UserStory_element, Project
 
 
 class InputUserStory_Form(ModelForm):
+
+    def __init__(self,*args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not user.is_superuser:
+            self.fields['US_Project_Domain'].queryset = Project.objects.filter(created_by=user)
+
     class Meta:
         model = US_Upload
         fields = ["US_Project_Domain", "US_File_Name", "US_File_Txt"]

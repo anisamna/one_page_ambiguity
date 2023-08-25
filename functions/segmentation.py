@@ -87,14 +87,14 @@ def segmentation(obj_id):
 
                 # Check if the item has more than one ACTION_DEL
                 action_occurrences = re.findall(ACTION_DEL, item, re.IGNORECASE)
-                print("action_occurences:", action_occurrences)
+                # print("action_occurences:", action_occurrences)
 
                 if len(action_occurrences) > 1:
                     item_split = re.split(ACTION_DEL, item, 1, re.IGNORECASE)
                     action_goal = item_split[1].strip()
 
                     split_goal = re.split(GOAL_DEL, action_goal, re.IGNORECASE)
-                    print("split_goal:", split_goal)
+                    # print("split_goal:", split_goal)
                     action_usr = split_goal[0]
                     goal_usr = split_goal[1]
 
@@ -249,14 +249,14 @@ def segmentation_edit_userstory(userstory_id, is_add=False):
 
                 # Check if the item has more than one ACTION_DEL
                 action_occurrences = re.findall(ACTION_DEL, item, re.IGNORECASE)
-                print("action_occurences:", action_occurrences)
+                # print("action_occurences:", action_occurrences)
 
                 if len(action_occurrences) > 1:
                     item_split = re.split(ACTION_DEL, item, 1, re.IGNORECASE)
                     action_goal = item_split[1].strip()
 
                     split_goal = re.split(GOAL_DEL, action_goal, re.IGNORECASE)
-                    print("split_goal:", split_goal)
+                    # print("split_goal:", split_goal)
                     action_usr = split_goal[0]
                     goal_usr = split_goal[1]
 

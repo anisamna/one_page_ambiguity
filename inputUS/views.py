@@ -30,7 +30,7 @@ from .models import (
 @login_required(login_url=reverse_lazy("login_"))
 def Upload_UserStory(request):
     if request.method == "POST":
-        upload_US_File = InputUserStory_Form(request.POST, request.FILES)
+        upload_US_File = InputUserStory_Form(request.POST, request.FILES, user=request.user)
         readFile = request.FILES["US_File_Txt"]
         readLine = readFile.readlines()
 
@@ -74,7 +74,7 @@ def Upload_UserStory(request):
         else:
             return redirect("/")
     else:
-        upload_US_File = InputUserStory_Form()
+        upload_US_File = InputUserStory_Form(user=request.user)
         upload_user_story = US_Upload.objects.all()
 
     return render(
@@ -101,23 +101,23 @@ def show_uploaded_UserStory(request):
 def del_Upload_US(request, id):
     delete_user_story = get_object_or_404(US_Upload, pk=id)
 
-    if delete_user_story:
-        delete_segmented_US = UserStory_element.objects.filter(
-            UserStory_File_ID=delete_user_story
-        )
-
-        delete_user_story.delete()
-        delete_segmented_US.delete()
+    # if delete_user_story:
+    delete_segmented_US = UserStory_element.objects.filter(
+        UserStory_File_ID=delete_user_story
+    )
+    delete_user_story.delete()
+    delete_segmented_US.delete()
         # delete_atomic.delete()
 
-        messages.success(request, "User story have been successfully deleted")
+    messages.success(request, "User story have been successfully deleted")
+    return redirect(reverse('show_UserStory'))
 
-        update_user_story = US_Upload.objects.all()
-        return render(
-            request,
-            "inputUS/see_uploaded_US.html",
-            {"update_user_story": update_user_story},
-        )
+    # update_user_story = US_Upload.objects.all()
+    # return render(
+    #     request,
+    #     "inputUS/see_uploaded_US.html",
+    #     {"update_user_story": update_user_story},
+    # )
 
 
 @login_required(login_url=reverse_lazy("login_"))
@@ -374,10 +374,15 @@ def edit_userstory(request, userstory_id):
             reportterms = userstory.reportterms_set.filter(
                 type=ReportUserStory.ANALYS_TYPE.PRECISE
             )
-            print("reportterms", reportterms)
             if reportterms.exists():
                 extra_context.update({"reportterms": reportterms.last()})
             # ReportTerms.objects.filter()
+        elif type == ReportUserStory.ANALYS_TYPE.CONCEPTUALLY:
+            reportterms = userstory.reportterms_set.filter(
+                type=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY
+            )
+            if reportterms.exists():
+                extra_context.update({"reportterms": reportterms.last()})
 
     extra_context.update(
         {"userstory": userstory, "improved_terms_show": improved_terms_show}
@@ -386,8 +391,8 @@ def edit_userstory(request, userstory_id):
     if request.POST:
         text_story = request.POST.get("userstory", None)
         userstory_list = request.POST.getlist("userstory_list[]", [])
-        print(text_story)
-        print(userstory_list)
+        # print(text_story)
+        # print(userstory_list)
         if text_story:
             userstory.UserStory_Full_Text = text_story
             userstory.is_processed = False
@@ -417,7 +422,7 @@ def edit_userstory(request, userstory_id):
             is_edit = False
             problematic_role = request.POST.get("problematic_role", None)
             improved_role = request.POST.get("improved_role", None)
-            print(problematic_role, improved_role)
+            # print(problematic_role, improved_role)
             if problematic_role and improved_role:
                 old_text = userstory.UserStory_Full_Text
                 textstory = userstory.UserStory_Full_Text.replace(
@@ -430,7 +435,7 @@ def edit_userstory(request, userstory_id):
 
             problematic_action = request.POST.get("problematic_action", None)
             improved_action = request.POST.get("improved_action", None)
-            print(problematic_action, improved_action)
+            # print(problematic_action, improved_action)
             if problematic_action and improved_action:
                 glosasry_obj, created = Glossary.objects.get_or_create(
                     Action_item=problematic_action

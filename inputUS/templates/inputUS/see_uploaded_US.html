@@ -41,13 +41,16 @@
                     <tr>
                         <th scope="row">{{dt.id}}</th>
                         <td>{{dt.US_Project_Domain}}</td>
-                        <td>{{dt.US_File_Name}}</td>
-                        <td>{{dt.US_File_Txt}}</td>
+                        <td>
+                            {{dt.US_File_Name}}
+                        </td>
+                        <td>
+                            <a href="{{ dt.US_File_Txt.url }}" target="_blank">{{dt.US_File_Txt}}</a>
                         <td>
                             <nobr>{{dt.US_File_DateCreated}}</nobr>
                         </td>
                         <td>
-                            <nobr>{{dt.created_by}}</nobr>
+                            <nobr>{{dt.created_by|default:"-"}}</nobr>
                         </td>
                         <td>
                             <a href="{% url 'split_user_story_to_segment' dt.id %}" class="btn btn-primary btn-sm d-inline" type="submit">
