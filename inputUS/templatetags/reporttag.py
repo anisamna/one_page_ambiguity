@@ -15,15 +15,22 @@ def get_report_list(userstory_id, request):
         pass
     else:
         report_list = userstory.get_report_list()
-        if request.GET.get("type", None):
-            report_list = report_list.filter(type=request.GET.get("type", None))
+        type_value = request.GET.get("type", None)
+        if type_value:
+            report_list = report_list.filter(type=type_value)
         status = request.GET.get("status", None)
-        if status:
-            if status == "1":
-                report_list = report_list.filter(is_problem=True)
-            elif status == "2":
-                report_list = report_list.filter(is_problem=False)
         potential_problem = request.GET.get("potential_problem", None)
+        if status:
+            if not type_value and not potential_problem:
+                report_list = report_list.filter(is_problem=True)
+            elif not type_value and potential_problem == "0":
+                report_list = report_list.filter(is_problem=False)
+            else:
+                if status == "1":
+                    report_list = report_list.filter(is_problem=True)
+                elif status == "2":
+                    report_list = report_list.filter(is_problem=False)
+
         if potential_problem:
             if potential_problem == "0":
                 report_list = report_list.filter(status__icontains="is achieved")

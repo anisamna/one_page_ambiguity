@@ -23,7 +23,7 @@
     <div class="card-body">
       <div class="form-group">
         <label for="project_id">Project</label>
-        <select name="project_id" id="project_id" class="form-control">
+        <select name="project_id" id="project_id" class="form-control filter_submit">
           <option value>Select Project</option>
           {% for item in project_list %}
           <option value="{{ item.id }}" {% if project_id == item.id %}selected{% endif %}>{{ item.Project_Name }}</option>
@@ -33,7 +33,7 @@
 
       <div class="form-group mt-2">
         <label for="type_id">Type</label>
-        <select name="type" id="type_id" class="form-control">
+        <select name="type" id="type_id" class="form-control filter_submit">
           <option value>All Type</option>
           {% for item in analyze_type %}
           <option value="{{ item.0 }}" {% if type == item.0 %}selected{% endif %}>{{ item.1 }}</option>
@@ -43,7 +43,7 @@
 
       <div class="form-group mt-2">
         <label for="potential_problem_id">Potential Problem</label>
-        <select name="potential_problem" id="potential_problem_id" class="form-control">
+        <select name="potential_problem" id="potential_problem_id" class="form-control filter_submit">
           {% if not request.GET.type %}
           <option value>All Potential Problem</option>
           {% endif %}
@@ -199,7 +199,7 @@
     $('#form_filter_id select').select2();
   })
 
-  $('select#project_id').on('change', function(){
+  $('select.filter_submit').on('change', function(){
     // console.log("change")
     $('form#form_filter_id').submit();
   })
