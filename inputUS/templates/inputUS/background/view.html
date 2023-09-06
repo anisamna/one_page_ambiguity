@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+
+{% block contentLeft %}
+<div class="card">
+  <div class="card-header">
+    <h5>{{ title }}</h5>
+  </div>
+  <div class="card-body pt-2">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Userstory</th>
+          <th>Created By</th>
+          <th>Created At</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in process %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>
+            {{ item.get_userstory_text }}
+          </td>
+          <td>{{ item.created_by }}</td>
+          <td>{{ item.created_at }}</td>
+          <td>
+            {% if item.is_process and not item.is_done %}
+            <!-- <button class="btn btn-warning btn-sm" disabled>Process</button> -->
+            <button class="btn btn-warning btn-sm" disabled><i class="spinner-grow spinner-grow-sm"></i> Loading</button>
+            {% elif item.is_done %}
+            <button class="btn btn-success btn-sm" disabled>Done</button>
+            {% else %}
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

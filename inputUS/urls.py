@@ -42,4 +42,5 @@ urlpatterns = [
         name="projects_delete_view",
     ),
     path("keyword", views.view_list_keyword, name="master_keyword"),
+    path("process-background", views.view_list_processbackground, name="view_process_background")
 ]

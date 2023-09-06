@@ -48,6 +48,28 @@ services:
       - 9023:80
     depends_on:
       - ambiguity
+  
+  redis:
+    image: 'redis:alpine'
+    container_name: ambiguity_redis
+    hostname: ambiguity_redis
+    expose:
+      - 6379
+
+  celery:
+    restart: always
+    build:
+      context: .
+    container_name: ambiguity_celery
+    volumes:
+      - ambiguity_static_volume:/ambiguity/files/ambiguity_static
+      - ambiguity_media_volume:/ambiguity/files/ambiguity_media
+    command: celery -A one_page_ambiguity_base worker -l INFO
+    depends_on:
+      - ambiguity
+    env_file:
+      - .env
+
 
 volumes:
   ambiguity_static_volume:

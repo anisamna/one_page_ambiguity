@@ -15,13 +15,14 @@ from .models import (
     Glossary,
     KeywordGlossary,
     Project,
-    ReportTerms,
+    ProcessBackground,
     ReportUserStory,
     Result,
     Role,
     US_Upload,
     UserStory_element,
 )
+from .tasks import task_process_analys_data
 
 # from functions.well_formed import well_formed_an
 # from functions.analysis import well_formed_an, stat_preciseness
@@ -204,20 +205,34 @@ def analyze_data(request):
         project = get_object_or_404(Project, id=project_id)
         userstory_list = UserStory_element.objects.filter(Project_Name=project).values_list('id', flat=True)
         story_list_id = list(set(userstory_list))
-        AnalysisData(
-            story_list_id,
-            eps_value,
-            min_samples_value,
-            terms_role_value,
-            terms_action_value,
-            topics_value,
-            similarity_value,
-            request.user,
-        ).start()
+
+        process_obj = ProcessBackground.objects.create(
+            created_by=request.user,
+            eps_value=eps_value,
+            min_samples_value=min_samples_value,
+            terms_role_value=terms_role_value,
+            terms_action_value=terms_action_value,
+            topics_value=topics_value,
+            similarity_value=similarity_value,
+        )
+        process_obj.userstorys.add(*story_list_id)
+        process_obj.save()
+        task_process_analys_data.delay(process_obj.id)
+        # AnalysisData(
+        #     story_list_id,
+        #     eps_value,
+        #     min_samples_value,
+        #     terms_role_value,
+        #     terms_action_value,
+        #     topics_value,
+        #     similarity_value,
+        #     request.user,
+        # ).start()
         messages.success(
             request,
             "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
         )
+        return redirect(reverse("view_process_background"))
     else:
         data_list_id = request.POST.getlist("userstory_id", [])
 
@@ -711,4 +726,13 @@ def view_list_keyword(request):
         request,
         "inputUS/keyword/view.html",
         {"title": "Keyword", "keyword_list": keyword_list},
+    )
+
+@login_required(login_url=reverse_lazy("login_"))
+def view_list_processbackground(request):
+    process = ProcessBackground.objects.all()
+    return render(
+        request,
+        "inputUS/background/view.html",
+        {'process': process, 'title': 'Process Background User Stories'}
     )

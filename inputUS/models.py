@@ -345,6 +345,32 @@ class ReportTerms(MetaAttribute):
         verbose_name = "Report Terms"
         verbose_name_plural = "Report Terms"
 
+class ProcessBackground(MetaAttribute):
+    userstorys = models.ManyToManyField(UserStory_element)
+    percentage = models.CharField(max_length=7, null=True)
+    is_process = models.BooleanField(default=False)
+    is_done = models.BooleanField(default=False)
+    eps_value = models.CharField(max_length=10, null=True)
+    min_samples_value = models.CharField(max_length=10, null=True)
+    terms_role_value = models.CharField(max_length=10, null=True)
+    terms_action_value = models.CharField(max_length=10, null=True)
+    topics_value = models.CharField(max_length=10, null=True)
+    similarity_value = models.CharField(max_length=10, null=True)
+    description = models.TextField(null=True)
+
+    def get_userstory_text(self):
+        userstorys = self.userstorys.all()
+        if userstorys.exists():
+            if userstorys.count() > 5:
+                return f'{userstorys.count()} user stories'
+            else:
+                return [','.join(item.UserStory_Full_Text) for item in userstorys.all()]
+        return '-'
+
+    class Meta:
+        verbose_name = "Process Background"
+        verbose_name_plural = "Process Background"
+
 
 @receiver(pre_delete, sender=UserStory_element)
 def on_delete_userstory_handler(sender, instance, **kwargs):
