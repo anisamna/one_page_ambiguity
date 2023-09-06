@@ -68,7 +68,7 @@ services:
     depends_on:
       - ambiguity
     env_file:
-      - .env
+      - .env.dist
 
 
 volumes:
