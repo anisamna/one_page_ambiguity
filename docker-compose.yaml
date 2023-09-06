@@ -64,7 +64,9 @@ services:
     volumes:
       - ambiguity_static_volume:/ambiguity/files/ambiguity_static
       - ambiguity_media_volume:/ambiguity/files/ambiguity_media
-    command: celery -A one_page_ambiguity_base worker -l INFO
+    command: >
+      sh -c "python init_nltk.py &&
+            celery -A one_page_ambiguity_base worker -l INFO"
     depends_on:
       - ambiguity
     env_file:
