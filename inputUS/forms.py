@@ -22,7 +22,7 @@ class InputUserStory_Form(ModelForm):
         }
 
         widgets = {
-            "US_Project_Domain": forms.Select(attrs={"class": "form-control"}),
+            "US_Project_Domain": forms.Select(attrs={"class": "form-control select2"}),
             "US_File_Name": forms.TextInput(attrs={"class": "form-control"}),
             "US_File_Txt": forms.ClearableFileInput(attrs={"class": "form-control"}),
         }

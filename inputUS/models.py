@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import JSONField
-
+from django.dispatch import receiver
+from django.db.models.signals import post_save, pre_delete
 
 class MetaAttribute(models.Model):
     created_by = models.ForeignKey(
@@ -104,9 +105,9 @@ class UserStory_Why(models.Model):
 
 
 class UserStory_element(MetaAttribute):
-    Who_full = models.ForeignKey(UserStory_Who, on_delete=models.CASCADE, null=True)
-    What_full = models.ForeignKey(UserStory_What, on_delete=models.CASCADE, null=True)
-    Why_full = models.ForeignKey(UserStory_Why, on_delete=models.CASCADE, null=True)
+    Who_full = models.ForeignKey(UserStory_Who, on_delete=models.SET_NULL, null=True)
+    What_full = models.ForeignKey(UserStory_What, on_delete=models.SET_NULL, null=True)
+    Why_full = models.ForeignKey(UserStory_Why, on_delete=models.SET_NULL, null=True)
     UserStory_Full_Text = models.CharField(max_length=800, null=True)
     old_userstory = models.CharField(max_length=800, null=True)
     Project_Name = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
@@ -343,3 +344,24 @@ class ReportTerms(MetaAttribute):
     class Meta:
         verbose_name = "Report Terms"
         verbose_name_plural = "Report Terms"
+
+
+@receiver(pre_delete, sender=UserStory_element)
+def on_delete_userstory_handler(sender, instance, **kwargs):
+    print('*** DELETE WHO, WHAT, WHY DATA ***')
+    
+    try:
+        if instance.Who_full:
+            instance.Who_full.delete()
+    except:
+        pass
+    try:
+        if instance.What_full:
+            instance.What_full.delete()
+    except:
+        pass
+    try:
+        if instance.Why_full:
+            instance.Why_full.delete()
+    except:
+        pass

@@ -156,6 +156,11 @@ class AnalysisData:
             description = None
             userstory = item["userstory_obj"]
             childs = userstory.get_childrens()
+            sbar_label = item.get("sbar_label", None)
+            recommendation = item["atomicity_recommendation"]
+            if sbar_label:
+                if sbar_label == 1:
+                    recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {item['sbar_text']} **"
             if childs.exists():
                 description = ""
                 for index, child in enumerate(childs):
@@ -167,7 +172,7 @@ class AnalysisData:
                 item["atomicity_status"],
                 ReportUserStory.ANALYS_TYPE.ATOMICITY,
                 {
-                    "recommendation": item["atomicity_recommendation"],
+                    "recommendation": recommendation,
                     "description": description,
                 },
                 item["atomicity_is_problem"],
@@ -183,9 +188,9 @@ class AnalysisData:
         self.stat_conceptually_sound()
 
         # # 6. uniqueness
-        self.stat_uniqueness_criteria()
-        gc.collect()
-        torch.cuda.empty_cache()
+        # self.stat_uniqueness_criteria()
+        # gc.collect()
+        # torch.cuda.empty_cache()
 
     # ============ Well Formed ============
     def well_formed(self):

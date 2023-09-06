@@ -39,7 +39,8 @@ def Upload_UserStory(request):
         for line in readLine:
             # print('readLine', readLine)
             # decode bytes to string
-            newLine = line.decode("utf-8")
+            # newLine = line.decode("utf-8")
+            newLine = line.decode("unicode_escape")
             # newLine = re.sub(r"[^A-Za-z0-9, ]", "", newLine)
             newLine = re.sub(r"[^[^A-Za-z0-9(-){-}[-]⟨-⟩, ]", "", newLine)
             newLine = newLine.strip()
@@ -107,6 +108,7 @@ def del_Upload_US(request, id):
     )
     delete_user_story.delete()
     delete_segmented_US.delete()
+
         # delete_atomic.delete()
 
     messages.success(request, "User story have been successfully deleted")
@@ -414,28 +416,31 @@ def edit_userstory(request, userstory_id):
     )
 
     if request.POST:
-        text_story = request.POST.get("userstory", None)
+        # text_story = request.POST.get("userstory", None)
         userstory_list = request.POST.getlist("userstory_list[]", [])
         # print(text_story)
         # print(userstory_list)
-        if text_story:
-            userstory.UserStory_Full_Text = text_story
-            userstory.is_processed = False
-            userstory.save()
+        # if text_story:
+        #     userstory.UserStory_Full_Text = text_story
+            
+        if len(userstory_list):
+            # userstory.is_processed = False
+            # userstory.save()
 
-            segmentation_edit_userstory(userstory_id)
+            # segmentation_edit_userstory(userstory_id)
             if userstory.get_report_list().exists():
                 # delete data report
                 userstory.get_report_list().delete()
 
             if len(userstory_list):
                 for item in userstory_list:
-                    userstory_child = UserStory_element.objects.create(
-                        UserStory_Full_Text=item,
-                        Project_Name=userstory.Project_Name,
-                        parent=userstory,
-                    )
-                    segmentation_edit_userstory(userstory_child.id, True)
+                    if item:
+                        userstory_child = UserStory_element.objects.create(
+                            UserStory_Full_Text=item,
+                            Project_Name=userstory.Project_Name,
+                            parent=userstory,
+                        )
+                        segmentation_edit_userstory(userstory_child.id, True)
 
             messages.success(request, "Success update userstory.")
             return redirect(
