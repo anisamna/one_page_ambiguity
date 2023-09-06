@@ -8,5 +8,6 @@ matplotlib==3.7.1
 gensim==4.3.1
 sentence-transformers==2.2.2
 gunicorn==21.2.0
+Redis==5.0.0
 celery==5.3.4
 # https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0-py3-none-any.whl\#sha256\=0964370218b7e1672a30ac50d72cdc6b16f7c867496f1d60925691188f4d2510
