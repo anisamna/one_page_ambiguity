@@ -150,9 +150,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'files/ambiguity_media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_URL = '/media/'
+# MEDIA_URL = '/media/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "https://furiosa.my.id", "http://furiosa.my.id"]
 
