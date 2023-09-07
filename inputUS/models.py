@@ -364,7 +364,11 @@ class ProcessBackground(MetaAttribute):
             if userstorys.count() > 5:
                 return f'{userstorys.count()} user stories'
             else:
-                return [','.join(item.UserStory_Full_Text) for item in userstorys.all()]
+                data = []
+                for item in userstorys:
+                    if item.UserStory_Full_Text:
+                       data.append(item.UserStory_Full_Text)
+                return ', '.join(data) 
         return '-'
 
     class Meta:

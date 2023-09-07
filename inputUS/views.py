@@ -31,7 +31,9 @@ from .tasks import task_process_analys_data
 @login_required(login_url=reverse_lazy("login_"))
 def Upload_UserStory(request):
     if request.method == "POST":
-        upload_US_File = InputUserStory_Form(request.POST, request.FILES, user=request.user)
+        upload_US_File = InputUserStory_Form(
+            request.POST, request.FILES, user=request.user
+        )
         readFile = request.FILES["US_File_Txt"]
         readLine = readFile.readlines()
 
@@ -110,10 +112,10 @@ def del_Upload_US(request, id):
     delete_user_story.delete()
     delete_segmented_US.delete()
 
-        # delete_atomic.delete()
+    # delete_atomic.delete()
 
     messages.success(request, "User story have been successfully deleted")
-    return redirect(reverse('show_UserStory'))
+    return redirect(reverse("show_UserStory"))
 
     # update_user_story = US_Upload.objects.all()
     # return render(
@@ -161,7 +163,7 @@ def show_splitted_UserStory(request):
 
 @login_required(login_url=reverse_lazy("login_"))
 def analyze_data(request):
-    from functions.analysis_userstory import AnalysisData
+    # from functions.analysis_userstory import AnalysisData
     import gc
     import torch
     gc.collect()
@@ -199,11 +201,13 @@ def analyze_data(request):
     if similarity_checkbox == "on":
         similarity_value = request.POST.get("similarity_value", None)
 
-    all_in_project = request.POST.get('all_in_project', None)
+    all_in_project = request.POST.get("all_in_project", None)
     if all_in_project == "on":
-        project_id = request.POST.get('project', None)
+        project_id = request.POST.get("project", None)
         project = get_object_or_404(Project, id=project_id)
-        userstory_list = UserStory_element.objects.filter(Project_Name=project).values_list('id', flat=True)
+        userstory_list = UserStory_element.objects.filter(
+            Project_Name=project
+        ).values_list("id", flat=True)
         story_list_id = list(set(userstory_list))
 
         process_obj = ProcessBackground.objects.create(
@@ -244,25 +248,33 @@ def analyze_data(request):
             )
             return redirect(reverse("show_splitted_UserStory"))
 
-        # print(
+        userstory_list = UserStory_element.objects.filter(
+            id__in=data_list_id
+        ).values_list("id", flat=True)
+        story_list_id = list(set(userstory_list))
+
+        process_obj = ProcessBackground.objects.create(
+            created_by=request.user,
+            eps_value=eps_value,
+            min_samples_value=min_samples_value,
+            terms_role_value=terms_role_value,
+            terms_action_value=terms_action_value,
+            topics_value=topics_value,
+            similarity_value=similarity_value,
+        )
+        process_obj.userstorys.add(*story_list_id)
+        process_obj.save()
+        task_process_analys_data.delay(process_obj.id)
+        # AnalysisData(
+        #     data_list_id,
         #     eps_value,
         #     min_samples_value,
         #     terms_role_value,
         #     terms_action_value,
         #     topics_value,
         #     similarity_value,
-        # )
-
-        AnalysisData(
-            data_list_id,
-            eps_value,
-            min_samples_value,
-            terms_role_value,
-            terms_action_value,
-            topics_value,
-            similarity_value,
-            request.user,
-        ).start()
+        #     request.user,
+        # ).start()
         messages.success(
             request,
             "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
@@ -437,7 +449,7 @@ def edit_userstory(request, userstory_id):
         # print(userstory_list)
         # if text_story:
         #     userstory.UserStory_Full_Text = text_story
-            
+
         if len(userstory_list):
             # userstory.is_processed = False
             # userstory.save()
@@ -728,11 +740,12 @@ def view_list_keyword(request):
         {"title": "Keyword", "keyword_list": keyword_list},
     )
 
+
 @login_required(login_url=reverse_lazy("login_"))
 def view_list_processbackground(request):
     process = ProcessBackground.objects.all()
     return render(
         request,
         "inputUS/background/view.html",
-        {'process': process, 'title': 'Process Background User Stories'}
+        {"process": process, "title": "Process Background User Stories"},
     )

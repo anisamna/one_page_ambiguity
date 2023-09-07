@@ -14,6 +14,7 @@ from inputUS.models import (  # Well_Formed,; N_gram,; Parser,; ParsingDetail,; 
     UserStory_Who,
     UserStory_Why,
     WordNet_classification,
+    ProcessBackground
 )
 
 admin.site.register(US_Upload)
@@ -162,3 +163,8 @@ class ReportUserStoryAdmin(admin.ModelAdmin):
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
     list_display = ("id", "role")
+
+
+@admin.register(ProcessBackground)
+class ProcessBackgroundAdmin(admin.ModelAdmin):
+    list_display = ('id', 'is_process', 'is_done', 'created_by', 'created_at')

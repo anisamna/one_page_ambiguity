@@ -1,5 +1,0 @@
-As a UI designer, I want to redesign the Resources page, so that it matches the new Broker design styles.
-As a broker team member, I want to make some updates to the SQL codes for clarity.
-As a broker team member, I want to ensure the Broker resources, validations, and P&P pages are updated appropriately for the launch of FABS and DAIMS v1.1.
-As a user, I want the DUNS validations to accept records whose ActionTypes are B, C, or D and the DUNS is registered in SAM, even though it may have expired. 
-As an agency user, I want to submit my data elements surrounded by quotation marks, so that Excel won't strip off leading and trailing zeroes.
