@@ -1,21 +1,10 @@
 from django.contrib import admin
 
-# Register your models here.
-from inputUS.models import (  # Well_Formed,; N_gram,; Parser,; ParsingDetail,; Concise_for_brackets,; Conceptual,; Coherence_lex,
-    Glossary,
-    KeywordGlossary,
-    Project,
-    ReportUserStory,
-    Role,
-    Similarity_Analysis,
-    US_Upload,
-    UserStory_element,
-    UserStory_What,
-    UserStory_Who,
-    UserStory_Why,
-    WordNet_classification,
-    ProcessBackground
-)
+from inputUS.models import (AdjustedUserStory, Glossary, KeywordGlossary,
+                            ProcessBackground, Project, ReportUserStory, Role,
+                            Similarity_Analysis, US_Upload, UserStory_element,
+                            UserStory_What, UserStory_Who, UserStory_Why,
+                            WordNet_classification)
 
 admin.site.register(US_Upload)
 # admin.site.register(Well_Formed)
@@ -167,4 +156,9 @@ class RoleAdmin(admin.ModelAdmin):
 
 @admin.register(ProcessBackground)
 class ProcessBackgroundAdmin(admin.ModelAdmin):
-    list_display = ('id', 'is_process', 'is_done', 'created_by', 'created_at')
+    list_display = ("id", "is_process", "is_done", "created_by", "created_at")
+
+
+@admin.register(AdjustedUserStory)
+class AdjustedUserStoryAdmin(admin.ModelAdmin):
+    list_display = ("id", "userstory_text", "adjusted", "status", "created_at")

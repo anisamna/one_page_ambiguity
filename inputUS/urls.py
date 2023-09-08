@@ -42,5 +42,11 @@ urlpatterns = [
         name="projects_delete_view",
     ),
     path("keyword", views.view_list_keyword, name="master_keyword"),
-    path("process-background", views.view_list_processbackground, name="view_process_background")
+    path(
+        "process-background",
+        views.view_list_processbackground,
+        name="view_process_background",
+    ),
+    path("accounts", views.view_list_accounts, name="view_list_accounts"),
+    path("userstory/adjusted", views.view_list_adjusted_userstory, name="view_list_adjusted_userstory"),
 ]

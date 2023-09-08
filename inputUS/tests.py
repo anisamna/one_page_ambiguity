@@ -1,6 +1,7 @@
 from django.test import TestCase
 
-from inputUS.models import Glossary, KeywordGlossary, Project, UserStory_element
+from inputUS.models import (Glossary, KeywordGlossary, Project,
+                            UserStory_element)
 
 # from functions.analysis_userstory import AnalysisData
 

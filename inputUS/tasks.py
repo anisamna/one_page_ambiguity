@@ -1,6 +1,6 @@
-from one_page_ambiguity_base.celery import app
 from functions.analysis_userstory import AnalysisData
 from inputUS.models import ProcessBackground
+from one_page_ambiguity_base.celery import app
 
 
 @app.task
@@ -8,7 +8,7 @@ def task_process_analys_data(obj_id):
     process = ProcessBackground.objects.get(id=obj_id)
     userstorys = process.userstorys.all()
     if userstorys.exists():
-        userstory_list = userstorys.values_list('id', flat=True)
+        userstory_list = userstorys.values_list("id", flat=True)
         userstory_list = list(set(userstory_list))
         process.is_process = True
         process.save()

@@ -152,6 +152,11 @@
               <i class="bi bi-circle"></i><span>See process user stories</span>
             </a>
           </li>
+          <li>
+            <a href="{% url 'view_list_adjusted_userstory' %}">
+              <i class="bi bi-circle"></i><span>See adjusted user stories</span>
+            </a>
+          </li>
          <!--
           <li>
             <a href="/importUS/see_well_formed_US.html">
@@ -221,6 +226,13 @@
                   <i class="bi bi-circle"></i><span>Action Keyword</span>
               </a>
             </li>
+            {% if request.user.is_superuser %}
+            <li>
+              <a href="{% url 'view_list_accounts' %}">
+                  <i class="bi bi-circle"></i><span>Accounts</span>
+              </a>
+            </li>
+            {% endif %}
         </ul>
       </li><!-- End Components Nav -->
 

@@ -855,7 +855,7 @@ class AnalysisData:
                         # Perubahan disini, identify problematic terms in role and action, give recommended terms for role and actions
                         # print("Problematic terms:")
 
-                        description += "\n\nProblematic terms:\n\n"
+                        recommendation += "\n\nProblematic terms:\n\n"
 
                         if (
                             matching_sub["cluster_label"] == -1
@@ -891,7 +891,7 @@ class AnalysisData:
                                         role=role_item, userstory=userstory
                                     )
 
-                            description += f"""Role: {matching_sub["actor"]}\n
+                            recommendation += f"""Role: {matching_sub["actor"]}\n
                             Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                             Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.\n
                             """
@@ -954,7 +954,7 @@ class AnalysisData:
                             #             keyword_obj.save()
                             #     terms_obj.save()
 
-                            description += f"""Role: {matching_sub["actor"]}\n
+                            recommendation += f"""Role: {matching_sub["actor"]}\n
                             Action: {key_act}\n
                             Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                             Recommendation terms for the action: {values_act}\n
@@ -985,7 +985,7 @@ class AnalysisData:
                                 Role.objects.get_or_create(
                                     role=role_item, userstory=userstory
                                 )
-                        description += f"""\n\nProblematic terms:\n\n Role: {matching_sub["actor"]}\n
+                        recommendation += f"""\n\nProblematic terms:\n\n Role: {matching_sub["actor"]}\n
                         Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                         """
                     elif (
@@ -1004,7 +1004,7 @@ class AnalysisData:
                             # print(
                             #     "Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
                             # )
-                            description += "\n\nRecommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
+                            recommendation += "\n\nRecommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
                         elif (
                             matching_sub["cluster_label"] != -1
                             and matching_act["label"] == ">1"
@@ -1032,7 +1032,7 @@ class AnalysisData:
                             if len(values_act):
                                 terms_obj.terms_actions = values_act
                             terms_obj.save()
-                            description += f"""\n\nProblematic terms:\n\n Action: {key_act}\n
+                            recommendation += f"""\n\nProblematic terms:\n\n Action: {key_act}\n
                             Recommendation terms for the action: {values_act}\n
                             """
                     self.save_report(

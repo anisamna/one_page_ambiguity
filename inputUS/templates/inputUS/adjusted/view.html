@@ -1,31 +1,30 @@
 {% extends 'base.html' %}
 
+{% block title %}{{ title }}{% endblock %}
+
+
 {% block contentLeft %}
 <div class="card">
-  <h5 class="card-header d-flex justify-content-between align-items-center">
-    Project
-    <a href="{% url 'projects_add_view' %}" class="btn btn-success">Add</a>
-  </h5>
-  <div class="card-body p-0">
+  <div class="card-header">
+    <h5>{{ title }}</h5>
+  </div>
+  <div class="card-body pt-2">
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
           <th>No.</th>
-          <th>Project Name</th>
-          <th>Project Description</th>
-          <th>Action</th>
+          <th>User Story</th>
+          <th>Adjusted User Story</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody>
         {% for item in view_all %}
         <tr>
           <td>{{ forloop.counter }}</td>
-          <td>{{ item.Project_Name }}</td>
-          <td>{{ item.Project_Desc }}</td>
-          <td>
-            <a href="{% url 'projects_edit_view' item.id %}" class="btn btn-primary">Edit</a>
-            <a href="{% url 'projects_delete_view' item.id %}" class="btn btn-danger">Delete</a>
-          </td>
+          <td>{{ item.userstory_text }}</td>
+          <td>{{ item.adjusted }}</td>
+          <td>{{ item.get_status_display }}</td>
         </tr>
         {% endfor %}
       </tbody>

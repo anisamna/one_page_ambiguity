@@ -2,26 +2,18 @@ import re
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
+from django.contrib.auth.models import User
 # from django.http import JsonResponse
-# from django.core.paginator import Paginator
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 
 from functions.segmentation import segmentation, segmentation_edit_userstory
 
 from .forms import InputUserStory_Form
-from .models import (
-    Glossary,
-    KeywordGlossary,
-    Project,
-    ProcessBackground,
-    ReportUserStory,
-    Result,
-    Role,
-    US_Upload,
-    UserStory_element,
-)
+from .models import (Glossary, KeywordGlossary, ProcessBackground, Project,
+                     ReportUserStory, Result, Role, US_Upload,
+                     UserStory_element, AdjustedUserStory)
 from .tasks import task_process_analys_data
 
 # from functions.well_formed import well_formed_an
@@ -165,7 +157,9 @@ def show_splitted_UserStory(request):
 def analyze_data(request):
     # from functions.analysis_userstory import AnalysisData
     import gc
+
     import torch
+
     gc.collect()
     torch.cuda.empty_cache()
 
@@ -545,7 +539,10 @@ def view_list_project(request):
     projects = Project.objects.all()
     if not request.user.is_superuser:
         projects = projects.filter(created_by=request.user)
-    extra_context = {"projects": projects}
+    paginator = Paginator(projects.order_by('-created_at'), 20)
+    page = request.GET.get("page", 1)
+    view_all = paginator.get_page(page)
+    extra_context = {"view_all": view_all,}
     return render(request, "inputUS/project/view.html", extra_context)
 
 
@@ -733,19 +730,60 @@ def print_report(request):
 
 @login_required(login_url=reverse_lazy("login_"))
 def view_list_keyword(request):
-    keyword_list = KeywordGlossary.objects.all()
+    queryset = KeywordGlossary.objects.all()
+    paginator = Paginator(queryset.order_by('-id'), 20)
+    page = request.GET.get("page", 1)
+    view_all = paginator.get_page(page)
     return render(
         request,
         "inputUS/keyword/view.html",
-        {"title": "Keyword", "keyword_list": keyword_list},
+        {"title": "Keyword", "view_all": view_all},
     )
 
 
 @login_required(login_url=reverse_lazy("login_"))
 def view_list_processbackground(request):
     process = ProcessBackground.objects.all()
+    if not request.user.is_superuser:
+        process = process.filter(created_by=request.user)
+    paginator = Paginator(process.order_by('-created_at'), 20)
+    page = request.GET.get("page", 1)
+    view_all = paginator.get_page(page)
     return render(
         request,
         "inputUS/background/view.html",
-        {"process": process, "title": "Process Background User Stories"},
+        {"title": "Process Background User Stories", 'view_all': view_all},
+    )
+
+
+@login_required(login_url=reverse_lazy("login_"))
+def view_list_accounts(request):
+    accounts = User.objects.all()
+    paginator = Paginator(accounts.order_by('-id'), 20)
+    page = request.GET.get("page", 1)
+    view_all = paginator.get_page(page)
+    return render(
+        request,
+        "inputUS/accounts/view.html",
+        {"title": "Accounts List", 'view_all': view_all},
+    )
+
+
+@login_required(login_url=reverse_lazy("login_"))
+def view_list_adjusted_userstory(request):
+    adjusted_list = AdjustedUserStory.objects.all()
+    if not request.user.is_superuser:
+        adjusted_list = adjusted_list.filter(created_by=request.user)
+
+    paginator = Paginator(adjusted_list.order_by('-created_at'), 20)
+    page = request.GET.get("page", 1)
+    view_all = paginator.get_page(page)
+
+    return render(
+        request,
+        "inputUS/adjusted/view.html",
+        {
+            "title": "Adjusted User Story", 
+            'view_all': view_all,
+        },
     )

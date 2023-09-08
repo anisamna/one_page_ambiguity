@@ -1,8 +1,9 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import JSONField
-from django.dispatch import receiver
 from django.db.models.signals import post_save, pre_delete
+from django.dispatch import receiver
+
 
 class MetaAttribute(models.Model):
     created_by = models.ForeignKey(
@@ -334,16 +335,24 @@ class Role(models.Model):
 
 
 class ReportTerms(MetaAttribute):
+    class EDIT_TYPE(models.IntegerChoices):
+        ACTION = 1, "Action"
+        ROLE = 2, "Role"
+        ACTION_ROLE = 3, "Action and Role"
+        NONE = 4, "None"
+
     userstory = models.ForeignKey(
         UserStory_element, null=True, on_delete=models.CASCADE
     )
     type = models.IntegerField(choices=ReportUserStory.ANALYS_TYPE.choices, null=True)
     action = models.CharField(null=True, max_length=100)
     terms_actions = models.JSONField(null=True)
+    edit = models.IntegerField(choices=EDIT_TYPE.choices, null=True)
 
     class Meta:
         verbose_name = "Report Terms"
         verbose_name_plural = "Report Terms"
+
 
 class ProcessBackground(MetaAttribute):
     userstorys = models.ManyToManyField(UserStory_element)
@@ -362,24 +371,35 @@ class ProcessBackground(MetaAttribute):
         userstorys = self.userstorys.all()
         if userstorys.exists():
             if userstorys.count() > 5:
-                return f'{userstorys.count()} user stories'
+                return f"{userstorys.count()} user stories"
             else:
                 data = []
                 for item in userstorys:
                     if item.UserStory_Full_Text:
-                       data.append(item.UserStory_Full_Text)
-                return ', '.join(data) 
-        return '-'
+                        data.append(item.UserStory_Full_Text)
+                return ", ".join(data)
+        return "-"
 
     class Meta:
         verbose_name = "Process Background"
         verbose_name_plural = "Process Background"
 
 
+class AdjustedUserStory(MetaAttribute):
+    userstory = models.ForeignKey(UserStory_element, on_delete=models.CASCADE)
+    userstory_text = models.CharField(max_length=800, null=True)
+    adjusted = models.CharField(max_length=800, null=True)
+    status = models.IntegerField(choices=ReportUserStory.ANALYS_TYPE.choices, null=True)
+
+    class Meta:
+        verbose_name = "Adjusted User Story"
+        verbose_name_plural = "Adjusted User Story"
+
+
 @receiver(pre_delete, sender=UserStory_element)
 def on_delete_userstory_handler(sender, instance, **kwargs):
-    print('*** DELETE WHO, WHAT, WHY DATA ***')
-    
+    print("*** DELETE WHO, WHAT, WHY DATA ***")
+
     try:
         if instance.Who_full:
             instance.Who_full.delete()
