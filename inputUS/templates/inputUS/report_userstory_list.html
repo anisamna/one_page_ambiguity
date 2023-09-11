@@ -93,7 +93,7 @@
     </div>
   </div>
   <div class="card-body p-1">
-    <table class="table table-bordered">
+    <table class="table table-bordered mb-0">
       <thead>
         <tr>
           <th>No.</th>
@@ -126,7 +126,9 @@
         {% for report in item.id|get_report_list:request %}
         <tr>
           <td data-is_problem="{{ report.is_problem }}">{{ report.status|default:"-" }}</td>
-          <td>{{ report.recommendation|default:"-" }}</td>
+          <td>
+            <p style="white-space: pre-line;">{{ report.recommendation|default:"-" }}</p>
+          </td>
           <td>
             <p style="white-space: pre-line;">{{ report.description|default:"-" }}</p>
           </td>

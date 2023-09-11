@@ -1,13 +1,15 @@
 # Ambiguity
 
+[![PyPI version](https://badge.fury.io/py/Django.svg)](https://badge.fury.io/py/Django)
+
 ## Installation
 
 ## File Media
 
-- Buat folder media:
-    - /media/file/treeps
-    - /media/file/treeimage
+- create media directory:
 
+  - /media/file/treeps
+  - /media/file/treeimage
 
 ### Database
 
@@ -63,5 +65,3 @@ torch.cuda.empty_cache()
 
 - [NLTK](https://github.com/nltk/nltk/wiki/Stanford-CoreNLP-API-in-NLTK)
 - [template](https://bootstrapmade.com/demo/NiceAdmin/)
-
-https://pythonguides.com/convert-html-page-to-pdf-using-django/#:~:text=Django%20HTML%20to%20PDF%20example,-Firstly%2C%20you%20have&text=In%20the%20view%20class%2C%20we,in%20the%20process.py%20file.&text=In%20this%20urls.py%20file,py%20file%20will%20be%20called.

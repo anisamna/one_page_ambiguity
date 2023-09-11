@@ -846,6 +846,7 @@ class AnalysisData:
                                     Action: {matching_act["act_action"]}"""
 
                     recommendation = matching_sub["recommendation"]
+                    recommendation_type = None
 
                     if (
                         matching_sub["cluster_label"] == -1
@@ -895,6 +896,7 @@ class AnalysisData:
                             Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                             Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.\n
                             """
+                            recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ROLE
                         elif (
                             matching_sub["cluster_label"] == -1
                             and matching_act["label"] == ">1"
@@ -959,6 +961,7 @@ class AnalysisData:
                             Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                             Recommendation terms for the action: {values_act}\n
                             """
+                            recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
                     elif (
                         matching_sub["cluster_label"] == -1
                         and matching_act["label"] == "1"
@@ -988,6 +991,7 @@ class AnalysisData:
                         recommendation += f"""\n\nProblematic terms:\n\n Role: {matching_sub["actor"]}\n
                         Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                         """
+                        recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ROLE
                     elif (
                         matching_sub["cluster_label"] != -1
                         and matching_act["label"] != "1"
@@ -1035,6 +1039,7 @@ class AnalysisData:
                             recommendation += f"""\n\nProblematic terms:\n\n Action: {key_act}\n
                             Recommendation terms for the action: {values_act}\n
                             """
+                            recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION
                     self.save_report(
                         userstory,
                         matching_sub["status"],
@@ -1042,6 +1047,7 @@ class AnalysisData:
                         {
                             "recommendation": recommendation,
                             "description": description,
+                            "recommendation_type": recommendation_type
                         },
                         is_problem,
                     )

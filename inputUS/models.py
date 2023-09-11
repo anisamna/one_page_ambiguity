@@ -298,6 +298,12 @@ class WordNet_classification(models.Model):
 
 
 class ReportUserStory(MetaAttribute):
+    class RECOMENDATION_TYPE(models.IntegerChoices):
+        ACTION = 1, "Action"
+        ROLE = 2, "Role"
+        ACTION_ROLE = 3, "Action and Role"
+        NONE = 4, "None"
+
     class ANALYS_TYPE(models.IntegerChoices):
         WELL_FORMED = 1, "Well Formed"
         ATOMICITY = 2, "Atomicity"
@@ -312,6 +318,7 @@ class ReportUserStory(MetaAttribute):
     description = models.TextField(null=True, blank=True)
     type = models.IntegerField(choices=ANALYS_TYPE.choices, null=True)
     is_problem = models.BooleanField(default=False)
+    recommendation_type = models.IntegerField(choices=RECOMENDATION_TYPE.choices, null=True)
 
     def __str__(self):
         if self.userstory and self.status:
@@ -335,19 +342,13 @@ class Role(models.Model):
 
 
 class ReportTerms(MetaAttribute):
-    class EDIT_TYPE(models.IntegerChoices):
-        ACTION = 1, "Action"
-        ROLE = 2, "Role"
-        ACTION_ROLE = 3, "Action and Role"
-        NONE = 4, "None"
-
     userstory = models.ForeignKey(
         UserStory_element, null=True, on_delete=models.CASCADE
     )
     type = models.IntegerField(choices=ReportUserStory.ANALYS_TYPE.choices, null=True)
     action = models.CharField(null=True, max_length=100)
     terms_actions = models.JSONField(null=True)
-    edit = models.IntegerField(choices=EDIT_TYPE.choices, null=True)
+    
 
     class Meta:
         verbose_name = "Report Terms"

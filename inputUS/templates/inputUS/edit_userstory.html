@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Add Userstory{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block contentLeft %}
 <form method="post">
@@ -33,15 +33,42 @@
       {% endif %}
 
       {% if improved_terms_show %}
+      
       <div class="row" style="margin-top: 25px;">
         <div class="col-6">
-          <strong>Problematic terms:</strong>
-          <div style="padding-left: 10px;">
+          <strong>Problematic terms: {{ reportuserstory.get_recommendation_type_display }}</strong>
+        </div>
+
+        <div class="col-6">
+          <strong>Improved terms:</strong>
+        </div>
+
+        {% if is_edit_role %}
+        <div class="col-12 row">
+          <div class="col-6">
             <div class="form-group">
               <label for="">Role</label>
               <input class="form-control" placeholder="Role" disabled value="{{ userstory.Who_full.Who_action }}" />
               <input type="hidden" name="problematic_role" value="{{ userstory.Who_full.Who_action }}"/>
             </div>
+          </div>  
+          <div class="col-6">
+            <div class="form-group">
+              <label for="">Role</label>
+              <select name="improved_role" id="role_id" class="form-control select2">
+                <option value="">Select Role</option>
+                {% for item in role_list %}
+                <option value="{{ item.role }}">{{ item.role }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if is_edit_action %}
+        <div class="col-12 row">
+          <div class="col-6">
             {% if reportterms %}
             <div class="form-group">
               <label for="">Action</label>
@@ -60,19 +87,8 @@
             </div>
             {% endif %}
           </div>
-        </div>
-        <div class="col-6">
-          <strong>Improved terms:</strong>
-          <div style="padding-left: 10px;">
-            <div class="form-group">
-              <label for="">Role</label>
-              <select name="improved_role" id="role_id" class="form-control select2">
-                <option value="">Select Role</option>
-                {% for item in role_list %}
-                <option value="{{ item.role }}">{{ item.role }}</option>
-                {% endfor %}
-              </select>
-            </div>
+
+          <div class="col-6">
             {% if reportterms %}
             <div class="form-group">
               <label for="">Action</label>
@@ -96,6 +112,7 @@
             {% endif %}
           </div>
         </div>
+        {% endif %}
       </div>
       {% endif %}
     </div>

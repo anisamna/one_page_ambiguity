@@ -155,7 +155,7 @@ def show_splitted_UserStory(request):
 
 @login_required(login_url=reverse_lazy("login_"))
 def analyze_data(request):
-    # from functions.analysis_userstory import AnalysisData
+    from functions.analysis_userstory import AnalysisData
     import gc
 
     import torch
@@ -215,17 +215,17 @@ def analyze_data(request):
         )
         process_obj.userstorys.add(*story_list_id)
         process_obj.save()
-        task_process_analys_data.delay(process_obj.id)
-        # AnalysisData(
-        #     story_list_id,
-        #     eps_value,
-        #     min_samples_value,
-        #     terms_role_value,
-        #     terms_action_value,
-        #     topics_value,
-        #     similarity_value,
-        #     request.user,
-        # ).start()
+        # task_process_analys_data.delay(process_obj.id)
+        AnalysisData(
+            story_list_id,
+            eps_value,
+            min_samples_value,
+            terms_role_value,
+            terms_action_value,
+            topics_value,
+            similarity_value,
+            request.user,
+        ).start()
         messages.success(
             request,
             "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
@@ -398,6 +398,22 @@ def edit_userstory(request, userstory_id):
 
     if status:
         status = int(status)
+    
+    reportuserstory = userstory.reportuserstory_set.filter(
+        type=ReportUserStory.ANALYS_TYPE.PRECISE
+    )
+    if reportuserstory.exists():
+        reportuserstory = reportuserstory.last()
+        is_edit_role = False
+        is_edit_action = False
+        if reportuserstory.recommendation_type:
+            is_edit_role = reportuserstory.recommendation_type in [ReportUserStory.RECOMENDATION_TYPE.ROLE, ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE]
+            is_edit_action = reportuserstory.recommendation_type in [ReportUserStory.RECOMENDATION_TYPE.ACTION, ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE]
+        extra_context.update({
+            "reportuserstory": reportuserstory,
+            "is_edit_role": is_edit_role,
+            "is_edit_action": is_edit_action
+        })
 
     if (
         type
@@ -422,6 +438,7 @@ def edit_userstory(request, userstory_id):
             reportterms = userstory.reportterms_set.filter(
                 type=ReportUserStory.ANALYS_TYPE.PRECISE
             )
+
             if reportterms.exists():
                 extra_context.update({"reportterms": reportterms.last()})
             # ReportTerms.objects.filter()
@@ -437,12 +454,7 @@ def edit_userstory(request, userstory_id):
     )
 
     if request.POST:
-        # text_story = request.POST.get("userstory", None)
         userstory_list = request.POST.getlist("userstory_list[]", [])
-        # print(text_story)
-        # print(userstory_list)
-        # if text_story:
-        #     userstory.UserStory_Full_Text = text_story
 
         if len(userstory_list):
             # userstory.is_processed = False
