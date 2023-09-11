@@ -3,8 +3,8 @@
 *.pyc
 *.DS_Store
 
-media/
-files/
+media
+files
 
 # Environments
 # .env --DON'T DELETE WE NEED THIS FILE--
