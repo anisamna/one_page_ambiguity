@@ -397,24 +397,31 @@ def edit_userstory(request, userstory_id):
     if type:
         type = int(type)
 
+        reportuserstory = userstory.reportuserstory_set.filter(
+            type=type
+        )
+        if reportuserstory.exists():
+            reportuserstory = reportuserstory.last()
+            is_edit_role = False
+            is_edit_action = False
+            if reportuserstory.recommendation_type:
+                # print("recommendation_type", reportuserstory.recommendation_type)
+                is_edit_role = reportuserstory.recommendation_type in [ReportUserStory.RECOMENDATION_TYPE.ROLE, ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE]
+                is_edit_action = reportuserstory.recommendation_type in [ReportUserStory.RECOMENDATION_TYPE.ACTION, ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE, ReportUserStory.RECOMENDATION_TYPE.ACTION_MANUAL]
+            extra_context.update({
+                "reportuserstory": reportuserstory,
+                "is_edit_role": is_edit_role,
+                "is_edit_action": is_edit_action
+            })
+
     if status:
         status = int(status)
     
-    reportuserstory = userstory.reportuserstory_set.filter(
-        type=ReportUserStory.ANALYS_TYPE.PRECISE
-    )
-    if reportuserstory.exists():
-        reportuserstory = reportuserstory.last()
-        is_edit_role = False
-        is_edit_action = False
-        if reportuserstory.recommendation_type:
-            is_edit_role = reportuserstory.recommendation_type in [ReportUserStory.RECOMENDATION_TYPE.ROLE, ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE]
-            is_edit_action = reportuserstory.recommendation_type in [ReportUserStory.RECOMENDATION_TYPE.ACTION, ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE]
-        extra_context.update({
-            "reportuserstory": reportuserstory,
-            "is_edit_role": is_edit_role,
-            "is_edit_action": is_edit_action
-        })
+
+    role_label = "Role"
+    action_label = "Action"
+    action_improve_label = action_label
+    
 
     if (
         type
@@ -452,49 +459,83 @@ def edit_userstory(request, userstory_id):
                 "role_list": role_list,
             })
         elif type == ReportUserStory.ANALYS_TYPE.CONCEPTUALLY:
+            role_label = "Subject"
+            action_label = "Predicate"
+            action_improve_label = "Implied Action"
             reportterms = userstory.reportterms_set.filter(
                 type=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY
             )
             if reportterms.exists():
+                print(reportterms)
                 extra_context.update({"reportterms": reportterms.last()})
             role_list = role_list.filter(status=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY)
             extra_context.update({
                 "role_list": role_list,
             })
-        
 
-    extra_context.update(
-        {"userstory": userstory, "improved_terms_show": improved_terms_show}
-    )
+    extra_context.update({
+        "userstory": userstory,
+        "improved_terms_show": improved_terms_show,
+        "role_label": role_label,
+        "action_label": action_label,
+        "action_improve_label": action_improve_label
+    })
 
     if request.POST:
+        type_status = request.POST.get('status', 0)
         userstory_list = request.POST.getlist("userstory_list[]", [])
-
-        if len(userstory_list):
-            # userstory.is_processed = False
-            # userstory.save()
-
-            # segmentation_edit_userstory(userstory_id)
-            if userstory.get_report_list().exists():
-                # delete data report
-                userstory.get_report_list().delete()
-
+        if int(type_status) == ReportUserStory.ANALYS_TYPE.ATOMICITY:
             if len(userstory_list):
-                for item in userstory_list:
-                    if item:
-                        userstory_child = UserStory_element.objects.create(
-                            UserStory_Full_Text=item,
-                            Project_Name=userstory.Project_Name,
-                            parent=userstory,
-                        )
-                        segmentation_edit_userstory(userstory_child.id, True)
+                # NOTE: add new child userstory only in status type Atomicity
+                # userstory.is_processed = False
+                # userstory.save()
 
-            messages.success(request, "Success update userstory.")
-            return redirect(
-                reverse("report_userstory_list") + f"?{path_url[1]}"
-                if len(path_url) > 1
-                else ""
-            )
+                # segmentation_edit_userstory(userstory_id)
+                # if userstory.get_report_list().exists():
+                    # delete data report
+                    # userstory.get_report_list().delete()
+
+                if len(userstory_list):
+                    for item in userstory_list:
+                        if item:
+                            userstory_child = UserStory_element.objects.create(
+                                UserStory_Full_Text=item,
+                                Project_Name=userstory.Project_Name,
+                                parent=userstory,
+                            )
+                            AdjustedUserStory.objects.create(
+                                userstory=userstory,
+                                adjusted=item,
+                                status=ReportUserStory.ANALYS_TYPE.ATOMICITY
+                            )
+                            segmentation_edit_userstory(userstory_child.id, True)
+
+                messages.success(request, "Success update userstory.")
+                return redirect(
+                    reverse("report_userstory_list") + f"?{path_url[1]}"
+                    if len(path_url) > 1
+                    else ""
+                )
+            else:
+                messages.warning(request, "Warning, at least one user story must be inputted.")
+        elif int(type_status) == ReportUserStory.ANALYS_TYPE.CONCEPTUALLY:
+            improved_predicate = request.POST.get('improved_predicate', None)
+            problematic_predicate = request.POST.get('problematic_predicate', None)
+            if improved_predicate and problematic_predicate:
+                adjusted = userstory.UserStory_Full_Text.replace(
+                    problematic_predicate, improved_predicate
+                )
+                AdjustedUserStory.objects.create(
+                    userstory=userstory,
+                    adjusted=adjusted,
+                    status=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY
+                )
+                messages.success(request, "Success update userstory.")
+                return redirect(
+                    reverse("report_userstory_list") + f"?{path_url[1]}"
+                    if len(path_url) > 1
+                    else ""
+                )
         else:
             is_edit = False
             problematic_role = request.POST.get("problematic_role", None)

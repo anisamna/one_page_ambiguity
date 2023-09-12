@@ -1652,19 +1652,24 @@ class AnalysisData:
             # print("Topic #", item["cluster_topic"])
             # print("Top terms: ", item["terms_in_cluster_topic"])
             # print("Action terms: ", item["keyword_words"])
-            description = f"""Subject: {item["subject"]}
-            Predicate: {item["predicate"]}
-            Object: {item["object"]}
+            subject = item["subject"]
+            predicate = item["predicate"]
+
+            description = f"""Subject: {subject}
+            Predicate: {predicate}
+            Object: {item.get('object', '')}
             """
             status = None
             recommendation = None
             is_problem = False
+            recommendation_type = None
             if not item["sentence_class"] or item["object"] == None:
                 # print("Status: The user story is potentially ambiguous. It might be underspecified.")
                 # print("Recommendation: Rewrite the predicate or the object ! ")
                 status = "The user story is potentially ambiguous. It might be underspecified."
                 recommendation = "Recommendation: Rewrite the predicate !"
                 is_problem = True
+                recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_MANUAL
             elif len(item["sentence_class"]) > 1 or item["object"] == None:
                 # print(
                 #     "Status: The user story is potentially ambiguous. It might be wrongly decode."
@@ -1690,6 +1695,7 @@ class AnalysisData:
                 # print("Problematic terms:", key_act)
                 status = "The user story is potentially ambiguous. It might be wrongly decode."
                 recommendation = f'Recommendation: Rewrite the predicate using one of these term :\n{item["sentence_class"]}'
+                recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION
                 is_problem = True
             elif len(item["sentence_class"]) == 1 and item["object"] == None:
                 # print("Status: The user story is potentially ambiguous. The object is not exist.")
@@ -1707,7 +1713,13 @@ class AnalysisData:
                     item["userstory"],
                     status,
                     ReportUserStory.ANALYS_TYPE.CONCEPTUALLY,
-                    {"recommendation": recommendation, "description": description},
+                    {
+                        "recommendation": recommendation,
+                        "description": description,
+                        "recommendation_type": recommendation_type,
+                        "subject": subject,
+                        "predicate": predicate
+                    },
                     is_problem,
                 )
         return sent_concept

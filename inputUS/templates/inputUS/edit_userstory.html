@@ -3,8 +3,9 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block contentLeft %}
-<form method="post">
+<form method="post" class="p-0">
   {% csrf_token %}
+  <input type="hidden" name="status" value="{{ request.GET.type }}">
   <div class="card">
     <div class="card-header">
       <h5>Change Userstory</h5>
@@ -23,7 +24,12 @@
       {% else %}
       <div class="form-group">
         <label for="userstory_id">User Story</label>
-        <input name="userstory" class="form-control" id="userstory_id" value="{{ userstory.UserStory_Full_Text }}" disabled />
+        <div class="input-group mb-3">
+          <input name="userstory" class="form-control" id="userstory_id" value="{{ userstory.UserStory_Full_Text }}" disabled />
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" id="btn_clipboard_id"><i class="bi bi-clipboard"></i></button>
+          </div>
+        </div>
       </div>
 
       <div id="list_form_story" class="my-2">
@@ -35,26 +41,28 @@
       {% if improved_terms_show %}
       
       <div class="row" style="margin-top: 25px;">
+        {% if is_edit_action or is_edit_role %}
         <div class="col-6">
-          <strong>Problematic terms: {{ reportuserstory.get_recommendation_type_display }}</strong>
+          <strong>Problematic terms:</strong>
         </div>
 
         <div class="col-6">
           <strong>Improved terms:</strong>
         </div>
+        {% endif %}
 
         {% if is_edit_role %}
         <div class="col-12 row">
           <div class="col-6">
             <div class="form-group">
-              <label for="">Role</label>
+              <label for="">{{ role_label }}</label>
               <input class="form-control" placeholder="Role" disabled value="{{ userstory.Who_full.Who_action }}" />
               <input type="hidden" name="problematic_role" value="{{ userstory.Who_full.Who_action }}"/>
             </div>
           </div>  
           <div class="col-6">
             <div class="form-group">
-              <label for="">Role</label>
+              <label for="">{{ role_label }}</label>
               <select name="improved_role" id="role_id" class="form-control select2">
                 <option value="">Select Role</option>
                 {% for item in role_list %}
@@ -71,27 +79,31 @@
           <div class="col-6">
             {% if reportterms %}
             <div class="form-group">
-              <label for="">Action</label>
+              <label for="">{{ action_label }}</label>
               <input class="form-control" placeholder="Action" disabled value="{{ reportterms.action }}" />
               <input type="hidden" name="problematic_action" value="{{ reportterms.action }}"/>
             </div>
             {% else %}
             <div class="form-group">
-              <label for="">Action</label>
+              <label for="action_id">{{ action_label }}</label>
+              <input type="text" name="problematic_predicate" id="action_id" class="form-control" value="{{ reportuserstory.predicate|default:'' }}">
+            </div>
+            <!-- <div class="form-group">
+              <label for="">{{ action_label }}</label>
               <select class="form-control select2" name="problematic_action">
                 <option value="">Select</option>
                 {% for item in glossarys %}
                 <option value="{{ item.Action_item }}">{{ item.Action_item }}</option>
                 {% endfor %}
               </select>
-            </div>
+            </div> -->
             {% endif %}
           </div>
 
           <div class="col-6">
             {% if reportterms %}
             <div class="form-group">
-              <label for="">Action</label>
+              <label for="">{{ action_improve_label }}</label>
               <select name="improved_action" class="form-control select2">
                 <option value="">Select Action</option>
                 {% for item in reportterms.terms_actions %}
@@ -101,8 +113,8 @@
             </div>
             {% else %}
             <div class="form-group">
-              <label for="">Action</label>
-              <select name="improved_action" class="form-control select2">
+              <label for="">{{ action_improve_label }}</label>
+              <select name="improved_predicate" class="form-control select2">
                 <option value="">Select</option>
                 {% for item in keywords %}
                 <option value="{{ item.keyword }}">{{ item.keyword }}</option>
@@ -119,9 +131,6 @@
     <div class="card-footer">
       <button class="btn btn-warning">Submit</button>
       <button type="button" class="btn btn-secondary" onclick="history.back()">Back</button>
-      {% if userstory.Project_Name  %}
-      <!-- <a href="{% url 'userstory_project_add' userstory.Project_Name_id  %}" class="btn btn-success">Add</a> -->
-      {% endif %}
     </div>
   </div>
 </form>
@@ -154,6 +163,13 @@
     console.log('elem', elem)
     $(`.${elem}`).remove();
   }
+
+  $('#btn_clipboard_id').on('click', function(){
+    const copyText = document.getElementById("userstory_id");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); // For mobile devices
+    navigator.clipboard.writeText(copyText.value);
+  })
 
   $(function(){
     $('.select2').select2();

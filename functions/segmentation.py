@@ -288,7 +288,7 @@ def segmentation_edit_userstory(userstory_id, is_add=False):
         why = goal_id + " " + goal_usr
 
         if is_add:
-            userstory_obj_who, created = UserStory_Who.objects.get_or_create(
+            userstory_obj_who = UserStory_Who.objects.create(
                 Who_identifier=role_id,
                 Who_action=role_act,
                 Who_full=who,
@@ -297,7 +297,7 @@ def segmentation_edit_userstory(userstory_id, is_add=False):
 
             userstory_obj_who.save()
 
-            userstory_obj_what, created = UserStory_What.objects.get_or_create(
+            userstory_obj_what = UserStory_What.objects.create(
                 What_identifier=action_id,
                 What_action=action_usr,
                 What_full=what,
@@ -306,7 +306,7 @@ def segmentation_edit_userstory(userstory_id, is_add=False):
 
             userstory_obj_what.save()
 
-            userstory_obj_why, created = UserStory_Why.objects.get_or_create(
+            userstory_obj_why = UserStory_Why.objects.create(
                 Why_identifier=goal_id,
                 Why_action=goal_usr,
                 Why_full=why,

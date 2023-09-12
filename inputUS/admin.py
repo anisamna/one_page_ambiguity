@@ -111,6 +111,7 @@ class UserStory_elementAdmin(admin.ModelAdmin):
         "UserStory_File_ID",
         "parent",
     )
+    search_fields = ('UserStory_Full_Text',)
 
 
 admin.site.register(UserStory_element, UserStory_elementAdmin)

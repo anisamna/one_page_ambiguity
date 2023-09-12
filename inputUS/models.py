@@ -302,7 +302,8 @@ class ReportUserStory(MetaAttribute):
         ACTION = 1, "Action"
         ROLE = 2, "Role"
         ACTION_ROLE = 3, "Action and Role"
-        NONE = 4, "None"
+        NONE = 4, "None",
+        ACTION_MANUAL = 5, "Action Manual"
 
     class ANALYS_TYPE(models.IntegerChoices):
         WELL_FORMED = 1, "Well Formed"
@@ -319,6 +320,8 @@ class ReportUserStory(MetaAttribute):
     type = models.IntegerField(choices=ANALYS_TYPE.choices, null=True)
     is_problem = models.BooleanField(default=False)
     recommendation_type = models.IntegerField(choices=RECOMENDATION_TYPE.choices, null=True)
+    subject = models.CharField(max_length=255, null=True)
+    predicate = models.CharField(max_length=255, null=True)
 
     def __str__(self):
         if self.userstory and self.status:
@@ -395,6 +398,10 @@ class AdjustedUserStory(MetaAttribute):
     userstory_text = models.CharField(max_length=800, null=True)
     adjusted = models.CharField(max_length=800, null=True)
     status = models.IntegerField(choices=ReportUserStory.ANALYS_TYPE.choices, null=True)
+
+    def save(self, *args, **kwargs):
+        self.userstory_text = self.userstory.UserStory_Full_Text if self.userstory else None
+        super(AdjustedUserStory, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Adjusted User Story"
