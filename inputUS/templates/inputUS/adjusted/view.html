@@ -4,12 +4,54 @@
 
 
 {% block contentLeft %}
+<form method="get" class="p-0">
+  <div class="card">
+    <div class="card-header">
+      <h5>Filter</h5>
+    </div>
+    <div class="card-body py-3">
+      <div class="row">
+        <div class="col-12">
+          <input type="text" name="q" class="form-control" placeholder="Search by text user stories" value="{{ request.GET.q }}">
+        </div>
+        <div class="col-4 mt-2">
+          <select name="project" class="form-control select2">
+            <option value>All Project </option>
+            {% for item in project_list %}
+            {% if project_value == item.id %}
+            <option value="{{ item.id }}" selected>{{ item }}</option>
+            {% else %}
+            <option value="{{ item.id }}">{{ item }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-4 mt-2">
+          <select name="status" class="form-control select2">
+            <option value>All Status</option>
+            {% for item in status_list %}
+            {% if status_value == item.0 %}
+            <option value="{{ item.0 }}" selected>{{ item.1 }}</option>
+            {% else %}
+            <option value="{{ item.0 }}">{{ item.1 }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer d-flex justify-content-end">
+      <button class="btn btn-primary" type="submit">Filter</button>
+    </div>
+  </div>
+</form>
+
 <div class="card">
   <div class="card-header">
     <h5>{{ title }}</h5>
   </div>
-  <div class="card-body pt-2">
-    <table class="table table-bordered table-striped">
+  <div class="card-body p-1">
+    <table class="table table-bordered table-striped m-0">
       <thead>
         <tr>
           <th>No.</th>
@@ -58,4 +100,33 @@
     </nav>
   </div>
 </div>
+{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+  .select2-selection.select2-selection--single {
+    height: 37px;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__rendered{
+    line-height: 37px;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__arrow {
+    top: 4px;
+  }
+</style>
+{% endblock %}
+
+{% block extrajs %}
+{{ block.super }}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+  $(function(){
+    $('.select2').select2();
+  })
+</script>
 {% endblock %}

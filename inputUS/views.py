@@ -843,9 +843,29 @@ def view_list_accounts(request):
 
 @login_required(login_url=reverse_lazy("login_"))
 def view_list_adjusted_userstory(request):
+    from django.db.models import Q
     adjusted_list = AdjustedUserStory.objects.all()
+    project_list = Project.objects.all()
+
     if not request.user.is_superuser:
         adjusted_list = adjusted_list.filter(created_by=request.user)
+        project_list = project_list.filter(created_by=request.user)
+
+    q = request.GET.get('q', None)
+    if q:
+        adjusted_list = adjusted_list.filter(
+            Q(userstory_text__icontains=q) | Q(adjusted__icontains=q)
+        )
+    project = request.GET.get('project', None)
+    if project:
+        adjusted_list = adjusted_list.filter(
+            userstory__Project_Name_id=project
+        )
+    status = request.GET.get('status', None)
+    if status:
+        adjusted_list = adjusted_list.filter(
+            status=status
+        )
 
     paginator = Paginator(adjusted_list.order_by('-created_at'), 20)
     page = request.GET.get("page", 1)
@@ -857,5 +877,9 @@ def view_list_adjusted_userstory(request):
         {
             "title": "Adjusted User Story", 
             'view_all': view_all,
+            'project_list': project_list,
+            'status_list': ReportUserStory.ANALYS_TYPE.choices,
+            'project_value': int(project) if project else None,
+            'status_value': int(status) if status else None,
         },
     )
