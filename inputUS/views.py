@@ -867,6 +867,18 @@ def view_list_adjusted_userstory(request):
             status=status
         )
 
+    mode = request.GET.get('mode', None)
+    if mode == "pdf":
+        return render(
+            request,
+            "inputUS/adjusted/view_pdf.html",
+            {
+                "title": "Adjusted User Story", 
+                'adjusted_list': adjusted_list,
+            },
+        )
+        
+
     paginator = Paginator(adjusted_list.order_by('-created_at'), 20)
     page = request.GET.get("page", 1)
     view_all = paginator.get_page(page)

@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+</head>
+<body onload="window.print()">
+  <div class="p-3">
+    <h5>{{ title }}</h5>
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>User Story</th>
+          <th>Adjusted User Story</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in adjusted_list %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ item.userstory_text }}</td>
+          <td>{{ item.adjusted }}</td>
+          <td>{{ item.get_status_display }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
