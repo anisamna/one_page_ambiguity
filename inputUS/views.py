@@ -197,6 +197,7 @@ def analyze_data(request):
 
     all_in_project = request.POST.get("all_in_project", None)
     if all_in_project == "on":
+        # NOTE: process all user stories on the project
         project_id = request.POST.get("project", None)
         project = get_object_or_404(Project, id=project_id)
         userstory_list = UserStory_element.objects.filter(
@@ -391,7 +392,7 @@ def edit_userstory(request, userstory_id):
 
     path_url = request.get_full_path().split("?")
 
-    extra_context = {}
+    extra_context = {"title": f"Change Userstory: {userstory.UserStory_Full_Text}"}
 
     if type:
         type = int(type)
@@ -425,10 +426,9 @@ def edit_userstory(request, userstory_id):
         and status == 1
     ):
         improved_terms_show = True
-        role_list = Role.objects.filter(userstory__Project_Name=userstory.Project_Name)
+        role_list = Role.objects.filter(userstory=userstory)
         extra_context.update(
             {
-                "role_list": role_list,
                 "keywords": KeywordGlossary.objects.all(),
                 "glossarys": Glossary.objects.all(),
             }
@@ -442,12 +442,26 @@ def edit_userstory(request, userstory_id):
             if reportterms.exists():
                 extra_context.update({"reportterms": reportterms.last()})
             # ReportTerms.objects.filter()
+            role_list = role_list.filter(status=ReportUserStory.ANALYS_TYPE.PRECISE)
+            extra_context.update({
+                "role_list": role_list,
+            })
+        elif type == ReportUserStory.ANALYS_TYPE.CONSISTENT:
+            role_list = role_list.filter(status=ReportUserStory.ANALYS_TYPE.CONSISTENT)
+            extra_context.update({
+                "role_list": role_list,
+            })
         elif type == ReportUserStory.ANALYS_TYPE.CONCEPTUALLY:
             reportterms = userstory.reportterms_set.filter(
                 type=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY
             )
             if reportterms.exists():
                 extra_context.update({"reportterms": reportterms.last()})
+            role_list = role_list.filter(status=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY)
+            extra_context.update({
+                "role_list": role_list,
+            })
+        
 
     extra_context.update(
         {"userstory": userstory, "improved_terms_show": improved_terms_show}
@@ -554,13 +568,13 @@ def view_list_project(request):
     paginator = Paginator(projects.order_by('-created_at'), 20)
     page = request.GET.get("page", 1)
     view_all = paginator.get_page(page)
-    extra_context = {"view_all": view_all,}
+    extra_context = {"view_all": view_all, 'title': 'View Projects'}
     return render(request, "inputUS/project/view.html", extra_context)
 
 
 @login_required(login_url=reverse_lazy("login_"))
 def view_add_project(request):
-    extra_context = {}
+    extra_context = {'title': 'Add Projects'}
 
     if request.POST:
         project_name = request.POST.get("project_name", None)
@@ -579,7 +593,7 @@ def view_add_project(request):
 @login_required(login_url=reverse_lazy("login_"))
 def view_edit_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
-    extra_context = {"project": project}
+    extra_context = {"project": project, 'title': 'Edit Projects'}
     if request.POST:
         project_name = request.POST.get("project_name", None)
         project_description = request.POST.get("project_description", None)
@@ -752,6 +766,52 @@ def view_list_keyword(request):
         {"title": "Keyword", "view_all": view_all},
     )
 
+@login_required(login_url=reverse_lazy("login_"))
+def view_add_keyword(request):
+    if request.POST:
+        keyword = request.POST.get('keyword', None)
+        if keyword:
+            key, created = KeywordGlossary.objects.get_or_create(keyword=keyword)
+            messages.success(request, "Success add keyword.")
+            return redirect(reverse("master_keyword"))
+        
+    return render(
+        request,
+        "inputUS/keyword/add.html",
+        {
+            "title": "Add Keyword", 
+        },
+    )
+
+@login_required(login_url=reverse_lazy("login_"))
+def view_add_action(request):
+    keyword_list = KeywordGlossary.objects.all()
+    if request.POST:
+        keyword = request.POST.get('keyword', None)
+        action = request.POST.get('action', None)
+
+        if keyword and action:
+            action, created = Glossary.objects.get_or_create(
+                Action_item=action
+            )
+            try:
+                keyword_obj = KeywordGlossary.objects.get(id=keyword)
+            except KeywordGlossary.DoesNotExist:
+                pass
+            else:
+                keyword_obj.item_name.add(action)
+                keyword_obj.save()
+                messages.success(request, "Success add action.")
+                return redirect(reverse("master_keyword"))
+    return render(
+        request,
+        "inputUS/keyword/add_action.html",
+        {
+            "title": "Add Action",
+            "keyword_list": keyword_list
+        },
+    )
+
 
 @login_required(login_url=reverse_lazy("login_"))
 def view_list_processbackground(request):
@@ -777,7 +837,7 @@ def view_list_accounts(request):
     return render(
         request,
         "inputUS/accounts/view.html",
-        {"title": "Accounts List", 'view_all': view_all},
+        {"title": "Accounts", 'view_all': view_all},
     )
 
 

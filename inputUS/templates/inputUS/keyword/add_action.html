@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block contentLeft %}
+<form method="post">
+  {% csrf_token %}
+  <div class="card">
+    <div class="card-header">
+      <h5>{{ title }}</h5>
+    </div>
+    <div class="card-body">
+      <div class="form-group mb-3">
+        <label for="keyword_id">Keyword</label>
+        <select id="keyword_id" class="form-control select2" name="keyword" required>
+          {% for item in keyword_list %}
+          <option value="{{ item.id }}">{{ item }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="action_id">Action</label>
+        <input type="text" name="action" class="form-control" id="action_id" required>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-primary" type="submit">Submit</button>
+      <button type="button" class="btn btn-secondary" onclick="history.back()">Back</button>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+  .select2-selection.select2-selection--single {
+    height: 37px;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__rendered{
+    line-height: 37px;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__arrow {
+    top: 4px;
+  }
+</style>
+{% endblock %}
+
+{% block extrajs %}
+{{ block.super }}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+  $(function(){
+    $('.select2').select2();
+  })
+</script>
+{% endblock %}

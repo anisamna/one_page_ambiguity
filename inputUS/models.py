@@ -335,6 +335,10 @@ class Role(models.Model):
     userstory = models.ForeignKey(
         UserStory_element, null=True, on_delete=models.CASCADE
     )
+    status = models.IntegerField(choices=ReportUserStory.ANALYS_TYPE.choices, null=True)
+
+    def __str__(self):
+        return self.role
 
     class Meta:
         verbose_name = "Role"

@@ -51,10 +51,16 @@ class ProfileView(UpdateView):
     success_url = reverse_lazy("index")
     template_name = "registration/profile.html"
 
+    extra_context = {'title': 'Profile'}
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        context.update(self.extra_context)
+        return context
+
+
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get("pk", None)
         if request.user.id != user_id:
-            print(args)
-            print(kwargs)
             return HttpResponseRedirect(reverse_lazy("index"))
         return super().get(request, *args, **kwargs)

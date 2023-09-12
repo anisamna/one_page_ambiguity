@@ -889,14 +889,18 @@ class AnalysisData:
                             ):
                                 for role_item in matching_sub["role_s_list"]:
                                     Role.objects.get_or_create(
-                                        role=role_item, userstory=userstory
+                                        role=role_item, 
+                                        userstory=userstory,
+                                        status=ReportUserStory.ANALYS_TYPE.PRECISE
                                     )
 
                             recommendation += f"""Role: {matching_sub["actor"]}\n
                             Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                             Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.\n
                             """
-                            recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ROLE
+                            recommendation_type = (
+                                ReportUserStory.RECOMENDATION_TYPE.ROLE
+                            )
                         elif (
                             matching_sub["cluster_label"] == -1
                             and matching_act["label"] == ">1"
@@ -961,7 +965,9 @@ class AnalysisData:
                             Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                             Recommendation terms for the action: {values_act}\n
                             """
-                            recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
+                            recommendation_type = (
+                                ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
+                            )
                     elif (
                         matching_sub["cluster_label"] == -1
                         and matching_act["label"] == "1"
@@ -986,7 +992,9 @@ class AnalysisData:
                         ):
                             for role_item in matching_sub["role_s_list"]:
                                 Role.objects.get_or_create(
-                                    role=role_item, userstory=userstory
+                                    role=role_item,
+                                    userstory=userstory,
+                                    status=ReportUserStory.ANALYS_TYPE.PRECISE
                                 )
                         recommendation += f"""\n\nProblematic terms:\n\n Role: {matching_sub["actor"]}\n
                         Recommendation terms for the user: {matching_sub["role_s_list"]}\n
@@ -1039,7 +1047,9 @@ class AnalysisData:
                             recommendation += f"""\n\nProblematic terms:\n\n Action: {key_act}\n
                             Recommendation terms for the action: {values_act}\n
                             """
-                            recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION
+                            recommendation_type = (
+                                ReportUserStory.RECOMENDATION_TYPE.ACTION
+                            )
                     self.save_report(
                         userstory,
                         matching_sub["status"],
@@ -1047,7 +1057,7 @@ class AnalysisData:
                         {
                             "recommendation": recommendation,
                             "description": description,
-                            "recommendation_type": recommendation_type
+                            "recommendation_type": recommendation_type,
                         },
                         is_problem,
                     )
@@ -1367,29 +1377,34 @@ class AnalysisData:
                     # print("Status:", matching_sub["status"])
                     # print("Recommendation:", matching_sub["recommendation"])
 
-                    description = None
+                    description = f'Role: {matching_sub["actor"]}\n\nAction: {matching_act["action"]}'
+                    recommendation = matching_sub["recommendation"]
                     # is_problem = False
+                    recommendation_type = None
                     if matching_sub["role_cluster_label"] == -1:
-                        description = f"""Role: {matching_sub["actor"]}
-                        Action: {matching_act["action"]}
-                        \n\n
+                        recommendation = f"""\n\n
                         Problematic terms: {matching_sub["actor"]}\n\n
                         Recommendation terms: 
                         Terms for role: {str(top_terms_role)}
                         """
                         for key, value in top_terms_role.items():
                             for role_term in value:
+                                term = role_term.strip()
                                 Role.objects.get_or_create(
-                                    role=role_term, userstory=userstory
+                                    role=term,
+                                    userstory=userstory,
+                                    status=ReportUserStory.ANALYS_TYPE.CONSISTENT,
                                 )
+                        recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ROLE
 
                     self.save_report(
                         userstory,
                         matching_sub["status"],
                         ReportUserStory.ANALYS_TYPE.CONSISTENT,
                         {
-                            "recommendation": matching_sub["recommendation"],
+                            "recommendation": recommendation,
                             "description": description,
+                            "recommendation_type": recommendation_type,
                         },
                         is_problem,
                     )

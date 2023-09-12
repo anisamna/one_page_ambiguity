@@ -151,7 +151,12 @@ class ReportUserStoryAdmin(admin.ModelAdmin):
 
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
-    list_display = ("id", "role")
+    list_display = ("id", "role", 'get_userstory_id', 'userstory')
+    search_fields = ('userstory__UserStory_Full_Text', 'role')
+
+    def get_userstory_id(self, obj):
+        return obj.userstory_id
+    get_userstory_id.short_description = "Userstory ID"
 
 
 @admin.register(ProcessBackground)
