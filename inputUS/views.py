@@ -216,17 +216,17 @@ def analyze_data(request):
         )
         process_obj.userstorys.add(*story_list_id)
         process_obj.save()
-        # task_process_analys_data.delay(process_obj.id)
-        AnalysisData(
-            story_list_id,
-            eps_value,
-            min_samples_value,
-            terms_role_value,
-            terms_action_value,
-            topics_value,
-            similarity_value,
-            request.user,
-        ).start()
+        task_process_analys_data.delay(process_obj.id)
+        # AnalysisData(
+        #     story_list_id,
+        #     eps_value,
+        #     min_samples_value,
+        #     terms_role_value,
+        #     terms_action_value,
+        #     topics_value,
+        #     similarity_value,
+        #     request.user,
+        # ).start()
         messages.success(
             request,
             "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",

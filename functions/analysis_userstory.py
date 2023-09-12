@@ -188,9 +188,9 @@ class AnalysisData:
         self.stat_conceptually_sound()
 
         # # 6. uniqueness
-        # self.stat_uniqueness_criteria()
-        # gc.collect()
-        # torch.cuda.empty_cache()
+        self.stat_uniqueness_criteria()
+        gc.collect()
+        torch.cuda.empty_cache()
 
     # ============ Well Formed ============
     def well_formed(self):
