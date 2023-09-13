@@ -557,6 +557,11 @@ def edit_userstory(request, userstory_id):
                 userstory.UserStory_Full_Text = textstory
                 userstory.old_userstory = old_text
                 userstory.save()
+                AdjustedUserStory.objects.create(
+                    userstory=userstory,
+                    adjusted=textstory,
+                    status=int(type_status) if type_status else None
+                )
                 is_edit = True
 
             problematic_action = request.POST.get("problematic_action", None)

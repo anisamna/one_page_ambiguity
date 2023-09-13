@@ -1389,9 +1389,9 @@ class AnalysisData:
                         """
                         for key, value in top_terms_role.items():
                             for role_term in value:
-                                term = role_term.strip()
+                                # term = role_term.strip()
                                 Role.objects.get_or_create(
-                                    role=term,
+                                    role=role_term,
                                     userstory=userstory,
                                     status=ReportUserStory.ANALYS_TYPE.CONSISTENT,
                                 )
