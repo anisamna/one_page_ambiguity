@@ -155,7 +155,7 @@ def show_splitted_UserStory(request):
 
 @login_required(login_url=reverse_lazy("login_"))
 def analyze_data(request):
-    from functions.analysis_userstory import AnalysisData
+    # from functions.analysis_userstory import AnalysisData
     import gc
 
     import torch
