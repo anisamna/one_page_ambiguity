@@ -42,15 +42,13 @@
       {% if improved_terms_show %}
       
       <div class="row" style="margin-top: 25px;">
-        {% if is_edit_action or is_edit_role %}
         <div class="col-6">
           <strong>Problematic terms:</strong>
         </div>
 
-        <div class="col-6">
+        <div class="col-6 p-0">
           <strong>Improved terms:</strong>
         </div>
-        {% endif %}
 
         {% if is_edit_role %}
         <div class="col-12 row">
@@ -67,6 +65,27 @@
               <select name="improved_role" id="role_id" class="form-control select2">
                 <option value="">Select Role</option>
                 {% for item in role_list %}
+                <option value="{{ item.role }}">{{ item.role }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        {% elif not is_edit_role and not reportuserstory.recommendation_type %}
+        <div class="col-12 row">
+          <div class="col-6">
+            <div class="form-group">
+              <label for="">{{ role_label }}</label>
+              <input class="form-control" placeholder="Role" disabled value="{{ userstory.Who_full.Who_action }}" />
+              <input type="hidden" name="problematic_role" value="{{ userstory.Who_full.Who_action }}"/>
+            </div>
+          </div>  
+          <div class="col-6">
+            <div class="form-group">
+              <label for="">{{ role_label }}</label>
+              <select name="improved_role" id="role_id" class="form-control select2">
+                <option value="">Select Role</option>
+                {% for item in role_custom_list %}
                 <option value="{{ item.role }}">{{ item.role }}</option>
                 {% endfor %}
               </select>
@@ -123,6 +142,31 @@
               </select>
             </div>
             {% endif %}
+          </div>
+        </div>
+        {% elif not is_edit_action and not reportuserstory.recommendation_type %}
+        <div class="col-12 row">
+          <div class="col-6">
+            <div class="form-group">
+              <label for="">{{ action_label }}</label>
+              <select name="improved_action" class="form-control select2">
+                <option value="">Select Action</option>
+                {% for item in glossary_custom_list %}
+                <option value="{{ item }}">{{ item }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-group">
+              <label for="">{{ action_label }}</label>
+              <select name="improved_action" class="form-control select2">
+                <option value="">Select Action</option>
+                {% for item in keyword_custom_list %}
+                <option value="{{ item }}">{{ item }}</option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
         </div>
         {% endif %}

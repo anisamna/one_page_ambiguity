@@ -23,7 +23,7 @@
     <div class="card-body">
       <div class="form-group">
         <label for="project_id">Project</label>
-        <select name="project_id" id="project_id" class="form-control filter_submit">
+        <select name="project_id" id="project_id" class="form-control">
           <option value>Select Project</option>
           {% for item in project_list %}
           <option value="{{ item.id }}" {% if project_id == item.id %}selected{% endif %}>{{ item.Project_Name }}</option>
@@ -191,7 +191,6 @@
       })
     }
 
-
     $('a.link-edit').map(item => {
       let elem = $('a.link-edit').eq(item)
       let path = elem.attr('href') + window.location.search;
@@ -206,11 +205,32 @@
     $('form#form_filter_id').submit();
   })
 
-  $('select#type_id').on('change', function(){
+  $('select#project_id').on('change', function(){
+    const value_project = $('select#project_id').val()
     const url = new URL(window.location.href);
+    url.searchParams.set('project_id', value_project);
+    url.searchParams.delete('type');
     url.searchParams.delete('potential_problem');
-    url.searchParams.delete('status');
-    url.searchParams.set('type', $('select#type_id').val());
+    url.searchParams.set('status', 1);
+    window.location.href = url.search;
+  })
+  $('select#type_id').on('change', function(){
+    const value_type = $('select#type_id').val()
+    const url = new URL(window.location.href);
+
+    if (['1', '3'].includes(value_type)) {
+      // Vagueness
+      url.searchParams.set('potential_problem', 1);
+    } else if (['4', '2', '5'].includes(value_type)) {
+      url.searchParams.set('potential_problem', 2);
+    } else if (['6'].includes(value_type)) {
+      url.searchParams.set('potential_problem', 4);
+    } else {
+      url.searchParams.delete('potential_problem');
+    }
+
+    url.searchParams.set('status', 1);
+    url.searchParams.set('type', value_type);
     window.location.href = url.search;
   })
 

@@ -408,10 +408,18 @@ def edit_userstory(request, userstory_id):
                 # print("recommendation_type", reportuserstory.recommendation_type)
                 is_edit_role = reportuserstory.recommendation_type in [ReportUserStory.RECOMENDATION_TYPE.ROLE, ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE]
                 is_edit_action = reportuserstory.recommendation_type in [ReportUserStory.RECOMENDATION_TYPE.ACTION, ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE, ReportUserStory.RECOMENDATION_TYPE.ACTION_MANUAL]
+            else:
+                extra_context.update({
+                    'role_custom_list': Role.objects.filter(userstory__Project_Name=userstory.Project_Name),
+                    'keyword_custom_list': KeywordGlossary.objects.all(),
+                    'glossary_custom_list': Glossary.objects.all(),
+                })
+            print("is_edit_role", is_edit_role)
+            print("is_edit_action", is_edit_action)
             extra_context.update({
                 "reportuserstory": reportuserstory,
                 "is_edit_role": is_edit_role,
-                "is_edit_action": is_edit_action
+                "is_edit_action": is_edit_action,
             })
 
     if status:
