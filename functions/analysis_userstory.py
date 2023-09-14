@@ -746,6 +746,7 @@ class AnalysisData:
             for sub in dic_sub:
                 if act["sentence"] == sub["text"]:
                     is_problem = False
+                    recommendation_type = None
                     if sub["cluster_label"] == -1 and act["label"] == "":
                         status = (
                             "Preciseness criterion does not achieved."
@@ -754,6 +755,7 @@ class AnalysisData:
                         )
                         recommendation = "Change the user role and the action using the standard terminology"
                         is_problem = True
+                        recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
                     elif sub["cluster_label"] == -1 and act["label"] == "1":
                         status = (
                             "Preciseness criterion is not achieved."
@@ -763,6 +765,7 @@ class AnalysisData:
                             "Change the user role using the standard terminology"
                         )
                         is_problem = True
+                        recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ROLE
                     elif sub["cluster_label"] == -1 and act["label"] == ">1":
                         status = (
                             "Preciseness criterion is not achieved."
@@ -771,6 +774,7 @@ class AnalysisData:
                         )
                         recommendation = "Change the user role and word of action using the standard terminology."
                         is_problem = True
+                        recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
                     elif sub["cluster_label"] != -1 and act["label"] == "":
                         status = (
                             "Preciseness criterion does not achieved."
@@ -781,6 +785,7 @@ class AnalysisData:
                             "Change the action using the standard terminology"
                         )
                         is_problem = True
+                        recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION
                     elif sub["cluster_label"] != -1 and act["label"] == "1":
                         status = (
                             "Preciseness criterion is achieved. User story is good."
@@ -793,9 +798,11 @@ class AnalysisData:
                         )
                         recommendation = "Change the user role and the action using the standard terminology."
                         is_problem = True
+                        recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
                     sub["status"] = status
                     sub["recommendation"] = recommendation
                     sub["is_problem"] = is_problem
+                    sub["recommendation_type"] = recommendation_type
 
                     cluster_texts = {
                         "index": sub["index"],
@@ -810,6 +817,7 @@ class AnalysisData:
                         "status": sub["status"],
                         "recommendation": sub["recommendation"],
                         "is_problem": sub["is_problem"],
+                        "recommendation_type": sub["recommendation_type"],
                     }
 
                     preciseness.append(cluster_texts)
@@ -837,12 +845,14 @@ class AnalysisData:
                     # print("Action:", matching_act["act_action"])
                     # print("Status:", matching_sub["status"])
                     # print("Recommendation:", matching_sub["recommendation"])
+                    role_ = matching_sub["actor"]
+                    action_ = matching_act["act_action"]
 
-                    description = f"""Role: {matching_sub["actor"]}
-                                    Action: {matching_act["act_action"]}"""
+                    description = f"""Role: {role_}
+                                    Action: {action_}"""
 
                     recommendation = matching_sub["recommendation"]
-                    recommendation_type = None
+                    recommendation_type = matching_sub.get('recommendation_type', None)
 
                     if (
                         matching_sub["cluster_label"] == -1
@@ -897,9 +907,9 @@ class AnalysisData:
                             Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                             Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.\n
                             """
-                            recommendation_type = (
-                                ReportUserStory.RECOMENDATION_TYPE.ROLE
-                            )
+                            # recommendation_type = (
+                            #     ReportUserStory.RECOMENDATION_TYPE.ROLE
+                            # )
                         elif (
                             matching_sub["cluster_label"] == -1
                             and matching_act["label"] == ">1"
@@ -964,9 +974,9 @@ class AnalysisData:
                             Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                             Recommendation terms for the action: {values_act}\n
                             """
-                            recommendation_type = (
-                                ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
-                            )
+                            # recommendation_type = (
+                            #     ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
+                            # )
                     elif (
                         matching_sub["cluster_label"] == -1
                         and matching_act["label"] == "1"
@@ -1001,7 +1011,7 @@ class AnalysisData:
                         recommendation += f"""\n\nProblematic terms:\n\n Role: {matching_sub["actor"]}\n
                         Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                         """
-                        recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ROLE
+                        # recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ROLE
                     elif (
                         matching_sub["cluster_label"] != -1
                         and matching_act["label"] != "1"
@@ -1049,9 +1059,9 @@ class AnalysisData:
                             recommendation += f"""\n\nProblematic terms:\n\n Action: {key_act}\n
                             Recommendation terms for the action: {values_act}\n
                             """
-                            recommendation_type = (
-                                ReportUserStory.RECOMENDATION_TYPE.ACTION
-                            )
+                            # recommendation_type = (
+                            #     ReportUserStory.RECOMENDATION_TYPE.ACTION
+                            # )
                     self.save_report(
                         userstory,
                         matching_sub["status"],
@@ -1060,6 +1070,8 @@ class AnalysisData:
                             "recommendation": recommendation,
                             "description": description,
                             "recommendation_type": recommendation_type,
+                            "subject": str(role_),
+                            "predicate": str(action_)
                         },
                         is_problem,
                     )
@@ -1750,7 +1762,9 @@ class AnalysisData:
     # ============ Uniqueness Criteria ============
 
     def stat_uniqueness_criteria(self):
-        model_st = SentenceTransformer("all-MiniLM-L6-v2")
+        # model_st = SentenceTransformer("all-MiniLM-L6-v2")
+        from django.conf import settings
+        
         pair_role = []
         pair_action = []
         pair_goal = []
@@ -1778,10 +1792,10 @@ class AnalysisData:
         # # goal=df_element['Goal']
 
         # if not role.empty and not action.empty:
-        role_embeddings = model_st.encode(role_user)
+        role_embeddings = settings.MODEL_ST.encode(role_user)
         # action_embeddings=model.encode(df_element['Action'].values)
-        action_embeddings = model_st.encode(action_user)
-        goal_embeddings = model_st.encode(goal_user)
+        action_embeddings = settings.MODEL_ST.encode(action_user)
+        goal_embeddings = settings.MODEL_ST.encode(goal_user)
         # print(action_embeddings)
 
         score_role = util.cos_sim(role_embeddings, role_embeddings)

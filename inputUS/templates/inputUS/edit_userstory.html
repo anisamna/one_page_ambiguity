@@ -106,7 +106,8 @@
             {% else %}
             <div class="form-group">
               <label for="action_id">{{ action_label }}</label>
-              <input type="text" name="problematic_predicate" id="action_id" class="form-control" value="{{ reportuserstory.predicate|default:'' }}">
+              <input type="text" disabled id="action_id" class="form-control" value="{{ reportuserstory.predicate|default:'' }}">
+              <input type="hidden" name="problematic_action" value="{{ reportuserstory.predicate|default:'' }}">
             </div>
             <!-- <div class="form-group">
               <label for="">{{ action_label }}</label>
@@ -134,7 +135,7 @@
             {% else %}
             <div class="form-group">
               <label for="">{{ action_improve_label }}</label>
-              <select name="improved_predicate" class="form-control select2">
+              <select name="improved_action" class="form-control select2">
                 <option value="">Select</option>
                 {% for item in keywords %}
                 <option value="{{ item.keyword }}">{{ item.keyword }}</option>

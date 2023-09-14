@@ -401,7 +401,7 @@ class AdjustedUserStory(MetaAttribute):
     status = models.IntegerField(choices=ReportUserStory.ANALYS_TYPE.choices, null=True)
 
     def save(self, *args, **kwargs):
-        self.userstory_text = self.userstory.UserStory_Full_Text if self.userstory else None
+        # self.userstory_text = self.userstory.UserStory_Full_Text if self.userstory else None
         super(AdjustedUserStory, self).save(*args, **kwargs)
 
     class Meta:

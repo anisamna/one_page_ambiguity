@@ -164,3 +164,6 @@ BROKER_URL = "redis://" + REDIS_HOST + ":" + REDIS_PORT + "/0"
 BROKER_TRANSPORT_OPTIONS = {"visibility_timeout": 3600}
 
 CELERY_CACHE_BACKEND = "default"
+
+from sentence_transformers import SentenceTransformer
+MODEL_ST = SentenceTransformer("all-MiniLM-L6-v2")

@@ -538,6 +538,7 @@ def edit_userstory(request, userstory_id):
                             )
                             AdjustedUserStory.objects.create(
                                 userstory=userstory,
+                                userstory_text=userstory.UserStory_Full_Text,
                                 adjusted=item,
                                 status=ReportUserStory.ANALYS_TYPE.ATOMICITY,
                             )
@@ -554,14 +555,15 @@ def edit_userstory(request, userstory_id):
                     request, "Warning, at least one user story must be inputted."
                 )
         elif int(type_status) == ReportUserStory.ANALYS_TYPE.CONCEPTUALLY:
-            improved_predicate = request.POST.get("improved_predicate", None)
-            problematic_predicate = request.POST.get("problematic_predicate", None)
+            improved_predicate = request.POST.get("improved_action", None)
+            problematic_predicate = request.POST.get("problematic_action", None)
             if improved_predicate and problematic_predicate:
                 # adjusted = userstory.UserStory_Full_Text.replace(
                 #     problematic_predicate, improved_predicate
                 # )
                 AdjustedUserStory.objects.create(
                     userstory=userstory,
+                    userstory_text=userstory.UserStory_Full_Text,
                     adjusted=improved_predicate,
                     status=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY,
                 )
@@ -578,14 +580,17 @@ def edit_userstory(request, userstory_id):
             # print(problematic_role, improved_role)
             old_text = userstory.UserStory_Full_Text
             if problematic_role and improved_role:
+                improved_role = f' {improved_role} '
                 textstory = userstory.UserStory_Full_Text.replace(
                     problematic_role, improved_role
                 )
+                textstory = re.sub(' +', ' ', textstory.strip())
                 userstory.UserStory_Full_Text = textstory
                 userstory.old_userstory = old_text
                 userstory.save()
                 AdjustedUserStory.objects.create(
                     userstory=userstory,
+                    userstory_text=old_text,
                     adjusted=textstory,
                     status=int(type_status) if type_status else None,
                 )
@@ -593,6 +598,8 @@ def edit_userstory(request, userstory_id):
 
             problematic_action = request.POST.get("problematic_action", None)
             improved_action = request.POST.get("improved_action", None)
+            print('problematic_action', problematic_action)
+            print('improved_action', improved_action)
             # print(problematic_action, improved_action)
             if problematic_action and improved_action:
                 glosasry_obj, created = Glossary.objects.get_or_create(
@@ -604,14 +611,18 @@ def edit_userstory(request, userstory_id):
                 )
                 keyword_obj.item_name.add(glosasry_obj)
                 keyword_obj.save()
+
+                improved_action = f' {improved_action} '
                 textstory = userstory.UserStory_Full_Text.replace(
                     problematic_action, improved_action
                 )
+                textstory = re.sub(' +', ' ', textstory.strip())
                 userstory.UserStory_Full_Text = textstory
                 userstory.old_userstory = old_text
                 userstory.save()
                 AdjustedUserStory.objects.create(
                     userstory=userstory,
+                    userstory_text=old_text,
                     adjusted=textstory,
                     status=int(type_status) if type_status else None,
                 )
