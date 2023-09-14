@@ -62,6 +62,7 @@ services:
       context: .
     container_name: ambiguity_celery
     volumes:
+      - .:/ambiguity
       - ambiguity_static_volume:/ambiguity/files/ambiguity_static
       - ambiguity_media_volume:/ambiguity/files/ambiguity_media
     command: >
