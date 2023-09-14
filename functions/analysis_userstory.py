@@ -228,11 +228,7 @@ class AnalysisData:
                     ):
                         Who_identifier = Who_full.Who_identifier.lower()
                         What_identifier = What_full.What_identifier.lower()
-                        if Who_identifier not in (
-                            "as an",
-                            "as a",
-                            "as",
-                        ) or What_identifier not in ("i want", "i want to"):
+                        if Who_identifier not in ("as an", "as a", "as") or What_identifier not in ("i want", "i want to", "i'm able to", "i am able to", "i'm able", "i am able"):
                             status = "Well-formed criteria is not achieved, anbiguity does not exist !"
                             is_problem = True
                         else:
