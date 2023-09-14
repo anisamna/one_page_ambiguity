@@ -428,7 +428,7 @@ def edit_userstory(request, userstory_id):
                     {
                         "role_custom_list": Role.objects.filter(
                             userstory__Project_Name=userstory.Project_Name
-                        ),
+                        ).distinct('role_key'),
                         "keyword_custom_list": KeywordGlossary.objects.all(),
                         "glossary_custom_list": Glossary.objects.all(),
                     }

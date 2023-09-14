@@ -888,11 +888,14 @@ class AnalysisData:
                                 matching_sub["role_s_list"]
                             ):
                                 for role_item in matching_sub["role_s_list"]:
-                                    Role.objects.get_or_create(
-                                        role=role_item,
+                                    role_key = role_item.strip().lower()
+                                    role_, created = Role.objects.get_or_create(
+                                        role_key=role_key,
                                         userstory=userstory,
                                         status=ReportUserStory.ANALYS_TYPE.PRECISE,
                                     )
+                                    role_.role = role_item
+                                    role_.save()
 
                             recommendation += f"""Role: {matching_sub["actor"]}\n
                             Recommendation terms for the user: {matching_sub["role_s_list"]}\n
@@ -991,11 +994,14 @@ class AnalysisData:
                             matching_sub["role_s_list"]
                         ):
                             for role_item in matching_sub["role_s_list"]:
-                                Role.objects.get_or_create(
-                                    role=role_item,
+                                role_key = role_item.strip().lower()
+                                role_, created = Role.objects.get_or_create(
+                                    role_key=role_key,
                                     userstory=userstory,
                                     status=ReportUserStory.ANALYS_TYPE.PRECISE,
                                 )
+                                role_.role=role_item
+                                role_.save()
                         recommendation += f"""\n\nProblematic terms:\n\n Role: {matching_sub["actor"]}\n
                         Recommendation terms for the user: {matching_sub["role_s_list"]}\n
                         """
@@ -1403,11 +1409,14 @@ class AnalysisData:
                         for key, value in top_terms_role.items():
                             for role_term in value:
                                 # term = role_term.strip()
-                                Role.objects.get_or_create(
-                                    role=role_term,
+                                role_key = role_term.strip().lower()
+                                role_, created = Role.objects.get_or_create(
+                                    role_key=role_key,
                                     userstory=userstory,
                                     status=ReportUserStory.ANALYS_TYPE.CONSISTENT,
                                 )
+                                role_.role=role_term
+                                role_.save()
                         recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ROLE
 
                     self.save_report(

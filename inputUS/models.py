@@ -335,6 +335,7 @@ class ReportUserStory(MetaAttribute):
 
 class Role(models.Model):
     role = models.CharField(max_length=100, null=True)
+    role_key = models.CharField(max_length=100, null=True)
     userstory = models.ForeignKey(
         UserStory_element, null=True, on_delete=models.CASCADE
     )
