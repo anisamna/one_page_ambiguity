@@ -889,9 +889,9 @@ class AnalysisData:
                             ):
                                 for role_item in matching_sub["role_s_list"]:
                                     Role.objects.get_or_create(
-                                        role=role_item, 
+                                        role=role_item,
                                         userstory=userstory,
-                                        status=ReportUserStory.ANALYS_TYPE.PRECISE
+                                        status=ReportUserStory.ANALYS_TYPE.PRECISE,
                                     )
 
                             recommendation += f"""Role: {matching_sub["actor"]}\n
@@ -994,7 +994,7 @@ class AnalysisData:
                                 Role.objects.get_or_create(
                                     role=role_item,
                                     userstory=userstory,
-                                    status=ReportUserStory.ANALYS_TYPE.PRECISE
+                                    status=ReportUserStory.ANALYS_TYPE.PRECISE,
                                 )
                         recommendation += f"""\n\nProblematic terms:\n\n Role: {matching_sub["actor"]}\n
                         Recommendation terms for the user: {matching_sub["role_s_list"]}\n
@@ -1072,32 +1072,45 @@ class AnalysisData:
         # Create a dictionary to store the top terms for each act_cluster_label
         top_terms_dict = {}
 
+        # NOTE: Old Version
+        # for item in dic_role:
+        #     role = item["actor"]
+        #     role_cluster_label = item["role_cluster_label"]
+        #     terms = [
+        #         term
+        #         for term, pos in pos_tag(word_tokenize(role))
+        #         if pos in noun and term not in excluded_words
+        #     ]
+        #     if role_cluster_label != -1:
+        #         if role_cluster_label not in top_terms_dict:
+        #             top_terms_dict[role_cluster_label] = []
+        #         top_terms_dict[role_cluster_label].extend(terms)
+        # top_terms_role = {}
+        # for label, terms in top_terms_dict.items():
+        #     term_counts = Counter(terms)
+        #     top_terms_role[label] = [
+        #         term for term, count in term_counts.most_common(num_terms)
+        #     ]
+
         # Iterate over the dic_action dictionary
         for item in dic_role:
             role = item["actor"]
             role_cluster_label = item["role_cluster_label"]
 
             # Get the list of terms for the current action
-            terms = [
-                term
-                for term, pos in pos_tag(word_tokenize(role))
-                if pos in noun and term not in excluded_words
-            ]
-
             # Update the top terms for the corresponding act_cluster_label
             if role_cluster_label != -1:
                 if role_cluster_label not in top_terms_dict:
                     top_terms_dict[role_cluster_label] = []
-                top_terms_dict[role_cluster_label].extend(terms)
+                top_terms_dict[role_cluster_label].extend(role)
 
         # Calculate the top terms for each act_cluster_label
         top_terms_role = {}
-        for label, terms in top_terms_dict.items():
-            term_counts = Counter(terms)
+        for label, item in top_terms_dict.items():
+            term_counts = Counter(item)
             top_terms_role[label] = [
-                term for term, count in term_counts.most_common(num_terms)
+                item for item, count in term_counts.most_common(num_terms)
             ]
-
         return top_terms_role
 
     def get_top_terms_act(self, dic_action, num_terms):
@@ -1718,7 +1731,7 @@ class AnalysisData:
                         "description": description,
                         "recommendation_type": recommendation_type,
                         "subject": subject,
-                        "predicate": predicate
+                        "predicate": predicate,
                     },
                     is_problem,
                 )

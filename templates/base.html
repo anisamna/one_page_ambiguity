@@ -152,11 +152,6 @@
               <i class="bi bi-circle"></i><span>See process user stories</span>
             </a>
           </li>
-          <li>
-            <a href="{% url 'view_list_adjusted_userstory' %}">
-              <i class="bi bi-circle"></i><span>See adjusted user stories</span>
-            </a>
-          </li>
          <!--
           <li>
             <a href="/importUS/see_well_formed_US.html">
@@ -196,19 +191,26 @@
       </li> -->
       <!-- End Analysis Nav -->
 
+      <!-- Start Report -->
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'report_userstory_list' %}">
-          <i class="bi bi-layout-text-window-reverse"></i><span>Report</span><i class="bi ms-auto"></i>
+        <a class="nav-link collapsed" data-bs-target="#components-report" data-bs-toggle="collapse" href="#">
+            <i class="bi bi-gear"></i><span>Report</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
-        
-          <!-- <li>
-            <a href="tables-data.html">
-              <i class="bi bi-circle"></i><span>Implicit user story</span>
+        <ul id="components-report" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="{% url 'report_userstory_list' %}">
+              <i class="bi bi-circle"></i><span>See Report User Stories</span>
             </a>
-          </li> -->
-          
-        <!-- </ul> -->
-      </li><!-- End Tables Nav -->
+          </li>
+          <li>
+            <a href="{% url 'view_list_adjusted_userstory' %}">
+              <i class="bi bi-circle"></i><span>See Adjusted User Stories</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+      <!-- End Report -->
+
 
         <!-- Add component settings-->
       <li class="nav-item">

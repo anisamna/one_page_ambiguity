@@ -3,6 +3,7 @@ import re
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+
 # from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
@@ -11,9 +12,18 @@ from django.urls import reverse, reverse_lazy
 from functions.segmentation import segmentation, segmentation_edit_userstory
 
 from .forms import InputUserStory_Form
-from .models import (Glossary, KeywordGlossary, ProcessBackground, Project,
-                     ReportUserStory, Result, Role, US_Upload,
-                     UserStory_element, AdjustedUserStory)
+from .models import (
+    Glossary,
+    KeywordGlossary,
+    ProcessBackground,
+    Project,
+    ReportUserStory,
+    Result,
+    Role,
+    US_Upload,
+    UserStory_element,
+    AdjustedUserStory,
+)
 from .tasks import task_process_analys_data
 
 # from functions.well_formed import well_formed_an
@@ -397,39 +407,46 @@ def edit_userstory(request, userstory_id):
     if type:
         type = int(type)
 
-        reportuserstory = userstory.reportuserstory_set.filter(
-            type=type
-        )
+        reportuserstory = userstory.reportuserstory_set.filter(type=type)
         if reportuserstory.exists():
             reportuserstory = reportuserstory.last()
             is_edit_role = False
             is_edit_action = False
             if reportuserstory.recommendation_type:
                 # print("recommendation_type", reportuserstory.recommendation_type)
-                is_edit_role = reportuserstory.recommendation_type in [ReportUserStory.RECOMENDATION_TYPE.ROLE, ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE]
-                is_edit_action = reportuserstory.recommendation_type in [ReportUserStory.RECOMENDATION_TYPE.ACTION, ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE, ReportUserStory.RECOMENDATION_TYPE.ACTION_MANUAL]
+                is_edit_role = reportuserstory.recommendation_type in [
+                    ReportUserStory.RECOMENDATION_TYPE.ROLE,
+                    ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE,
+                ]
+                is_edit_action = reportuserstory.recommendation_type in [
+                    ReportUserStory.RECOMENDATION_TYPE.ACTION,
+                    ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE,
+                    ReportUserStory.RECOMENDATION_TYPE.ACTION_MANUAL,
+                ]
             else:
-                extra_context.update({
-                    'role_custom_list': Role.objects.filter(userstory__Project_Name=userstory.Project_Name),
-                    'keyword_custom_list': KeywordGlossary.objects.all(),
-                    'glossary_custom_list': Glossary.objects.all(),
-                })
-            print("is_edit_role", is_edit_role)
-            print("is_edit_action", is_edit_action)
-            extra_context.update({
-                "reportuserstory": reportuserstory,
-                "is_edit_role": is_edit_role,
-                "is_edit_action": is_edit_action,
-            })
+                extra_context.update(
+                    {
+                        "role_custom_list": Role.objects.filter(
+                            userstory__Project_Name=userstory.Project_Name
+                        ),
+                        "keyword_custom_list": KeywordGlossary.objects.all(),
+                        "glossary_custom_list": Glossary.objects.all(),
+                    }
+                )
+            extra_context.update(
+                {
+                    "reportuserstory": reportuserstory,
+                    "is_edit_role": is_edit_role,
+                    "is_edit_action": is_edit_action,
+                }
+            )
 
     if status:
         status = int(status)
-    
 
     role_label = "Role"
     action_label = "Action"
     action_improve_label = action_label
-    
 
     if (
         type
@@ -456,16 +473,19 @@ def edit_userstory(request, userstory_id):
 
             if reportterms.exists():
                 extra_context.update({"reportterms": reportterms.last()})
-            # ReportTerms.objects.filter()
             role_list = role_list.filter(status=ReportUserStory.ANALYS_TYPE.PRECISE)
-            extra_context.update({
-                "role_list": role_list,
-            })
+            extra_context.update(
+                {
+                    "role_list": role_list,
+                }
+            )
         elif type == ReportUserStory.ANALYS_TYPE.CONSISTENT:
             role_list = role_list.filter(status=ReportUserStory.ANALYS_TYPE.CONSISTENT)
-            extra_context.update({
-                "role_list": role_list,
-            })
+            extra_context.update(
+                {
+                    "role_list": role_list,
+                }
+            )
         elif type == ReportUserStory.ANALYS_TYPE.CONCEPTUALLY:
             role_label = "Subject"
             action_label = "Predicate"
@@ -474,23 +494,28 @@ def edit_userstory(request, userstory_id):
                 type=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY
             )
             if reportterms.exists():
-                print(reportterms)
                 extra_context.update({"reportterms": reportterms.last()})
-            role_list = role_list.filter(status=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY)
-            extra_context.update({
-                "role_list": role_list,
-            })
+            role_list = role_list.filter(
+                status=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY
+            )
+            extra_context.update(
+                {
+                    "role_list": role_list,
+                }
+            )
 
-    extra_context.update({
-        "userstory": userstory,
-        "improved_terms_show": improved_terms_show,
-        "role_label": role_label,
-        "action_label": action_label,
-        "action_improve_label": action_improve_label
-    })
+    extra_context.update(
+        {
+            "userstory": userstory,
+            "improved_terms_show": improved_terms_show,
+            "role_label": role_label,
+            "action_label": action_label,
+            "action_improve_label": action_improve_label,
+        }
+    )
 
     if request.POST:
-        type_status = request.POST.get('status', 0)
+        type_status = request.POST.get("status", 0)
         userstory_list = request.POST.getlist("userstory_list[]", [])
         if int(type_status) == ReportUserStory.ANALYS_TYPE.ATOMICITY:
             if len(userstory_list):
@@ -500,8 +525,8 @@ def edit_userstory(request, userstory_id):
 
                 # segmentation_edit_userstory(userstory_id)
                 # if userstory.get_report_list().exists():
-                    # delete data report
-                    # userstory.get_report_list().delete()
+                # delete data report
+                # userstory.get_report_list().delete()
 
                 if len(userstory_list):
                     for item in userstory_list:
@@ -514,7 +539,7 @@ def edit_userstory(request, userstory_id):
                             AdjustedUserStory.objects.create(
                                 userstory=userstory,
                                 adjusted=item,
-                                status=ReportUserStory.ANALYS_TYPE.ATOMICITY
+                                status=ReportUserStory.ANALYS_TYPE.ATOMICITY,
                             )
                             segmentation_edit_userstory(userstory_child.id, True)
 
@@ -525,18 +550,20 @@ def edit_userstory(request, userstory_id):
                     else ""
                 )
             else:
-                messages.warning(request, "Warning, at least one user story must be inputted.")
-        elif int(type_status) == ReportUserStory.ANALYS_TYPE.CONCEPTUALLY:
-            improved_predicate = request.POST.get('improved_predicate', None)
-            problematic_predicate = request.POST.get('problematic_predicate', None)
-            if improved_predicate and problematic_predicate:
-                adjusted = userstory.UserStory_Full_Text.replace(
-                    problematic_predicate, improved_predicate
+                messages.warning(
+                    request, "Warning, at least one user story must be inputted."
                 )
+        elif int(type_status) == ReportUserStory.ANALYS_TYPE.CONCEPTUALLY:
+            improved_predicate = request.POST.get("improved_predicate", None)
+            problematic_predicate = request.POST.get("problematic_predicate", None)
+            if improved_predicate and problematic_predicate:
+                # adjusted = userstory.UserStory_Full_Text.replace(
+                #     problematic_predicate, improved_predicate
+                # )
                 AdjustedUserStory.objects.create(
                     userstory=userstory,
-                    adjusted=adjusted,
-                    status=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY
+                    adjusted=improved_predicate,
+                    status=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY,
                 )
                 messages.success(request, "Success update userstory.")
                 return redirect(
@@ -549,8 +576,8 @@ def edit_userstory(request, userstory_id):
             problematic_role = request.POST.get("problematic_role", None)
             improved_role = request.POST.get("improved_role", None)
             # print(problematic_role, improved_role)
+            old_text = userstory.UserStory_Full_Text
             if problematic_role and improved_role:
-                old_text = userstory.UserStory_Full_Text
                 textstory = userstory.UserStory_Full_Text.replace(
                     problematic_role, improved_role
                 )
@@ -560,7 +587,7 @@ def edit_userstory(request, userstory_id):
                 AdjustedUserStory.objects.create(
                     userstory=userstory,
                     adjusted=textstory,
-                    status=int(type_status) if type_status else None
+                    status=int(type_status) if type_status else None,
                 )
                 is_edit = True
 
@@ -577,6 +604,17 @@ def edit_userstory(request, userstory_id):
                 )
                 keyword_obj.item_name.add(glosasry_obj)
                 keyword_obj.save()
+                textstory = userstory.UserStory_Full_Text.replace(
+                    problematic_action, improved_action
+                )
+                userstory.UserStory_Full_Text = textstory
+                userstory.old_userstory = old_text
+                userstory.save()
+                AdjustedUserStory.objects.create(
+                    userstory=userstory,
+                    adjusted=textstory,
+                    status=int(type_status) if type_status else None,
+                )
                 is_edit = True
 
             if is_edit:
@@ -619,16 +657,16 @@ def view_list_project(request):
     projects = Project.objects.all()
     if not request.user.is_superuser:
         projects = projects.filter(created_by=request.user)
-    paginator = Paginator(projects.order_by('-created_at'), 20)
+    paginator = Paginator(projects.order_by("-created_at"), 20)
     page = request.GET.get("page", 1)
     view_all = paginator.get_page(page)
-    extra_context = {"view_all": view_all, 'title': 'View Projects'}
+    extra_context = {"view_all": view_all, "title": "View Projects"}
     return render(request, "inputUS/project/view.html", extra_context)
 
 
 @login_required(login_url=reverse_lazy("login_"))
 def view_add_project(request):
-    extra_context = {'title': 'Add Projects'}
+    extra_context = {"title": "Add Projects"}
 
     if request.POST:
         project_name = request.POST.get("project_name", None)
@@ -647,7 +685,7 @@ def view_add_project(request):
 @login_required(login_url=reverse_lazy("login_"))
 def view_edit_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
-    extra_context = {"project": project, 'title': 'Edit Projects'}
+    extra_context = {"project": project, "title": "Edit Projects"}
     if request.POST:
         project_name = request.POST.get("project_name", None)
         project_description = request.POST.get("project_description", None)
@@ -811,7 +849,7 @@ def print_report(request):
 @login_required(login_url=reverse_lazy("login_"))
 def view_list_keyword(request):
     queryset = KeywordGlossary.objects.all()
-    paginator = Paginator(queryset.order_by('-id'), 20)
+    paginator = Paginator(queryset.order_by("-id"), 20)
     page = request.GET.get("page", 1)
     view_all = paginator.get_page(page)
     return render(
@@ -820,34 +858,34 @@ def view_list_keyword(request):
         {"title": "Keyword", "view_all": view_all},
     )
 
+
 @login_required(login_url=reverse_lazy("login_"))
 def view_add_keyword(request):
     if request.POST:
-        keyword = request.POST.get('keyword', None)
+        keyword = request.POST.get("keyword", None)
         if keyword:
             key, created = KeywordGlossary.objects.get_or_create(keyword=keyword)
             messages.success(request, "Success add keyword.")
             return redirect(reverse("master_keyword"))
-        
+
     return render(
         request,
         "inputUS/keyword/add.html",
         {
-            "title": "Add Keyword", 
+            "title": "Add Keyword",
         },
     )
+
 
 @login_required(login_url=reverse_lazy("login_"))
 def view_add_action(request):
     keyword_list = KeywordGlossary.objects.all()
     if request.POST:
-        keyword = request.POST.get('keyword', None)
-        action = request.POST.get('action', None)
+        keyword = request.POST.get("keyword", None)
+        action = request.POST.get("action", None)
 
         if keyword and action:
-            action, created = Glossary.objects.get_or_create(
-                Action_item=action
-            )
+            action, created = Glossary.objects.get_or_create(Action_item=action)
             try:
                 keyword_obj = KeywordGlossary.objects.get(id=keyword)
             except KeywordGlossary.DoesNotExist:
@@ -860,10 +898,7 @@ def view_add_action(request):
     return render(
         request,
         "inputUS/keyword/add_action.html",
-        {
-            "title": "Add Action",
-            "keyword_list": keyword_list
-        },
+        {"title": "Add Action", "keyword_list": keyword_list},
     )
 
 
@@ -872,32 +907,33 @@ def view_list_processbackground(request):
     process = ProcessBackground.objects.all()
     if not request.user.is_superuser:
         process = process.filter(created_by=request.user)
-    paginator = Paginator(process.order_by('-created_at'), 20)
+    paginator = Paginator(process.order_by("-created_at"), 20)
     page = request.GET.get("page", 1)
     view_all = paginator.get_page(page)
     return render(
         request,
         "inputUS/background/view.html",
-        {"title": "Process Background User Stories", 'view_all': view_all},
+        {"title": "Process Background User Stories", "view_all": view_all},
     )
 
 
 @login_required(login_url=reverse_lazy("login_"))
 def view_list_accounts(request):
     accounts = User.objects.all()
-    paginator = Paginator(accounts.order_by('-id'), 20)
+    paginator = Paginator(accounts.order_by("-id"), 20)
     page = request.GET.get("page", 1)
     view_all = paginator.get_page(page)
     return render(
         request,
         "inputUS/accounts/view.html",
-        {"title": "Accounts", 'view_all': view_all},
+        {"title": "Accounts", "view_all": view_all},
     )
 
 
 @login_required(login_url=reverse_lazy("login_"))
 def view_list_adjusted_userstory(request):
     from django.db.models import Q
+
     adjusted_list = AdjustedUserStory.objects.all()
     project_list = Project.objects.all()
 
@@ -905,35 +941,30 @@ def view_list_adjusted_userstory(request):
         adjusted_list = adjusted_list.filter(created_by=request.user)
         project_list = project_list.filter(created_by=request.user)
 
-    q = request.GET.get('q', None)
+    q = request.GET.get("q", None)
     if q:
         adjusted_list = adjusted_list.filter(
             Q(userstory_text__icontains=q) | Q(adjusted__icontains=q)
         )
-    project = request.GET.get('project', None)
+    project = request.GET.get("project", None)
     if project:
-        adjusted_list = adjusted_list.filter(
-            userstory__Project_Name_id=project
-        )
-    status = request.GET.get('status', None)
+        adjusted_list = adjusted_list.filter(userstory__Project_Name_id=project)
+    status = request.GET.get("status", None)
     if status:
-        adjusted_list = adjusted_list.filter(
-            status=status
-        )
+        adjusted_list = adjusted_list.filter(status=status)
 
-    mode = request.GET.get('mode', None)
+    mode = request.GET.get("mode", None)
     if mode == "pdf":
         return render(
             request,
             "inputUS/adjusted/view_pdf.html",
             {
-                "title": "Adjusted User Story", 
-                'adjusted_list': adjusted_list,
+                "title": "Adjusted User Story",
+                "adjusted_list": adjusted_list,
             },
         )
-        
 
-    paginator = Paginator(adjusted_list.order_by('-created_at'), 20)
+    paginator = Paginator(adjusted_list.order_by("-created_at"), 20)
     page = request.GET.get("page", 1)
     view_all = paginator.get_page(page)
 
@@ -941,11 +972,11 @@ def view_list_adjusted_userstory(request):
         request,
         "inputUS/adjusted/view.html",
         {
-            "title": "Adjusted User Story", 
-            'view_all': view_all,
-            'project_list': project_list,
-            'status_list': ReportUserStory.ANALYS_TYPE.choices,
-            'project_value': int(project) if project else None,
-            'status_value': int(status) if status else None,
+            "title": "Adjusted User Story",
+            "view_all": view_all,
+            "project_list": project_list,
+            "status_list": ReportUserStory.ANALYS_TYPE.choices,
+            "project_value": int(project) if project else None,
+            "status_value": int(status) if status else None,
         },
     )
