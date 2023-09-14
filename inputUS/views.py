@@ -165,7 +165,7 @@ def show_splitted_UserStory(request):
 
 @login_required(login_url=reverse_lazy("login_"))
 def analyze_data(request):
-    # from functions.analysis_userstory import AnalysisData
+    from functions.analysis_userstory import AnalysisData
     import gc
 
     import torch
@@ -215,33 +215,38 @@ def analyze_data(request):
         ).values_list("id", flat=True)
         story_list_id = list(set(userstory_list))
 
-        process_obj = ProcessBackground.objects.create(
-            created_by=request.user,
-            eps_value=eps_value,
-            min_samples_value=min_samples_value,
-            terms_role_value=terms_role_value,
-            terms_action_value=terms_action_value,
-            topics_value=topics_value,
-            similarity_value=similarity_value,
-        )
-        process_obj.userstorys.add(*story_list_id)
-        process_obj.save()
-        task_process_analys_data.delay(process_obj.id)
-        # AnalysisData(
-        #     story_list_id,
-        #     eps_value,
-        #     min_samples_value,
-        #     terms_role_value,
-        #     terms_action_value,
-        #     topics_value,
-        #     similarity_value,
-        #     request.user,
-        # ).start()
+        # process_obj = ProcessBackground.objects.create(
+        #     created_by=request.user,
+        #     eps_value=eps_value,
+        #     min_samples_value=min_samples_value,
+        #     terms_role_value=terms_role_value,
+        #     terms_action_value=terms_action_value,
+        #     topics_value=topics_value,
+        #     similarity_value=similarity_value,
+        # )
+        # process_obj.userstorys.add(*story_list_id)
+        # process_obj.save()
+        # task_process_analys_data.delay(process_obj.id)
+        # messages.success(
+        #     request,
+        #     "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
+        # )
+        # return redirect(reverse("view_process_background"))
+        AnalysisData(
+            story_list_id,
+            eps_value,
+            min_samples_value,
+            terms_role_value,
+            terms_action_value,
+            topics_value,
+            similarity_value,
+            request.user,
+        ).start()
         messages.success(
             request,
             "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
         )
-        return redirect(reverse("view_process_background"))
+        # return redirect(reverse("view_process_background"))
     else:
         data_list_id = request.POST.getlist("userstory_id", [])
 
@@ -258,28 +263,28 @@ def analyze_data(request):
         ).values_list("id", flat=True)
         story_list_id = list(set(userstory_list))
 
-        process_obj = ProcessBackground.objects.create(
-            created_by=request.user,
-            eps_value=eps_value,
-            min_samples_value=min_samples_value,
-            terms_role_value=terms_role_value,
-            terms_action_value=terms_action_value,
-            topics_value=topics_value,
-            similarity_value=similarity_value,
-        )
-        process_obj.userstorys.add(*story_list_id)
-        process_obj.save()
-        task_process_analys_data.delay(process_obj.id)
-        # AnalysisData(
-        #     data_list_id,
-        #     eps_value,
-        #     min_samples_value,
-        #     terms_role_value,
-        #     terms_action_value,
-        #     topics_value,
-        #     similarity_value,
-        #     request.user,
-        # ).start()
+        # process_obj = ProcessBackground.objects.create(
+        #     created_by=request.user,
+        #     eps_value=eps_value,
+        #     min_samples_value=min_samples_value,
+        #     terms_role_value=terms_role_value,
+        #     terms_action_value=terms_action_value,
+        #     topics_value=topics_value,
+        #     similarity_value=similarity_value,
+        # )
+        # process_obj.userstorys.add(*story_list_id)
+        # process_obj.save()
+        # task_process_analys_data.delay(process_obj.id)
+        AnalysisData(
+            data_list_id,
+            eps_value,
+            min_samples_value,
+            terms_role_value,
+            terms_action_value,
+            topics_value,
+            similarity_value,
+            request.user,
+        ).start()
         messages.success(
             request,
             "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
