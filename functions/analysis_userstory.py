@@ -1098,17 +1098,22 @@ class AnalysisData:
         #         term for term, count in term_counts.most_common(num_terms)
         #     ]
 
-        # Iterate over the dic_action dictionary
         for item in dic_role:
             role = item["actor"]
+            #print('role: ',role)
             role_cluster_label = item["role_cluster_label"]
-
+            #print("role_cluster_label: ", role_cluster_label)
+                
             # Get the list of terms for the current action
+            terms = [role] if ' ' in role else [term for term, pos in pos_tag(word_tokenize(role)) if pos in noun and term not in excluded_words] 
+
+            #print('terms: ',terms)
+
             # Update the top terms for the corresponding act_cluster_label
             if role_cluster_label != -1:
                 if role_cluster_label not in top_terms_dict:
                     top_terms_dict[role_cluster_label] = []
-                top_terms_dict[role_cluster_label].extend(role)
+                top_terms_dict[role_cluster_label].extend(terms)
 
         # Calculate the top terms for each act_cluster_label
         top_terms_role = {}
