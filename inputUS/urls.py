@@ -6,7 +6,9 @@ urlpatterns = [
     # path('admin/', admin.site.urls),
     path("upload_US.html", views.Upload_UserStory, name="Upload_User_Story"),
     # path('upload_US.html/show_US<int:id>', views.show_uploaded_UserStory, name='show_UserStory'),
-    path("userstory/add", views.AddSingleUserStory.as_view(), name="add_single_userstory"),
+    path(
+        "userstory/add", views.AddSingleUserStory.as_view(), name="add_single_userstory"
+    ),
     path("see_uploaded_US.html", views.show_uploaded_UserStory, name="show_UserStory"),
     path(
         "preprocessed_US/<int:id>",
@@ -27,7 +29,9 @@ urlpatterns = [
         name="userstory_project_add",
     ),
     path(
-        "userstory/<int:report_id>/edit", views.edit_userstory, name="report_userstory_edit"
+        "userstory/<int:report_id>/edit",
+        views.edit_userstory,
+        name="report_userstory_edit",
     ),
     path("userstory/analyze", views.analyze_data, name="analyze_data"),
     path("userstory/projects", views.view_list_project, name="projects_list_view"),
@@ -51,5 +55,9 @@ urlpatterns = [
         name="view_process_background",
     ),
     path("accounts", views.view_list_accounts, name="view_list_accounts"),
-    path("userstory/adjusted", views.view_list_adjusted_userstory, name="view_list_adjusted_userstory"),
+    path(
+        "userstory/adjusted",
+        views.view_list_adjusted_userstory,
+        name="view_list_adjusted_userstory",
+    ),
 ]

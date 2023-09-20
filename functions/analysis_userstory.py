@@ -17,14 +17,8 @@ from sentence_transformers import util
 from sklearn.cluster import DBSCAN
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from inputUS.models import (
-    Glossary,
-    KeywordGlossary,
-    ReportTerms,
-    ReportUserStory,
-    Role,
-    UserStory_element,
-)
+from inputUS.models import (Glossary, KeywordGlossary, ReportTerms,
+                            ReportUserStory, Role, UserStory_element)
 
 
 class AnalysisData:
@@ -120,9 +114,7 @@ class AnalysisData:
         # print(data)
         # print(is_problem)
         report_list = ReportUserStory.objects.filter(
-            userstory=userstory,
-            status=status,
-            type=type
+            userstory=userstory, status=status, type=type
         )
         report = None
         if report_list.exists() and report_list.count() > 1:
@@ -146,20 +138,29 @@ class AnalysisData:
             userstory.save()
         return report
 
-    def start(self):
-        # 1. well-formed
-        self.well_formed_data = self.well_formed()
-        # print("well_formed", self.well_formed_data)
-        for item in self.well_formed_data:
-            self.save_report(
-                item["userstory_obj"],
-                item["status"],
-                ReportUserStory.ANALYS_TYPE.WELL_FORMED,
-                {
-                    "recommendation": item["recommendation"],
-                },
-                item["is_problem"],
-            )
+    def start(
+        self,
+        is_preciseness=True,
+        is_well_formedness=True,
+        is_conciseness=True,
+        is_atomicity=True,
+        is_conceptually_sound=True,
+        is_uniqueness=True,
+    ):
+        if is_well_formedness:
+            # 1. well-formed
+            self.well_formed_data = self.well_formed()
+            # print("well_formed", self.well_formed_data)
+            for item in self.well_formed_data:
+                self.save_report(
+                    item["userstory_obj"],
+                    item["status"],
+                    ReportUserStory.ANALYS_TYPE.WELL_FORMED,
+                    {
+                        "recommendation": item["recommendation"],
+                    },
+                    item["is_problem"],
+                )
 
         # # 2. atomicity
         self.atomic_data = self.atomicity_stat()
@@ -179,50 +180,55 @@ class AnalysisData:
                         f"User Story #{index+1}: {child.UserStory_Full_Text}\n\n"
                     )
             atomicity_status = item["atomicity_status"]
-            # conciseness
-            if "conciseness" in atomicity_status:
-                is_problem_conciseness = False
-                if "does not meet conciseness" in atomicity_status:
-                    # potentially ambiguous
-                    is_problem_conciseness = True
-                elif "meet conciseness" in atomicity_status:
-                    # good quality
+            if is_conciseness:
+                # conciseness
+                if "conciseness" in atomicity_status:
                     is_problem_conciseness = False
+                    if "does not meet conciseness" in atomicity_status:
+                        # potentially ambiguous
+                        is_problem_conciseness = True
+                    elif "meet conciseness" in atomicity_status:
+                        # good quality
+                        is_problem_conciseness = False
 
+                    self.save_report(
+                        item["userstory_obj"],
+                        atomicity_status,
+                        ReportUserStory.ANALYS_TYPE.CONCISENESS,
+                        {
+                            "recommendation": recommendation,
+                            "description": description,
+                        },
+                        is_problem_conciseness,
+                    )
+            if is_atomicity:
                 self.save_report(
                     item["userstory_obj"],
                     atomicity_status,
-                    ReportUserStory.ANALYS_TYPE.CONCISENESS,
+                    ReportUserStory.ANALYS_TYPE.ATOMICITY,
                     {
                         "recommendation": recommendation,
                         "description": description,
                     },
-                    is_problem_conciseness
+                    item["atomicity_is_problem"],
                 )
-            self.save_report(
-                item["userstory_obj"],
-                atomicity_status,
-                ReportUserStory.ANALYS_TYPE.ATOMICITY,
-                {
-                    "recommendation": recommendation,
-                    "description": description,
-                },
-                item["atomicity_is_problem"],
-            )
 
-        # # 3. preciseness
-        self.preciseness_data = self.running_preciseness()
+        if is_preciseness:
+            # 3. preciseness
+            self.preciseness_data = self.running_preciseness()
 
-        # # 4. consistency / consistent
-        self.running_stat_consistency()
+        # 4. consistency / consistent
+        # self.running_stat_consistency()
 
-        # # 5. conceptually sound
-        self.stat_conceptually_sound()
+        if is_conceptually_sound:
+            # 5. conceptually sound
+            self.stat_conceptually_sound()
 
-        # # 6. uniqueness
-        self.stat_uniqueness_criteria()
-        gc.collect()
-        torch.cuda.empty_cache()
+        if is_uniqueness:
+            # 6. uniqueness
+            self.stat_uniqueness_criteria()
+            gc.collect()
+            torch.cuda.empty_cache()
 
     # ============ Well Formed ============
     def well_formed(self):
@@ -260,7 +266,18 @@ class AnalysisData:
                     ):
                         Who_identifier = Who_full.Who_identifier.lower()
                         What_identifier = What_full.What_identifier.lower()
-                        if Who_identifier not in ("as an", "as a", "as") or What_identifier not in ("i want", "i want to", "i'm able to", "i am able to", "i'm able", "i am able"):
+                        if Who_identifier not in (
+                            "as an",
+                            "as a",
+                            "as",
+                        ) or What_identifier not in (
+                            "i want",
+                            "i want to",
+                            "i'm able to",
+                            "i am able to",
+                            "i'm able",
+                            "i am able",
+                        ):
                             status = "Well-formed criteria is not achieved, anbiguity does not exist !"
                             is_problem = True
                         else:
@@ -709,7 +726,9 @@ class AnalysisData:
         index = 0
         for item in self.well_formed_data:  # ganti menggunakan well form data
             text = item.get("userstory")
-            action = item.get("action").What_action if item.get("action", None) else None
+            action = (
+                item.get("action").What_action if item.get("action", None) else None
+            )
             doc = self.nlp(action)
             sentence_class = set()
             keyword_words = set()
@@ -787,7 +806,9 @@ class AnalysisData:
                         )
                         recommendation = "Change the user role and the action using the standard terminology"
                         is_problem = True
-                        recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
+                        recommendation_type = (
+                            ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
+                        )
                     elif sub["cluster_label"] == -1 and act["label"] == "1":
                         status = (
                             "Preciseness criterion is not achieved."
@@ -806,7 +827,9 @@ class AnalysisData:
                         )
                         recommendation = "Change the user role and word of action using the standard terminology."
                         is_problem = True
-                        recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
+                        recommendation_type = (
+                            ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
+                        )
                     elif sub["cluster_label"] != -1 and act["label"] == "":
                         status = (
                             "Preciseness criterion does not achieved."
@@ -830,7 +853,9 @@ class AnalysisData:
                         )
                         recommendation = "Change the user role and the action using the standard terminology."
                         is_problem = True
-                        recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
+                        recommendation_type = (
+                            ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
+                        )
                     sub["status"] = status
                     sub["recommendation"] = recommendation
                     sub["is_problem"] = is_problem
@@ -884,7 +909,7 @@ class AnalysisData:
                                     Action: {action_}"""
 
                     recommendation = matching_sub["recommendation"]
-                    recommendation_type = matching_sub.get('recommendation_type', None)
+                    recommendation_type = matching_sub.get("recommendation_type", None)
 
                     if (
                         matching_sub["cluster_label"] == -1
@@ -1038,7 +1063,7 @@ class AnalysisData:
                                     userstory=userstory,
                                     status=ReportUserStory.ANALYS_TYPE.PRECISE,
                                 )
-                                role_.role=role_item
+                                role_.role = role_item
                                 role_.save()
                         recommendation += f"""\n\nProblematic terms:\n\n Role: {matching_sub["actor"]}\n
                         Recommendation terms for the user: {matching_sub["role_s_list"]}\n
@@ -1103,7 +1128,7 @@ class AnalysisData:
                             "description": description,
                             "recommendation_type": recommendation_type,
                             "subject": str(role_),
-                            "predicate": str(action_)
+                            "predicate": str(action_),
                         },
                         is_problem,
                     )
@@ -1140,14 +1165,22 @@ class AnalysisData:
 
         for item in dic_role:
             role = item["actor"]
-            #print('role: ',role)
+            # print('role: ',role)
             role_cluster_label = item["role_cluster_label"]
-            #print("role_cluster_label: ", role_cluster_label)
-                
-            # Get the list of terms for the current action
-            terms = [role] if ' ' in role else [term for term, pos in pos_tag(word_tokenize(role)) if pos in noun and term not in excluded_words] 
+            # print("role_cluster_label: ", role_cluster_label)
 
-            #print('terms: ',terms)
+            # Get the list of terms for the current action
+            terms = (
+                [role]
+                if " " in role
+                else [
+                    term
+                    for term, pos in pos_tag(word_tokenize(role))
+                    if pos in noun and term not in excluded_words
+                ]
+            )
+
+            # print('terms: ',terms)
 
             # Update the top terms for the corresponding act_cluster_label
             if role_cluster_label != -1:
@@ -1460,7 +1493,7 @@ class AnalysisData:
                                     userstory=userstory,
                                     status=ReportUserStory.ANALYS_TYPE.CONSISTENT,
                                 )
-                                role_.role=role_term
+                                role_.role = role_term
                                 role_.save()
                         recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ROLE
 
@@ -1796,7 +1829,7 @@ class AnalysisData:
     def stat_uniqueness_criteria(self):
         # model_st = SentenceTransformer("all-MiniLM-L6-v2")
         from django.conf import settings
-        
+
         pair_role = []
         pair_action = []
         pair_goal = []

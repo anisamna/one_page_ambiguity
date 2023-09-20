@@ -3,8 +3,8 @@ import re
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.db.models import Q
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
@@ -12,22 +12,15 @@ from django.views.generic.base import TemplateView
 from functions.segmentation import segmentation, segmentation_edit_userstory
 
 from .forms import InputUserStory_Form
-from .models import (
-    Glossary,
-    KeywordGlossary,
-    ProcessBackground,
-    Project,
-    ReportUserStory,
-    Result,
-    Role,
-    US_Upload,
-    UserStory_element,
-    AdjustedUserStory,
-)
+from .models import (AdjustedUserStory, Glossary, KeywordGlossary,
+                     ProcessBackground, Project, ReportUserStory, Result, Role,
+                     US_Upload, UserStory_element)
+
 # from .tasks import task_process_analys_data
 
 # from functions.well_formed import well_formed_an
 # from functions.analysis import well_formed_an, stat_preciseness
+
 
 class AddSingleUserStory(TemplateView):
     template_name = "inputUS/userstory/add.html"
@@ -35,33 +28,35 @@ class AddSingleUserStory(TemplateView):
     upload_list = US_Upload.objects.all()
 
     def get(self, request):
-        return render(request, self.template_name, {
-            'title': 'Add User Story',
-            'projects': self.project_list,
-            'uploads': self.upload_list
-        })
+        return render(
+            request,
+            self.template_name,
+            {
+                "title": "Add User Story",
+                "projects": self.project_list,
+                "uploads": self.upload_list,
+            },
+        )
 
     def post(self, request):
-        project = request.POST.get('project', None)
-        file = request.POST.get('file', None)
-        custom_file = request.POST.get('custom_file', None)
-        input_custom_file = request.POST.get('input_custom_file', None)
-        userstory = request.POST.get('userstory', None)
+        project = request.POST.get("project", None)
+        file = request.POST.get("file", None)
+        custom_file = request.POST.get("custom_file", None)
+        input_custom_file = request.POST.get("input_custom_file", None)
+        userstory = request.POST.get("userstory", None)
         user = request.user
 
         if userstory and project:
             userstory_obj = UserStory_element.objects.create(
-                Project_Name_id=project,
-                UserStory_Full_Text=userstory,
-                created_by=user
+                Project_Name_id=project, UserStory_Full_Text=userstory, created_by=user
             )
-            if custom_file == 'on':
+            if custom_file == "on":
                 us_upload_obj, created = US_Upload.objects.get_or_create(
                     US_Project_Domain_id=project,
                     US_File_Name=input_custom_file,
                     US_File_Content={},
                     is_show=False,
-                    created_by=user
+                    created_by=user,
                 )
                 userstory_obj.UserStory_File_ID = us_upload_obj
             else:
@@ -69,9 +64,10 @@ class AddSingleUserStory(TemplateView):
             userstory_obj.save()
             segmentation_edit_userstory(userstory_obj.id, True)
             messages.success(request, "Success, add new user story")
-            return redirect(reverse_lazy('show_splitted_UserStory'))
+            return redirect(reverse_lazy("show_splitted_UserStory"))
 
-        return redirect(reverse_lazy('add_single_userstory'))
+        return redirect(reverse_lazy("add_single_userstory"))
+
 
 @login_required(login_url=reverse_lazy("login_"))
 def Upload_UserStory(request):
@@ -210,9 +206,12 @@ def show_splitted_UserStory(request):
 
 @login_required(login_url=reverse_lazy("login_"))
 def analyze_data(request):
-    from functions.analysis_userstory import AnalysisData
     import gc
+
     import torch
+
+    from functions.analysis_userstory import AnalysisData
+
     gc.collect()
     torch.cuda.empty_cache()
 
@@ -224,6 +223,47 @@ def analyze_data(request):
         topics_value,
         similarity_value,
     ) = (0.5, 2, 5, 7, 10, None)
+
+    (
+        is_preciseness,
+        is_well_formedness,
+        is_conciseness,
+        is_atomicity,
+        is_conceptually_sound,
+        is_uniqueness,
+    ) = (False, False, False, False, False, False)
+    preciseness_checkbox = request.POST.get("preciseness_checkbox", None)
+    if preciseness_checkbox == "on":
+        is_preciseness = True
+        preciseness_input = request.POST.get("preciseness_input", None)
+        if preciseness_input:
+            eps_value = preciseness_input
+
+    well_formedness_checkbox = request.POST.get("well_formedness_checkbox", None)
+    if well_formedness_checkbox == "on":
+        is_well_formedness = True
+
+    conciseness_checkbox = request.POST.get("conciseness_checkbox", None)
+    if conciseness_checkbox == "on":
+        is_conciseness = True
+
+    atomicity_checkbox = request.POST.get("atomicity_checkbox", None)
+    if atomicity_checkbox == "on":
+        is_atomicity = True
+
+    conceptually_sound_checkbox = request.POST.get("conceptually_sound_checkbox", None)
+    if conceptually_sound_checkbox == "on":
+        is_conceptually_sound = True
+        conceptually_sound_input = request.POST.get("conceptually_sound_input", None)
+        if conceptually_sound_input:
+            topics_value = conceptually_sound_input
+
+    uniqueness_checkbox = request.POST.get("uniqueness_checkbox", None)
+    if uniqueness_checkbox == "on":
+        is_uniqueness = True
+        uniqueness_input = request.POST.get("uniqueness_input", None)
+        if uniqueness_input:
+            similarity_value = uniqueness_input
 
     all_in_project = request.POST.get("all_in_project", None)
     if all_in_project == "on":
@@ -243,7 +283,14 @@ def analyze_data(request):
             topics_value,
             similarity_value,
             request.user,
-        ).start()
+        ).start(
+            is_preciseness,
+            is_well_formedness,
+            is_conciseness,
+            is_atomicity,
+            is_conceptually_sound,
+            is_uniqueness,
+        )
         messages.success(
             request,
             "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
@@ -286,7 +333,14 @@ def analyze_data(request):
             topics_value,
             similarity_value,
             request.user,
-        ).start()
+        ).start(
+            is_preciseness,
+            is_well_formedness,
+            is_conciseness,
+            is_atomicity,
+            is_conceptually_sound,
+            is_uniqueness,
+        )
         messages.success(
             request,
             "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
@@ -419,9 +473,9 @@ def edit_userstory(request, report_id):
     # if type:
     #     type = int(type)
 
-        # reportuserstory = userstory.reportuserstory_set.filter(type=type)
-        # if reportuserstory.exists():
-        #     reportuserstory = reportuserstory.last()
+    # reportuserstory = userstory.reportuserstory_set.filter(type=type)
+    # if reportuserstory.exists():
+    #     reportuserstory = reportuserstory.last()
     is_edit_role = False
     is_edit_action = False
     if reportuserstory.recommendation_type:
@@ -440,7 +494,7 @@ def edit_userstory(request, report_id):
             {
                 "role_custom_list": Role.objects.filter(
                     userstory__Project_Name=userstory.Project_Name
-                ).distinct('role_key'),
+                ).distinct("role_key"),
                 "keyword_custom_list": KeywordGlossary.objects.all(),
                 "glossary_custom_list": Glossary.objects.all(),
             }
@@ -592,11 +646,11 @@ def edit_userstory(request, report_id):
             # print(problematic_role, improved_role)
             old_text = userstory.UserStory_Full_Text
             if problematic_role and improved_role:
-                improved_role = f' {improved_role} '
+                improved_role = f" {improved_role} "
                 textstory = userstory.UserStory_Full_Text.replace(
                     problematic_role, improved_role
                 )
-                textstory = re.sub(' +', ' ', textstory.strip())
+                textstory = re.sub(" +", " ", textstory.strip())
                 userstory.UserStory_Full_Text = textstory
                 userstory.old_userstory = old_text
                 userstory.save()
@@ -611,7 +665,9 @@ def edit_userstory(request, report_id):
             problematic_action = request.POST.get("problematic_action", None)
             improved_action = request.POST.get("improved_action", None)
             improved_action_new = request.POST.get("improved_action_new", None)
-            improved_action_new_text = request.POST.get("improved_action_new_text", None)
+            improved_action_new_text = request.POST.get(
+                "improved_action_new_text", None
+            )
             if improved_action_new == "on":
                 improved_action = improved_action_new_text
             # print('problematic_action', problematic_action)
@@ -628,11 +684,11 @@ def edit_userstory(request, report_id):
                 keyword_obj.item_name.add(glosasry_obj)
                 keyword_obj.save()
 
-                improved_action = f' {improved_action} '
+                improved_action = f" {improved_action} "
                 textstory = userstory.UserStory_Full_Text.replace(
                     problematic_action, improved_action
                 )
-                textstory = re.sub(' +', ' ', textstory.strip())
+                textstory = re.sub(" +", " ", textstory.strip())
                 userstory.UserStory_Full_Text = textstory
                 userstory.old_userstory = old_text
                 userstory.save()

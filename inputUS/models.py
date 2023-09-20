@@ -303,7 +303,10 @@ class ReportUserStory(MetaAttribute):
         ACTION = 1, "Action"
         ROLE = 2, "Role"
         ACTION_ROLE = 3, "Action and Role"
-        NONE = 4, "None",
+        NONE = (
+            4,
+            "None",
+        )
         ACTION_MANUAL = 5, "Action Manual"
 
     class ANALYS_TYPE(models.IntegerChoices):
@@ -321,7 +324,9 @@ class ReportUserStory(MetaAttribute):
     description = models.TextField(null=True, blank=True)
     type = models.IntegerField(choices=ANALYS_TYPE.choices, null=True)
     is_problem = models.BooleanField(default=False)
-    recommendation_type = models.IntegerField(choices=RECOMENDATION_TYPE.choices, null=True)
+    recommendation_type = models.IntegerField(
+        choices=RECOMENDATION_TYPE.choices, null=True
+    )
     subject = models.CharField(max_length=255, null=True)
     predicate = models.CharField(max_length=255, null=True)
 
@@ -358,7 +363,6 @@ class ReportTerms(MetaAttribute):
     type = models.IntegerField(choices=ReportUserStory.ANALYS_TYPE.choices, null=True)
     action = models.CharField(null=True, max_length=100)
     terms_actions = models.JSONField(null=True)
-    
 
     class Meta:
         verbose_name = "Report Terms"

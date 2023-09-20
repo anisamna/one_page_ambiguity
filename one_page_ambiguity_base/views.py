@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
 from django.views.generic.base import TemplateView
@@ -14,15 +14,13 @@ from one_page_ambiguity_base.forms import ProfileForm, SignUpForm
 
 @login_required(login_url=reverse_lazy("login_"))
 def index(request):
-    return render(request, "index.html", {
-        'title': 'About QUAS Framework'
-    })
+    return render(request, "index.html", {"title": "About QUAS Framework"})
+
 
 @login_required(login_url=reverse_lazy("login_"))
 def howtouse_view(request):
-    return render(request, "how_to_use.html", {
-        'title': 'How to use'
-    })
+    return render(request, "how_to_use.html", {"title": "How to use"})
+
 
 @login_required(login_url=reverse_lazy("login_"))
 def change_access_admin(request, user_id):
@@ -35,7 +33,8 @@ def change_access_admin(request, user_id):
         user_obj.is_superuser = True
         user_obj.save()
         messages.success(request, f"Success, make as admin {user_obj.username}")
-    return redirect(reverse_lazy('view_list_accounts'))
+    return redirect(reverse_lazy("view_list_accounts"))
+
 
 # Sign Up View
 class SignUpView(CreateView):
@@ -71,13 +70,12 @@ class ProfileView(UpdateView):
     success_url = reverse_lazy("index")
     template_name = "registration/profile.html"
 
-    extra_context = {'title': 'Profile'}
+    extra_context = {"title": "Profile"}
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         context.update(self.extra_context)
         return context
-
 
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get("pk", None)

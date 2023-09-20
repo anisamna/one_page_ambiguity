@@ -10,15 +10,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # from nltk.parse.chart import ChartParser
 # from nltk.parse.chart import demo_grammar
-from inputUS.models import (
-    Parser,  # , Who, What, UserStory_joined
-    ParsingDetail,
-    Similarity_Analysis,
-    UserStory_element,
-    UserStory_What,
-    UserStory_Who,
-    Well_Formed,
-)
+from inputUS.models import Parser  # , Who, What, UserStory_joined
+from inputUS.models import (ParsingDetail, Similarity_Analysis,
+                            UserStory_element, UserStory_What, UserStory_Who,
+                            Well_Formed)
 
 ROLE_DEL = "As an|As a|As"
 ACTION_DEL = (

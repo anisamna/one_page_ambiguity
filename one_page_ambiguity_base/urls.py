@@ -29,7 +29,11 @@ urlpatterns = [
     path("signedout/", views.SignedOutView.as_view(), name="signedout"),
     path("signup/", views.SignUpView.as_view(), name="signup"),
     path("profile/<int:pk>/", views.ProfileView.as_view(), name="profile"),
-    path("change-access/<int:user_id>/", views.change_access_admin, name="change_access_admin"),
+    path(
+        "change-access/<int:user_id>/",
+        views.change_access_admin,
+        name="change_access_admin",
+    ),
     path("inputUS/", include("inputUS.urls")),
     path("admin/", admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

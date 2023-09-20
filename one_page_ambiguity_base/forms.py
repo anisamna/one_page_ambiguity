@@ -34,7 +34,7 @@ class SignUpForm(UserCreationForm):
         ]
 
     def clean_email(self):
-        email = self.cleaned_data['email']
+        email = self.cleaned_data["email"]
         if User.objects.filter(email=email).exists():
             raise ValidationError("Email already exists")
         return email
