@@ -3,11 +3,11 @@ import re
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-
-# from django.http import JsonResponse
+from django.db.models import Q
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.views.generic.base import TemplateView
 
 from functions.segmentation import segmentation, segmentation_edit_userstory
 
@@ -24,11 +24,54 @@ from .models import (
     UserStory_element,
     AdjustedUserStory,
 )
-from .tasks import task_process_analys_data
+# from .tasks import task_process_analys_data
 
 # from functions.well_formed import well_formed_an
 # from functions.analysis import well_formed_an, stat_preciseness
 
+class AddSingleUserStory(TemplateView):
+    template_name = "inputUS/userstory/add.html"
+    project_list = Project.objects.all()
+    upload_list = US_Upload.objects.all()
+
+    def get(self, request):
+        return render(request, self.template_name, {
+            'title': 'Add User Story',
+            'projects': self.project_list,
+            'uploads': self.upload_list
+        })
+
+    def post(self, request):
+        project = request.POST.get('project', None)
+        file = request.POST.get('file', None)
+        custom_file = request.POST.get('custom_file', None)
+        input_custom_file = request.POST.get('input_custom_file', None)
+        userstory = request.POST.get('userstory', None)
+        user = request.user
+
+        if userstory and project:
+            userstory_obj = UserStory_element.objects.create(
+                Project_Name_id=project,
+                UserStory_Full_Text=userstory,
+                created_by=user
+            )
+            if custom_file == 'on':
+                us_upload_obj, created = US_Upload.objects.get_or_create(
+                    US_Project_Domain_id=project,
+                    US_File_Name=input_custom_file,
+                    US_File_Content={},
+                    is_show=False,
+                    created_by=user
+                )
+                userstory_obj.UserStory_File_ID = us_upload_obj
+            else:
+                userstory_obj.UserStory_File_ID_id = file
+            userstory_obj.save()
+            segmentation_edit_userstory(userstory_obj.id, True)
+            messages.success(request, "Success, add new user story")
+            return redirect(reverse_lazy('show_splitted_UserStory'))
+
+        return redirect(reverse_lazy('add_single_userstory'))
 
 @login_required(login_url=reverse_lazy("login_"))
 def Upload_UserStory(request):
@@ -93,14 +136,14 @@ def Upload_UserStory(request):
 @login_required(login_url=reverse_lazy("login_"))
 def show_uploaded_UserStory(request):
     # show table US_File_Upload
-    upload_user_story = US_Upload.objects.all()
+    upload_user_story = US_Upload.objects.filter(is_show=True)
     if not request.user.is_superuser:
         upload_user_story = upload_user_story.filter(created_by=request.user)
 
     return render(
         request,
         "inputUS/see_uploaded_US.html",
-        {"upload_user_story": upload_user_story},
+        {"upload_user_story": upload_user_story, "title": "Preprocessing"},
     )
 
 
@@ -131,18 +174,20 @@ def del_Upload_US(request, id):
 def split_user_story_to_segment(request, id):
     retrieve_UserStory_data = get_object_or_404(US_Upload, pk=id)
     segmentation(retrieve_UserStory_data.id)
-    messages.success(request, "User stories have been successfully splitted")
-    see_splitted_user_stories = UserStory_element.objects.all()
-    if retrieve_UserStory_data.US_Project_Domain:
-        see_splitted_user_stories = see_splitted_user_stories.filter(
-            Project_Name=retrieve_UserStory_data.US_Project_Domain
-        )
+    # messages.success(request, "User stories have been successfully splitted")
+    messages.success(request, "User stories have been successfully preprocessed")
+    return redirect(reverse("show_splitted_UserStory"))
+    # see_splitted_user_stories = UserStory_element.objects.all()
+    # if retrieve_UserStory_data.US_Project_Domain:
+    #     see_splitted_user_stories = see_splitted_user_stories.filter(
+    #         Project_Name=retrieve_UserStory_data.US_Project_Domain
+    #     )
 
-    return render(
-        request,
-        "inputUS/preprocessed_US.html",
-        {"see_splitted_user_stories": see_splitted_user_stories},
-    )
+    # return render(
+    #     request,
+    #     "inputUS/preprocessed_US.html",
+    #     {"see_splitted_user_stories": see_splitted_user_stories},
+    # )
 
 
 @login_required(login_url=reverse_lazy("login_"))
@@ -314,6 +359,7 @@ def see_wellformed(request):
 def view_report_userstory_list(request):
     potential_problem_list = (
         (0, "None"),
+        (5, "No Selection"),
         (1, "Vagueness"),
         (2, "Inconsistency"),
         (3, "Insufficiency"),
@@ -329,10 +375,13 @@ def view_report_userstory_list(request):
     if not request.user.is_superuser:
         project_list = project_list.filter(created_by=request.user)
 
+    analys_type_choices = ReportUserStory.ANALYS_TYPE.choices
+    del analys_type_choices[4]
+
     extra_context = {
         "project_list": project_list,
         "potential_problem_list": potential_problem_list,
-        "analyze_type": ReportUserStory.ANALYS_TYPE.choices,
+        "analyze_type": analys_type_choices,
         "status_list": status_list,
     }
     project_id = request.GET.get("project_id", None)
@@ -354,11 +403,11 @@ def view_report_userstory_list(request):
 
         if type_value:
             type_value = int(type_value)
-        if not type_value and not potential_problem_value:
-            extra_context.update({"status_list": ((1, "Potentially Ambiguous"),)})
-        elif not type_value and potential_problem_value == "0":
-            extra_context.update({"status_list": ((2, "Good Quality"),)})
-        elif type_value in [
+        # if not type_value and not potential_problem_value:
+        #     extra_context.update({"status_list": ((1, "Potentially Ambiguous"),)})
+        # elif not type_value and potential_problem_value == "0":
+        #     extra_context.update({"status_list": ((2, "Good Quality"),)})
+        if type_value in [
             ReportUserStory.ANALYS_TYPE.WELL_FORMED,
             ReportUserStory.ANALYS_TYPE.PRECISE,
         ]:
@@ -399,8 +448,10 @@ def view_report_userstory_list(request):
 
 
 @login_required(login_url=reverse_lazy("login_"))
-def edit_userstory(request, userstory_id):
-    userstory = get_object_or_404(UserStory_element, id=userstory_id)
+def edit_userstory(request, report_id):
+    reportuserstory = get_object_or_404(ReportUserStory, id=report_id)
+    userstory = reportuserstory.userstory
+
     improved_terms_show = False
     type = request.GET.get("type", None)
     status = request.GET.get("status", None)
@@ -409,42 +460,42 @@ def edit_userstory(request, userstory_id):
 
     extra_context = {"title": f"Change Userstory: {userstory.UserStory_Full_Text}"}
 
-    if type:
-        type = int(type)
+    # if type:
+    #     type = int(type)
 
-        reportuserstory = userstory.reportuserstory_set.filter(type=type)
-        if reportuserstory.exists():
-            reportuserstory = reportuserstory.last()
-            is_edit_role = False
-            is_edit_action = False
-            if reportuserstory.recommendation_type:
-                # print("recommendation_type", reportuserstory.recommendation_type)
-                is_edit_role = reportuserstory.recommendation_type in [
-                    ReportUserStory.RECOMENDATION_TYPE.ROLE,
-                    ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE,
-                ]
-                is_edit_action = reportuserstory.recommendation_type in [
-                    ReportUserStory.RECOMENDATION_TYPE.ACTION,
-                    ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE,
-                    ReportUserStory.RECOMENDATION_TYPE.ACTION_MANUAL,
-                ]
-            else:
-                extra_context.update(
-                    {
-                        "role_custom_list": Role.objects.filter(
-                            userstory__Project_Name=userstory.Project_Name
-                        ).distinct('role_key'),
-                        "keyword_custom_list": KeywordGlossary.objects.all(),
-                        "glossary_custom_list": Glossary.objects.all(),
-                    }
-                )
-            extra_context.update(
-                {
-                    "reportuserstory": reportuserstory,
-                    "is_edit_role": is_edit_role,
-                    "is_edit_action": is_edit_action,
-                }
-            )
+        # reportuserstory = userstory.reportuserstory_set.filter(type=type)
+        # if reportuserstory.exists():
+        #     reportuserstory = reportuserstory.last()
+    is_edit_role = False
+    is_edit_action = False
+    if reportuserstory.recommendation_type:
+        # print("recommendation_type", reportuserstory.recommendation_type)
+        is_edit_role = reportuserstory.recommendation_type in [
+            ReportUserStory.RECOMENDATION_TYPE.ROLE,
+            ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE,
+        ]
+        is_edit_action = reportuserstory.recommendation_type in [
+            ReportUserStory.RECOMENDATION_TYPE.ACTION,
+            ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE,
+            ReportUserStory.RECOMENDATION_TYPE.ACTION_MANUAL,
+        ]
+    else:
+        extra_context.update(
+            {
+                "role_custom_list": Role.objects.filter(
+                    userstory__Project_Name=userstory.Project_Name
+                ).distinct('role_key'),
+                "keyword_custom_list": KeywordGlossary.objects.all(),
+                "glossary_custom_list": Glossary.objects.all(),
+            }
+        )
+    extra_context.update(
+        {
+            "reportuserstory": reportuserstory,
+            "is_edit_role": is_edit_role,
+            "is_edit_action": is_edit_action,
+        }
+    )
 
     if status:
         status = int(status)
@@ -454,7 +505,7 @@ def edit_userstory(request, userstory_id):
     action_improve_label = action_label
 
     if (
-        type
+        reportuserstory.type
         in [
             ReportUserStory.ANALYS_TYPE.PRECISE,
             ReportUserStory.ANALYS_TYPE.CONSISTENT,
@@ -471,7 +522,7 @@ def edit_userstory(request, userstory_id):
             }
         )
 
-        if type == ReportUserStory.ANALYS_TYPE.PRECISE:
+        if reportuserstory.recommendation_type == ReportUserStory.ANALYS_TYPE.PRECISE:
             reportterms = userstory.reportterms_set.filter(
                 type=ReportUserStory.ANALYS_TYPE.PRECISE
             )
@@ -484,14 +535,14 @@ def edit_userstory(request, userstory_id):
                     "role_list": role_list,
                 }
             )
-        elif type == ReportUserStory.ANALYS_TYPE.CONSISTENT:
+        elif reportuserstory.recommendation_type == ReportUserStory.ANALYS_TYPE.CONSISTENT:
             role_list = role_list.filter(status=ReportUserStory.ANALYS_TYPE.CONSISTENT)
             extra_context.update(
                 {
                     "role_list": role_list,
                 }
             )
-        elif type == ReportUserStory.ANALYS_TYPE.CONCEPTUALLY:
+        elif reportuserstory.recommendation_type == ReportUserStory.ANALYS_TYPE.CONCEPTUALLY:
             role_label = "Subject"
             action_label = "Predicate"
             action_improve_label = "Implied Action"
@@ -948,8 +999,6 @@ def view_list_accounts(request):
 
 @login_required(login_url=reverse_lazy("login_"))
 def view_list_adjusted_userstory(request):
-    from django.db.models import Q
-
     adjusted_list = AdjustedUserStory.objects.all()
     project_list = Project.objects.all()
 

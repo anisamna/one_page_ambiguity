@@ -27,27 +27,46 @@
   <link href="{% static 'assets/vendor/quill/quill.bubble.css' %}" rel="stylesheet">
   <link href="{% static 'assets/vendor/remixicon/remixicon.css' %}" rel="stylesheet">
   <link href="{% static 'assets/vendor/simple-datatables/style.css' %}" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <style>
+    .select2-selection.select2-selection--single {
+      height: 37px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered{
+      line-height: 37px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      top: 4px;
+    }
+
+    .select2-results__option .wrap:before{
+      font-family: 'bootstrap-icons';
+      color:#999;
+      content:"\F584";
+      width:25px;
+      height:25px;
+      padding-right: 10px;
+    }
+
+    .select2-results__option[aria-selected=true] .wrap:before{
+      font-family: 'bootstrap-icons';
+      content:"\F26C";
+    }
+  </style>
 
   <!-- Template Main CSS File -->
   <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
   {% block styles %}{% endblock %}
-
-  <!-- =======================================================
-  * Template Name: NiceAdmin - v2.5.0
-  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
 </head>
-
 <body>
 
   <!-- ======= Header ======= -->
   <header id="header" class="header fixed-top d-flex align-items-center">
     <!--start logo-->
-
     <div class="d-flex align-items-center justify-content-between">
-      <a href="" class="logo d-flex align-items-center">
+      <a href="/" class="logo d-flex align-items-center">
         <img src="{% static 'assets/img/logo.png' %}" alt="">
         <span class="d-none d-lg-block" style="font-size: 20px;">Ambiguity Detection</span>
       </a>
@@ -64,7 +83,7 @@
       <ul class="d-flex align-items-center">
         <li class="nav-item dropdown pe-3">
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="{% static 'assets/img/profile-img.jpg' %}" alt="Profile" class="rounded-circle">
+            <!-- <img src="{% static 'assets/img/profile-img.jpg' %}" alt="Profile" class="rounded-circle"> -->
             <span class="d-none d-md-block dropdown-toggle ps-2">{{ request.user.username }}</span>
           </a><!-- End Profile Iamge Icon -->
 
@@ -97,37 +116,119 @@
         </li>
       </ul>
     </nav>
-    
-    <!--end logo-->
-    
-    <!-- start search bar-->
-    <!--
-    <div class="search-bar">
-      <form class="search-form d-flex ms-auto" method="POST" action="#">
-        <input class="form-control-me-2" type="text" name="query" placeholder="Search" title="Enter search keyword">
-        <button type="submit" title="Search"><i class="bi bi-search"></i></button>
-      </form>
-    </div>
-    -->
-    <!-- End Search Bar -->
-
   </header>
-  
   <!-- End Header -->
 
    <!-- ======= Sidebar ======= -->
-   <aside id="sidebar" class="sidebar">
-
+   <aside id="sidebar" class="sidebar px-0">
     <ul class="sidebar-nav" id="sidebar-nav">
-
+      <li class="nav-item px-4">
+        <strong>You are now in:</strong>
+        <select name="" id="project_now_in_id" class="form-control" multiple="multiple">
+          <option value="test">test</option>
+          <optgroup label="Group Name">
+            <option>Nested option</option>
+          </optgroup>
+        </select>
+      </li>
       <li class="nav-item">
-        <a class="nav-link " href="/">
-          <i class="bi bi-grid"></i>
-          <span>Dashboard</span>
+        <a class="nav-link collapsed" href="{% url 'index' %}">
+          <i class="bi bi-grid"></i><span>About QUAS framework</span>
         </a>
       </li>
-      
+
       <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'howtouse' %}">
+          <i class="bi bi-question-square"></i><span>How to use</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#components-nav-1" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-menu-button-wide"></i><span>User story</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="components-nav-1" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+            <!-- belum dibuat halamannya -->
+            <a href="{% url 'add_single_userstory' %}">
+              <i class="bi bi-circle"></i><span>Add user story</span>
+            </a>
+          </li>
+          <li>
+              <a href="{% url 'Upload_User_Story' %}">
+              <i class="bi bi-circle"></i><span>Import user story</span>
+              </a>
+            </li>
+        </ul>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#components-nav-2" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-zoom-in"></i><span>User story in process</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="components-nav-2" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="{% url 'show_UserStory' %}">
+              <i class="bi bi-circle"></i><span>See unprocessed user story</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'show_splitted_UserStory' %}">
+              <i class="bi bi-circle"></i><span>See preprocessed user story</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'view_process_background' %}">
+              <i class="bi bi-circle"></i><span>See process background</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#components-report" data-bs-toggle="collapse" href="#">
+            <i class="bi bi-card-list"></i><span>Report and Improvement </span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="components-report" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="{% url 'report_userstory_list' %}">
+              <i class="bi bi-circle"></i><span>Analysis result</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'view_list_adjusted_userstory' %}">
+              <i class="bi bi-circle"></i><span>History of improvement</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#components-nav-3" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-gear"></i><span>Settings</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="components-nav-3" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="{% url 'projects_list_view' %}">
+              <i class="bi bi-circle"></i><span>Add new project</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'master_keyword' %}">
+              <i class="bi bi-circle"></i><span>Action glossary (Müter et al., 2019)</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+      {% if request.user.is_superuser %}
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'view_list_accounts' %}">
+          <i class="bi bi-people"></i><span>Accounts</span>
+        </a>
+      </li>
+      {% endif %}
+      
+      <!-- <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#components-nav-1" data-bs-toggle="collapse" href="#">
           <i class="bi bi-menu-button-wide"></i><span>User story</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
@@ -152,46 +253,9 @@
               <i class="bi bi-circle"></i><span>See process user stories</span>
             </a>
           </li>
-         <!--
-          <li>
-            <a href="/importUS/see_well_formed_US.html">
-              <i class="bi bi-circle"></i><span>See well-formed user stories</span>
-            </a>
-          </li> -->
-          <!-- <li>
-            <a href="/importUS/see_explicit_US.html">
-              <i class="bi bi-circle"></i><span>See explicit user stories</span>
-            </a>
-          </li> -->
-          <!-- <li>
-            <a href="/importUS/see_precise_US.html">
-              <i class="bi bi-circle"></i><span>See precise user stories</span>
-            </a>
-          </li> -->
         </ul>
-      </li><!-- End Components Nav -->
+      </li>
 
-      <!-- <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#components-nav-2" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-zoom-in"></i><span>Analyze user stories</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="components-nav-2" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="">
-              <i class="bi bi-circle"></i><span>Potential ambiguity in user stories</span>
-            </a>
-          </li>
-          <li>
-            <a href="">
-              <i class="bi bi-circle"></i><span>Good quality user stories</span>
-            </a>
-          </li>
-          
-        </ul>
-      </li> -->
-      <!-- End Analysis Nav -->
-
-      <!-- Start Report -->
       <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#components-report" data-bs-toggle="collapse" href="#">
             <i class="bi bi-gear"></i><span>Report</span><i class="bi bi-chevron-down ms-auto"></i>
@@ -208,60 +272,7 @@
             </a>
           </li>
         </ul>
-      </li>
-      <!-- End Report -->
-
-
-        <!-- Add component settings-->
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#components-nav-3" data-bs-toggle="collapse" href="#">
-            <i class="bi bi-gear"></i><span>Settings</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="components-nav-3" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-            <li>
-                <a href="{% url 'projects_list_view' %}">
-                  <i class="bi bi-circle"></i><span>Project Domain</span>
-                </a>
-            </li>
-            <li>
-              <a href="{% url 'master_keyword' %}">
-                  <i class="bi bi-circle"></i><span>Action Keyword</span>
-              </a>
-            </li>
-            {% if request.user.is_superuser %}
-            <li>
-              <a href="{% url 'view_list_accounts' %}">
-                  <i class="bi bi-circle"></i><span>Accounts</span>
-              </a>
-            </li>
-            {% endif %}
-        </ul>
-      </li><!-- End Components Nav -->
-
-      <!-- <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-journal-text"></i><span>Domain lexicon glossary</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a> 
-         <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          
-          <li>
-            <a href="forms-elements.html">
-              <i class="bi bi-circle"></i><span>Create verb class keywords</span>
-            </a>
-          </li>
-   
-          <li>
-            <a href="/domain_lexicon/n_grams.html">
-              <i class="bi bi-circle"></i><span>N-grams analysis</span>
-            </a>
-          </li>
-          <li>
-            <a href="see_verb.html">
-              <i class="bi bi-circle"></i><span>See verb class keywords</span>
-            </a>
-          </li>
-        </ul>
-       </li>End Forms Nav -->
+      </li> -->
     </ul>
   </aside><!-- End Sidebar-->
 
@@ -323,7 +334,27 @@
   <script src="{% static 'assets/js/main.js' %}"></script>
   
   {% block extrajs %}
-  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script src="{% static 'js/select2.multi-checkboxes.js' %}"></script>
+  <script>
+    $(function(){
+      $('.select2').select2();
+      // $("#project_now_in_id").select2MultiCheckboxes({
+      //   templateSelection: function(selected, total) {
+      //     return "Selected " + selected.length + " of " + total;
+      //   }
+      // })
+    })
+
+    jQuery(function($) {
+      $('#project_now_in_id').select2MultiCheckboxes({
+        templateSelection: function(selected, total) {
+          return "Selected " + selected.length + " of " + total;
+        }
+      })
+    })
+  </script>
   {% endblock %}
 </body>
 

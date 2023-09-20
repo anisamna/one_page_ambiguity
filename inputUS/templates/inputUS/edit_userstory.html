@@ -5,7 +5,7 @@
 {% block contentLeft %}
 <form method="post" class="p-0">
   {% csrf_token %}
-  <input type="hidden" name="status" value="{{ request.GET.type }}">
+  <input type="hidden" name="status" value="{{ reportuserstory.type }}">
   <div class="card">
     <div class="card-header">
       <h5>Change Userstory</h5>
@@ -23,7 +23,7 @@
       </div>
       {% else %}
       <div class="form-group">
-        <label for="userstory_id">User Story</label>
+        <label for="userstory_id">User Story {{ reportuserstory.type }}</label>
         <div class="input-group mb-3">
           <input name="userstory" class="form-control" id="userstory_id" value="{{ userstory.UserStory_Full_Text }}" disabled />
           <div class="input-group-append">
@@ -32,7 +32,7 @@
         </div>
       </div>
 
-      {% if request.GET.type == '2' or request.GET.type == 2 %}
+      {% if reportuserstory.type == '2' or reportuserstory.type == 2 %}
       <div id="list_form_story" class="my-2">
       </div>
       <button class="btn btn-primary btn-sm" id="add_story_id" type="button">Add Story</button>
@@ -184,26 +184,10 @@
 
 {% block styles %}
 {{ block.super }}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<style>
-  .select2-selection.select2-selection--single {
-    height: 37px;
-  }
-
-  .select2-container--default .select2-selection--single .select2-selection__rendered{
-    line-height: 37px;
-  }
-
-  .select2-container--default .select2-selection--single .select2-selection__arrow {
-    top: 4px;
-  }
-</style>
 {% endblock %}
 
 {% block extrajs %}
 {{ block.super }}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
   const remote_user_story = (elem) => {
     console.log('elem', elem)
@@ -218,7 +202,6 @@
   })
 
   $(function(){
-    $('.select2').select2();
 
     const elem_list_story = $('#list_form_story')
     // elem_list_story.html(`

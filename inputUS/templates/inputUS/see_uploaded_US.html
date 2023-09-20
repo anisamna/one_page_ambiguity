@@ -4,12 +4,12 @@
 {% block title %} User stories {% endblock title %}
 
 {% block contentTitle %} 
-<h1>See unprocessed user story</h1> 
+<h1>{{ title }}</h1> 
 <nav>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/">Home</a></li>
         <li class="breadcrumb-item">Import user story</li>
-        <li class="breadcrumb-item active">See unprocessed user story</li>
+        <li class="breadcrumb-item active">{{ title }}</li>
     </ol>
 </nav>
 {% endblock contentTitle %}
@@ -22,7 +22,7 @@
         <div class="col-12">
             <div class="card top-selling overflow-auto">
                 <div class="card-body pb-0 mb-3">
-                <h5 class="card-title"> Show user story files </h5>
+                <h5 class="card-title">Show user story files</h5>
                 {% if upload_user_story %}
                 <table class="table table-borderless datatable">
                     <thead>

@@ -70,7 +70,7 @@
       </div>
     </div>
     <div class="card-footer d-flex justify-content-end">
-      <button class="btn btn-primary" type="submit">Filter</button>
+      <button class="btn btn-primary" type="submit"><i class="bi bi-funnel"></i> Filter</button>
     </div>
   </div>
 </form>
@@ -89,7 +89,7 @@
       {% if project_id %}
       <!-- <a href="{% url 'userstory_project_add' project_id  %}" class="btn btn-success">Add Userstory</a> -->
       {% endif %}
-      <button onclick="openNewTab()" class="btn btn-danger">Download PDF</button>
+      <button onclick="openNewTab()" class="btn btn-danger"><i class="bi bi-printer"></i> Download PDF</button>
     </div>
   </div>
   <div class="card-body p-1">
@@ -100,8 +100,11 @@
           <th>User Story</th>
           <th>Status</th>
           <th>Recommendation</th>
+          {% if request.user.is_superuser %}
           <th>Description</th>
+          {% endif %}
           <th>Type</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -111,7 +114,6 @@
           <td rowspan="{{ item.id|get_count_report:request }}" class="userstory-number"></td>
           <td rowspan="{{ item.id|get_count_report:request }}">
             {{ item.UserStory_Full_Text }}
-            <a href="{% url 'userstory_edit' item.id %}" class="btn btn-primary link-edit">Edit</a>
             {% if item.created_by %}
             <br><br>
             {% if item.old_userstory %}
@@ -129,10 +131,15 @@
           <td>
             <p style="white-space: pre-line;">{{ report.recommendation|default:"-" }}</p>
           </td>
+          {% if request.user.is_superuser %}
           <td>
             <p style="white-space: pre-line;">{{ report.description|default:"-" }}</p>
           </td>
+          {% endif %}
           <td>{{ report.get_type_display }}</td>
+          <td>
+            <a href="{% url 'report_userstory_edit' report.id %}" class="btn btn-primary link-edit">Edit</a>
+          </td>
         </tr>
         {% endfor %}
         {% else %}
@@ -140,7 +147,6 @@
           <td>{{ forloop.counter }}</td>
           <td>
             {{ item.UserStory_Full_Text }}
-            <a href="{% url 'userstory_edit' item.id %}" class="btn btn-primary">Edit</a>
           </td>
           <td colspan="4"></td>
         </tr> -->
@@ -155,27 +161,11 @@
 
 {% block styles %}
 {{ block.super }}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<style>
-  .select2-selection.select2-selection--single {
-    height: 37px;
-  }
-
-  .select2-container--default .select2-selection--single .select2-selection__rendered{
-    line-height: 37px;
-  }
-
-  .select2-container--default .select2-selection--single .select2-selection__arrow {
-    top: 4px;
-  }
-</style>
 {% endblock %}
 
 
 {% block extrajs %}
 {{ block.super }}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
   $(function(){
     let is_good_elem = $('table tbody tr td[data-is_problem=False]').length;

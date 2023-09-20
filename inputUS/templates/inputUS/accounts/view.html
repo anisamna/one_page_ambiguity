@@ -8,8 +8,8 @@
   <div class="card-header">
     <h5>{{ title }}</h5>
   </div>
-  <div class="card-body pt-2">
-    <table class="table table-bordered table-striped">
+  <div class="card-body py-2 px-1">
+    <table class="table table-bordered table-striped mb-0">
       <thead>
         <tr>
           <th>No.</th>
@@ -17,6 +17,8 @@
           <th>Name</th>
           <th>Email</th>
           <th>Last Login</th>
+          <th>is Admin</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -26,7 +28,23 @@
           <td>{{ item.username }}</td>
           <td>{{ item.get_full_name|default:'-' }}</td>
           <td>{{ item.email }}</td>
-          <td>{{ item.last_login }}</td>
+          <td>{{ item.last_login|default:'-' }}</td>
+          <td align="center">
+            {% if item.is_superuser %}
+            <i class="bi bi-check bg-success text-white"></i>
+            {% else %}
+            <i class="bi bi-x bg-danger text-white"></i>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'change_access_admin' item.id %}" class="btn btn-warning btn-sm">
+              {% if item.is_superuser %}
+              Remove admin access
+              {% else %}
+              Make as admin
+              {% endif %}
+            </a>
+          </td>
         </tr>
         {% endfor %}
       </tbody>

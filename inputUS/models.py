@@ -63,6 +63,7 @@ class US_Upload(MetaAttribute):
     US_File_Content = JSONField()
     US_File_DateCreated = models.DateTimeField(auto_now_add=True, null=True)
     US_Project_Domain = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
+    is_show = models.BooleanField(default=True)
 
     def __str__(self):
         return self.US_File_Name
@@ -306,8 +307,9 @@ class ReportUserStory(MetaAttribute):
         ACTION_MANUAL = 5, "Action Manual"
 
     class ANALYS_TYPE(models.IntegerChoices):
-        WELL_FORMED = 1, "Well Formed"
+        WELL_FORMED = 1, "Well-Formedness"
         ATOMICITY = 2, "Atomicity"
+        CONCISENESS = 7, "Conciseness"
         PRECISE = 3, "Preciseness"
         CONSISTENT = 4, "Consistency"
         CONCEPTUALLY = 5, "Conceptually Sound"
