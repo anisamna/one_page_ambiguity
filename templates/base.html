@@ -28,6 +28,7 @@
   <link href="{% static 'assets/vendor/remixicon/remixicon.css' %}" rel="stylesheet">
   <link href="{% static 'assets/vendor/simple-datatables/style.css' %}" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link href="https://www.jqueryscript.net/demo/jQuery-Plugin-For-Multiple-Select-With-Checkboxes-multi-select-js/example-styles.css?v2" rel="stylesheet" />
   <style>
     .select2-selection.select2-selection--single {
       height: 37px;
@@ -53,6 +54,10 @@
     .select2-results__option[aria-selected=true] .wrap:before{
       font-family: 'bootstrap-icons';
       content:"\F26C";
+    }
+
+    .multi-select-button:after {
+      display: none;
     }
   </style>
 
@@ -124,12 +129,15 @@
     <ul class="sidebar-nav" id="sidebar-nav">
       <li class="nav-item px-4">
         <strong>You are now in:</strong>
-        <select name="" id="project_now_in_id" class="form-control" multiple="multiple">
-          <option value="test">test</option>
-          <optgroup label="Group Name">
-            <option>Nested option</option>
-          </optgroup>
-        </select>
+        <div class="w-100">
+          <select name="" id="project_now_in_id" class="form-control" multiple="multiple">
+            <option value="test">test</option>
+            <optgroup label="Dev">
+              <option>Dev 1</option>
+              <option>Dev 2</option>
+            </optgroup>
+          </select>
+        </div>
       </li>
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'index' %}">
@@ -336,7 +344,7 @@
   {% block extrajs %}
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-  <script src="{% static 'js/select2.multi-checkboxes.js' %}"></script>
+  <script src="https://www.jqueryscript.net/demo/jQuery-Plugin-For-Multiple-Select-With-Checkboxes-multi-select-js/jquery.multi-select.js?v2"></script>
   <script>
     $(function(){
       $('.select2').select2();
@@ -345,14 +353,12 @@
       //     return "Selected " + selected.length + " of " + total;
       //   }
       // })
-    })
-
-    jQuery(function($) {
-      $('#project_now_in_id').select2MultiCheckboxes({
-        templateSelection: function(selected, total) {
-          return "Selected " + selected.length + " of " + total;
-        }
-      })
+      $("#project_now_in_id").multiSelect({
+        'containerHTML':'<div class="multi-select-container w-100">',
+        'buttonHTML':'<span class="multi-select-button w-100">',
+        'allText': 'testsss',
+        'noneText':'-- Project & File --',
+      });
     })
   </script>
   {% endblock %}
