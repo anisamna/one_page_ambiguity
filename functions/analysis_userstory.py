@@ -13,7 +13,7 @@ from nltk import Tree, pos_tag, word_tokenize
 from nltk.corpus import stopwords, wordnet
 from nltk.parse import CoreNLPParser
 from nltk.stem import WordNetLemmatizer
-from sentence_transformers import SentenceTransformer, util
+from sentence_transformers import util
 from sklearn.cluster import DBSCAN
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -119,9 +119,20 @@ class AnalysisData:
         # print(status)
         # print(data)
         # print(is_problem)
-        report, created = ReportUserStory.objects.get_or_create(
-            userstory=userstory, status=status, type=type
+        report_list = ReportUserStory.objects.filter(
+            userstory=userstory,
+            status=status,
+            type=type
         )
+        report = None
+        if report_list.exists() and report_list.count() > 1:
+            # report_list.first().delete()
+            report = report_list.last()
+            report_list.exclude(id=report.id).delete()
+        else:
+            report, created = ReportUserStory.objects.get_or_create(
+                userstory=userstory, status=status, type=type
+            )
         for key, value in data.items():
             setattr(report, key, value)
         if self.user:
@@ -167,9 +178,30 @@ class AnalysisData:
                     description += (
                         f"User Story #{index+1}: {child.UserStory_Full_Text}\n\n"
                     )
+            atomicity_status = item["atomicity_status"]
+            # conciseness
+            if "conciseness" in atomicity_status:
+                is_problem_conciseness = False
+                if "does not meet conciseness" in atomicity_status:
+                    # potentially ambiguous
+                    is_problem_conciseness = True
+                elif "meet conciseness" in atomicity_status:
+                    # good quality
+                    is_problem_conciseness = False
+
+                self.save_report(
+                    item["userstory_obj"],
+                    atomicity_status,
+                    ReportUserStory.ANALYS_TYPE.CONCISENESS,
+                    {
+                        "recommendation": recommendation,
+                        "description": description,
+                    },
+                    is_problem_conciseness
+                )
             self.save_report(
                 item["userstory_obj"],
-                item["atomicity_status"],
+                atomicity_status,
                 ReportUserStory.ANALYS_TYPE.ATOMICITY,
                 {
                     "recommendation": recommendation,
@@ -677,7 +709,7 @@ class AnalysisData:
         index = 0
         for item in self.well_formed_data:  # ganti menggunakan well form data
             text = item.get("userstory")
-            action = item.get("action").What_action
+            action = item.get("action").What_action if item.get("action", None) else None
             doc = self.nlp(action)
             sentence_class = set()
             keyword_words = set()

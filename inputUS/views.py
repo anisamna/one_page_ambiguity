@@ -403,10 +403,12 @@ def view_report_userstory_list(request):
 
         if type_value:
             type_value = int(type_value)
-        # if not type_value and not potential_problem_value:
-        #     extra_context.update({"status_list": ((1, "Potentially Ambiguous"),)})
-        # elif not type_value and potential_problem_value == "0":
-        #     extra_context.update({"status_list": ((2, "Good Quality"),)})
+        if not type_value and not potential_problem_value:
+            extra_context.update({"status_list": ((1, "Potentially Ambiguous"),)})
+        elif not type_value and potential_problem_value == "0":
+            extra_context.update({"status_list": ((2, "Good Quality"),)})
+        elif not type_value and potential_problem_value == "5":
+            pass
         if type_value in [
             ReportUserStory.ANALYS_TYPE.WELL_FORMED,
             ReportUserStory.ANALYS_TYPE.PRECISE,
@@ -451,15 +453,12 @@ def view_report_userstory_list(request):
 def edit_userstory(request, report_id):
     reportuserstory = get_object_or_404(ReportUserStory, id=report_id)
     userstory = reportuserstory.userstory
-
     improved_terms_show = False
-    type = request.GET.get("type", None)
     status = request.GET.get("status", None)
-
     path_url = request.get_full_path().split("?")
-
     extra_context = {"title": f"Change Userstory: {userstory.UserStory_Full_Text}"}
 
+    # type = request.GET.get("type", None)
     # if type:
     #     type = int(type)
 
@@ -522,7 +521,7 @@ def edit_userstory(request, report_id):
             }
         )
 
-        if reportuserstory.recommendation_type == ReportUserStory.ANALYS_TYPE.PRECISE:
+        if reportuserstory.type == ReportUserStory.ANALYS_TYPE.PRECISE:
             reportterms = userstory.reportterms_set.filter(
                 type=ReportUserStory.ANALYS_TYPE.PRECISE
             )
@@ -535,14 +534,14 @@ def edit_userstory(request, report_id):
                     "role_list": role_list,
                 }
             )
-        elif reportuserstory.recommendation_type == ReportUserStory.ANALYS_TYPE.CONSISTENT:
+        elif reportuserstory.type == ReportUserStory.ANALYS_TYPE.CONSISTENT:
             role_list = role_list.filter(status=ReportUserStory.ANALYS_TYPE.CONSISTENT)
             extra_context.update(
                 {
                     "role_list": role_list,
                 }
             )
-        elif reportuserstory.recommendation_type == ReportUserStory.ANALYS_TYPE.CONCEPTUALLY:
+        elif reportuserstory.type == ReportUserStory.ANALYS_TYPE.CONCEPTUALLY:
             role_label = "Subject"
             action_label = "Predicate"
             action_improve_label = "Implied Action"
@@ -654,8 +653,12 @@ def edit_userstory(request, report_id):
 
             problematic_action = request.POST.get("problematic_action", None)
             improved_action = request.POST.get("improved_action", None)
-            print('problematic_action', problematic_action)
-            print('improved_action', improved_action)
+            improved_action_new = request.POST.get("improved_action_new", None)
+            improved_action_new_text = request.POST.get("improved_action_new_text", None)
+            if improved_action_new == "on":
+                improved_action = improved_action_new_text
+            # print('problematic_action', problematic_action)
+            # print('improved_action', improved_action)
             # print(problematic_action, improved_action)
             if problematic_action and improved_action:
                 glosasry_obj, created = Glossary.objects.get_or_create(
@@ -687,7 +690,7 @@ def edit_userstory(request, report_id):
             if is_edit:
                 userstory.is_processed = False
                 userstory.save()
-                segmentation_edit_userstory(userstory_id)
+                segmentation_edit_userstory(userstory.id)
                 if userstory.get_report_list().exists():
                     # delete data report
                     userstory.get_report_list().delete()

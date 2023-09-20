@@ -143,6 +143,15 @@
               </select>
             </div>
             {% endif %}
+            <div class="form-group mt-2">
+              <div class="form-check mr-2">
+                <input class="form-check-input" type="checkbox" id="gridCheck5" name="improved_action_new">
+                <label class="form-check-label" for="gridCheck5">
+                  add action keyword
+                </label>
+              </div>
+              <input type="text" class="form-control" placeholder="example: read" name="improved_action_new_text" />
+            </div>
           </div>
         </div>
         {% elif not is_edit_action and not reportuserstory.recommendation_type %}
