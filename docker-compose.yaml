@@ -51,8 +51,8 @@ services:
   
   redis:
     image: 'redis:alpine'
-    container_name: ambiguity_redis
-    hostname: ambiguity_redis
+    # container_name: ambiguity_redis
+    # hostname: ambiguity_redis
     expose:
       - 6379
 
@@ -60,7 +60,7 @@ services:
     restart: always
     build:
       context: .
-    container_name: ambiguity_celery
+    # container_name: ambiguity_celery
     volumes:
       - .:/ambiguity
       - ambiguity_static_volume:/ambiguity/files/ambiguity_static
