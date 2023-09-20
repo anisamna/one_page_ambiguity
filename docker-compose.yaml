@@ -45,7 +45,7 @@ services:
       - ambiguity_media_volume:/ambiguity/files/ambiguity_media
       - .:/nginx/etc/nginx/conf.d/
     ports:
-      - 9023:80
+      - 9024:80
     depends_on:
       - ambiguity
   
