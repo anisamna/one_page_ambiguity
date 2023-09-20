@@ -212,9 +212,7 @@ def show_splitted_UserStory(request):
 def analyze_data(request):
     from functions.analysis_userstory import AnalysisData
     import gc
-
     import torch
-
     gc.collect()
     torch.cuda.empty_cache()
 
@@ -226,29 +224,6 @@ def analyze_data(request):
         topics_value,
         similarity_value,
     ) = (0.5, 2, 5, 7, 10, None)
-    eps_checkbox = request.POST.get("eps_checkbox", None)
-    if eps_checkbox == "on":
-        eps_value = request.POST.get("eps_value", None)
-
-    min_samples_checkbox = request.POST.get("min_samples_checkbox", None)
-    if min_samples_checkbox == "on":
-        min_samples_value = request.POST.get("min_samples_value", None)
-
-    terms_role_checkbox = request.POST.get("terms_role_checkbox", None)
-    if terms_role_checkbox == "on":
-        terms_role_value = request.POST.get("terms_role_value", None)
-
-    terms_action_checkbox = request.POST.get("terms_action_checkbox", None)
-    if terms_action_checkbox == "on":
-        terms_action_value = request.POST.get("terms_action_value", None)
-
-    topics_checkbox = request.POST.get("topics_checkbox", None)
-    if topics_checkbox == "on":
-        topics_value = request.POST.get("topics_value", None)
-
-    similarity_checkbox = request.POST.get("similarity_checkbox", None)
-    if similarity_checkbox == "on":
-        similarity_value = request.POST.get("similarity_value", None)
 
     all_in_project = request.POST.get("all_in_project", None)
     if all_in_project == "on":
@@ -259,24 +234,6 @@ def analyze_data(request):
             Project_Name=project
         ).values_list("id", flat=True)
         story_list_id = list(set(userstory_list))
-
-        # process_obj = ProcessBackground.objects.create(
-        #     created_by=request.user,
-        #     eps_value=eps_value,
-        #     min_samples_value=min_samples_value,
-        #     terms_role_value=terms_role_value,
-        #     terms_action_value=terms_action_value,
-        #     topics_value=topics_value,
-        #     similarity_value=similarity_value,
-        # )
-        # process_obj.userstorys.add(*story_list_id)
-        # process_obj.save()
-        # task_process_analys_data.delay(process_obj.id)
-        # messages.success(
-        #     request,
-        #     "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
-        # )
-        # return redirect(reverse("view_process_background"))
         AnalysisData(
             story_list_id,
             eps_value,
