@@ -13,9 +13,19 @@
   .dataTable-pagination-list .pager {
     margin: 0;
   }
+
+  .multi-select-menuitem {
+    font-size: 13px;
+  }
+
+  .multi-select-menuitem input[type=checkbox] {
+    margin: 0px;
+    margin-left: -19px;
+    margin-top: 4px;
+  }
+
 </style>
 {% endblock %}
-
 
 {% block extrajs %}
 {{ block.super }}
@@ -162,64 +172,70 @@
       Input assessment criteria:
     </h4>
     <div class="card-body pt-3">
-      <label>Clarity</label>
-      <div class="form-group d-flex align-items-center">
-        <div class="form-check mr-2">
-          <input class="form-check-input" type="checkbox" id="gridCheck1" name="preciseness_checkbox">
-          <label class="form-check-label" for="gridCheck1">
-            Preciseness, Max. distance of two node:
-          </label>
+      <div class="row">
+        <div class="col-md-6">
+          <label>Clarity</label>
+          <div class="form-group d-flex align-items-center">
+            <div class="form-check mr-2">
+              <input class="form-check-input" type="checkbox" id="gridCheck1" name="preciseness_checkbox">
+              <label class="form-check-label" for="gridCheck1">
+                Preciseness, Max. distance of two node:
+              </label>
+            </div>
+            &nbsp;
+            &nbsp;
+            <input type="number" class="form-control w-25" placeholder="default: 0.5" name="preciseness_input" step="0.01" />
+          </div>
+          <div class="form-check mr-2">
+            <input class="form-check-input" type="checkbox" id="gridCheck2" name="well_formedness_checkbox">
+            <label class="form-check-label" for="gridCheck2">
+              Well-formedness
+            </label>
+          </div>
+          <div class="form-check mr-2">
+            <input class="form-check-input" type="checkbox" id="gridCheck3" name="conciseness_checkbox">
+            <label class="form-check-label" for="gridCheck3">
+              Conciseness
+            </label>
+          </div>
+          <label class="mt-5">Consistency</label>
+          <div class="form-check mr-2">
+            <input class="form-check-input" type="checkbox" id="gridCheck4" name="atomicity_checkbox">
+            <label class="form-check-label" for="gridCheck4">
+              Atomicity
+            </label>
+          </div>
         </div>
-        &nbsp;
-        &nbsp;
-        <input type="text" class="form-control w-25" placeholder="default: 0.5" name="preciseness_input" />
-      </div>
-      <div class="form-check mr-2">
-        <input class="form-check-input" type="checkbox" id="gridCheck2" name="well_formedness_checkbox">
-        <label class="form-check-label" for="gridCheck2">
-          Well-formedness
-        </label>
-      </div>
-      <div class="form-check mr-2">
-        <input class="form-check-input" type="checkbox" id="gridCheck3" name="conciseness_checkbox">
-        <label class="form-check-label" for="gridCheck3">
-          Conciseness
-        </label>
-      </div>
-      <label class="mt-5">Consistency</label>
-      <div class="form-check mr-2">
-        <input class="form-check-input" type="checkbox" id="gridCheck4" name="atomicity_checkbox">
-        <label class="form-check-label" for="gridCheck4">
-          Atomicity
-        </label>
-      </div>
-      <label class="mt-5">Adequacy</label>
-      <div class="form-group d-flex align-items-center">
-        <div class="form-check mr-2">
-          <input class="form-check-input" type="checkbox" id="gridCheck5" name="conceptually_sound_checkbox">
-          <label class="form-check-label" for="gridCheck5">
-            Conceptually sound, Num. of topic:
-          </label>
+        <div class="col-md-6">
+          <label class="mt-5">Adequacy</label>
+          <div class="form-group d-flex align-items-center">
+            <div class="form-check mr-2">
+              <input class="form-check-input" type="checkbox" id="gridCheck5" name="conceptually_sound_checkbox">
+              <label class="form-check-label" for="gridCheck5">
+                Conceptually sound, Num. of topic:
+              </label>
+            </div>
+            &nbsp;
+            &nbsp;
+            <input type="number" class="form-control w-25" placeholder="default: 10" name="conceptually_sound_input" step="0.01" />
+          </div>
+          <label class="mt-5">Uniqueness</label>
+          <div class="form-group d-flex align-items-center">
+            <div class="form-check mr-2">
+              <input class="form-check-input" type="checkbox" id="gridCheck6" name="uniqueness_checkbox">
+              <label class="form-check-label" for="gridCheck6">
+                Uniqueness similarity level:
+              </label>
+            </div>
+            &nbsp;
+            &nbsp;
+            <input type="number" class="form-control w-25" placeholder="default: 0.6" name="uniqueness_input" step="0.01" />
+          </div>
         </div>
-        &nbsp;
-        &nbsp;
-        <input type="text" class="form-control w-25" placeholder="default: 10" name="conceptually_sound_input" />
-      </div>
-      <label class="mt-5">Uniqueness</label>
-      <div class="form-group d-flex align-items-center">
-        <div class="form-check mr-2">
-          <input class="form-check-input" type="checkbox" id="gridCheck6" name="uniqueness_checkbox">
-          <label class="form-check-label" for="gridCheck6">
-            Uniqueness similarity level:
-          </label>
-        </div>
-        &nbsp;
-        &nbsp;
-        <input type="text" class="form-control w-25" placeholder="default: 0.6" name="uniqueness_input" />
       </div>
     </div>
     <div class="card-footer">
-      <button type="submit" class="btn btn-warning">Proceed</button>
+      <button type="submit" class="btn btn-warning"><i class="bi bi-arrow-clockwise"></i> Proceed</button>
     </div>
   </div>
 

@@ -4,7 +4,7 @@ from inputUS.models import (AdjustedUserStory, Glossary, KeywordGlossary,
                             ProcessBackground, Project, ReportUserStory, Role,
                             Similarity_Analysis, US_Upload, UserStory_element,
                             UserStory_What, UserStory_Who, UserStory_Why,
-                            WordNet_classification)
+                            WordNet_classification, NameFileUsed)
 
 admin.site.register(US_Upload)
 # admin.site.register(Well_Formed)
@@ -169,3 +169,7 @@ class ProcessBackgroundAdmin(admin.ModelAdmin):
 @admin.register(AdjustedUserStory)
 class AdjustedUserStoryAdmin(admin.ModelAdmin):
     list_display = ("id", "userstory_text", "adjusted", "status", "created_at")
+
+@admin.register(NameFileUsed)
+class NameFileUsedAdmin(admin.ModelAdmin):
+    list_display = ("id", "name_file", "is_active", "created_by")

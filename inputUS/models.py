@@ -434,3 +434,12 @@ def on_delete_userstory_handler(sender, instance, **kwargs):
             instance.Why_full.delete()
     except:
         pass
+
+
+class NameFileUsed(MetaAttribute):
+    name_file = models.ForeignKey(US_Upload, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Name File Used"
+        verbose_name_plural = "Name File Used"

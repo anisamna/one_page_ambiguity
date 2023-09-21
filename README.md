@@ -63,3 +63,4 @@ torch.cuda.empty_cache()
 
 - [NLTK](https://github.com/nltk/nltk/wiki/Stanford-CoreNLP-API-in-NLTK)
 - [template](https://bootstrapmade.com/demo/NiceAdmin/)
+- https://www.jqueryscript.net/form/jQuery-Plugin-For-Multiple-Select-With-Checkboxes-multi-select-js.html

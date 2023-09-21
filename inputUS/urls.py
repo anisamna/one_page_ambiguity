@@ -60,4 +60,14 @@ urlpatterns = [
         views.view_list_adjusted_userstory,
         name="view_list_adjusted_userstory",
     ),
+    path(
+        "get-json-project-use",
+        views.get_json_project_use,
+        name="get_json_project_use"
+    ),
+    path(
+        "update-json-project-use",
+        views.update_json_project_use,
+        name="update_json_project_use"
+    ),
 ]

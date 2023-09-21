@@ -8,8 +8,8 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
   <title>{% block title %}{% endblock %} | Ambiguity Detection</title>
-  <meta conent="Ambiguity Detection" name="description">
-  <meta content="Ambiguity Detection" name="keywords">
+  <meta conent="Ambiguity Detection" name="In Agile methodology, ambiguity is not necessarily something that must be eliminated. However, unclarity, inconsistent features, missing requirements, and duplication are all consequences of ambiguity that must be reduced. The reason for this is that these issues can lead to technical debts which could compromise software quality.">
+  <meta content="Ambiguity Detection" name="QUAS Framework">
 
   <!-- Favicons -->
   <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
@@ -27,8 +27,9 @@
   <link href="{% static 'assets/vendor/quill/quill.bubble.css' %}" rel="stylesheet">
   <link href="{% static 'assets/vendor/remixicon/remixicon.css' %}" rel="stylesheet">
   <link href="{% static 'assets/vendor/simple-datatables/style.css' %}" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-  <link href="https://www.jqueryscript.net/demo/jQuery-Plugin-For-Multiple-Select-With-Checkboxes-multi-select-js/example-styles.css?v2" rel="stylesheet" />
+  <link href="{% static 'css/select2.min.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/example-styles.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/jquery.toast.min.css' %}" rel="stylesheet">
   <style>
     .select2-selection.select2-selection--single {
       height: 37px;
@@ -131,11 +132,7 @@
         <strong>You are now in:</strong>
         <div class="w-100">
           <select name="" id="project_now_in_id" class="form-control" multiple="multiple">
-            <option value="test">test</option>
-            <optgroup label="Dev">
-              <option>Dev 1</option>
-              <option>Dev 2</option>
-            </optgroup>
+            <option value>Project</option>
           </select>
         </div>
       </li>
@@ -185,11 +182,11 @@
               <i class="bi bi-circle"></i><span>See preprocessed user story</span>
             </a>
           </li>
-          <li>
+          <!-- <li>
             <a href="{% url 'view_process_background' %}">
               <i class="bi bi-circle"></i><span>See process background</span>
             </a>
-          </li>
+          </li> -->
         </ul>
       </li>
 
@@ -342,9 +339,10 @@
   <script src="{% static 'assets/js/main.js' %}"></script>
   
   {% block extrajs %}
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-  <script src="https://www.jqueryscript.net/demo/jQuery-Plugin-For-Multiple-Select-With-Checkboxes-multi-select-js/jquery.multi-select.js?v2"></script>
+  <script src="{% static 'js/jquery.min.js' %}"></script>
+  <script src="{% static 'js/select2.min.js' %}"></script>
+  <script src="{% static 'js/jquery.multi-select.js' %}"></script>
+  <script src="{% static 'js/jquery.toast.min.js' %}"></script>
   <script>
     $(function(){
       $('.select2').select2();
@@ -353,15 +351,65 @@
       //     return "Selected " + selected.length + " of " + total;
       //   }
       // })
-      $("#project_now_in_id").multiSelect({
-        'containerHTML':'<div class="multi-select-container w-100">',
-        'buttonHTML':'<span class="multi-select-button w-100">',
-        'allText': 'testsss',
-        'noneText':'-- Project & File --',
-      });
+      
+      const update_use_project_file = (file_id, is_active=false) => {
+        $.ajax({
+          url: '{% url "update_json_project_use" %}',
+          type: 'GET',
+          data: {
+            file_id: file_id,
+            is_active: is_active
+          },
+          success: function(respon){
+            // console.log(respon)
+            if (respon.success){
+              $.toast('Success updated file project used')
+            }
+          }
+        })
+      }
+
+      $("#project_now_in_id").on('change', function(event){
+        // console.log(event)
+        // console.log(event.target.value)
+        // console.log("change")
+        const value = event.target.value;
+        const elem = $("#project_now_in_id")
+        if (elem.val().includes(value)) {
+          // is checked
+          update_use_project_file(value, true)
+        } else {
+          // is unchecked
+          update_use_project_file(value)
+        }
+      })
+
+      $.ajax({
+        url: '{% url "get_json_project_use" %}',
+        type: 'GET',
+        success: function(respon){
+          // console.log(respon)
+          if (respon.success) {
+            let html_ = ''
+            respon.data.map(item => {
+              html_ += `<optgroup label="${item.project}">`
+                item.file.map(item_file => {
+                  html_ += `<option value="${item_file.id}" ${item_file.selected ? 'selected' : ''}>${item_file.name}</option>`
+                })
+              html_ += `</optgroup>`
+            })
+            $("#project_now_in_id").html(html_)
+            $("#project_now_in_id").multiSelect({
+              'containerHTML':'<div class="multi-select-container w-100">',
+              'buttonHTML':'<span class="multi-select-button w-100">',
+              'allText': 'Selected All Project File',
+              'noneText':'-- Project & File --',
+            });
+          }
+        }
+      })
     })
   </script>
   {% endblock %}
 </body>
-
 </html>

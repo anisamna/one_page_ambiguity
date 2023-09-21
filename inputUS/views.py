@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.http import JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
 
@@ -14,7 +15,7 @@ from functions.segmentation import segmentation, segmentation_edit_userstory
 from .forms import InputUserStory_Form
 from .models import (AdjustedUserStory, Glossary, KeywordGlossary,
                      ProcessBackground, Project, ReportUserStory, Result, Role,
-                     US_Upload, UserStory_element)
+                     US_Upload, UserStory_element, NameFileUsed)
 
 # from .tasks import task_process_analys_data
 
@@ -62,6 +63,14 @@ class AddSingleUserStory(TemplateView):
             else:
                 userstory_obj.UserStory_File_ID_id = file
             userstory_obj.save()
+
+            if userstory_obj.UserStory_File_ID:
+                file_obj, created = NameFileUsed.objects.get_or_create(
+                    name_file=userstory_obj.UserStory_File_ID,
+                    created_by=userstory_obj.created_by
+                )
+                file_obj.is_active = True
+                file_obj.save()
             segmentation_edit_userstory(userstory_obj.id, True)
             messages.success(request, "Success, add new user story")
             return redirect(reverse_lazy("show_splitted_UserStory"))
@@ -105,6 +114,13 @@ def Upload_UserStory(request):
             upload_user_story.US_File_Content = File_content
 
             upload_user_story.save()
+
+            file_obj, created = NameFileUsed.objects.get_or_create(
+                name_file=upload_user_story,
+                created_by=request.user
+            )
+            file_obj.is_active = True
+            file_obj.save()
 
             messages.success(
                 request, "New set of user stories have been successfully added"
@@ -190,13 +206,20 @@ def split_user_story_to_segment(request, id):
 def show_splitted_UserStory(request):
     # show table user story
     project = request.GET.get("project", None)
-    userstory_list = UserStory_element.objects.filter(is_processed=False).order_by(
-        "-id"
-    )
-
+    userstory_list = UserStory_element.objects.filter(is_processed=False)
+    
     if not request.user.is_superuser:
         userstory_list = userstory_list.filter(created_by=request.user)
-    extra_context = {"view_all": userstory_list, "project_list": Project.objects.all()}
+
+    file_used_list = NameFileUsed.objects.filter(created_by=request.user, is_active=True)
+    if file_used_list.exists():
+        file_used_list_id = file_used_list.values_list('name_file__id', flat=True)
+        userstory_list = userstory_list.filter(
+            UserStory_File_ID__in=list(file_used_list_id)
+        )
+    else:
+        userstory_list = UserStory_element.objects.none()
+    extra_context = {"view_all": userstory_list.order_by("-id"), "project_list": Project.objects.all()}
     if project:
         userstory_list = userstory_list.filter(Project_Name_id=project)
         extra_context.update({"view_all": userstory_list, "project_id": int(project)})
@@ -441,6 +464,13 @@ def view_report_userstory_list(request):
         elif type_value in [ReportUserStory.ANALYS_TYPE.UNIQUENESS]:
             extra_context.update({"potential_problem_list": ((4, "Duplication"),)})
 
+
+        file_used_list = NameFileUsed.objects.filter(created_by=request.user, is_active=True)
+        if file_used_list.exists():
+            file_used_list_id = file_used_list.values_list('name_file__id', flat=True)
+            userstory_list = userstory_list.filter(
+                UserStory_File_ID__in=list(file_used_list_id)
+            )
         extra_context.update(
             {
                 "userstory_list": userstory_list,
@@ -603,6 +633,7 @@ def edit_userstory(request, report_id):
                                 parent=userstory,
                             )
                             AdjustedUserStory.objects.create(
+                                created_by=request.user,
                                 userstory=userstory,
                                 userstory_text=userstory.UserStory_Full_Text,
                                 adjusted=item,
@@ -628,6 +659,7 @@ def edit_userstory(request, report_id):
                 #     problematic_predicate, improved_predicate
                 # )
                 AdjustedUserStory.objects.create(
+                    created_by=request.user,
                     userstory=userstory,
                     userstory_text=userstory.UserStory_Full_Text,
                     adjusted=improved_predicate,
@@ -655,6 +687,7 @@ def edit_userstory(request, report_id):
                 userstory.old_userstory = old_text
                 userstory.save()
                 AdjustedUserStory.objects.create(
+                    created_by=request.user,
                     userstory=userstory,
                     userstory_text=old_text,
                     adjusted=textstory,
@@ -693,6 +726,7 @@ def edit_userstory(request, report_id):
                 userstory.old_userstory = old_text
                 userstory.save()
                 AdjustedUserStory.objects.create(
+                    created_by=request.user,
                     userstory=userstory,
                     userstory_text=old_text,
                     adjusted=textstory,
@@ -913,6 +947,17 @@ def print_report(request):
         userstory_list = UserStory_element.objects.filter(
             Project_Name_id=project_id, is_processed=True
         )
+
+        if not request.user.is_superuser:
+            userstory_list = userstory_list.filter(created_by=request.user)
+
+        file_used_list = NameFileUsed.objects.filter(created_by=request.user, is_active=True)
+        if file_used_list.exists():
+            file_used_list_id = file_used_list.values_list('name_file__id', flat=True)
+            userstory_list = userstory_list.filter(
+                UserStory_File_ID__in=list(file_used_list_id)
+            )
+
         extra_context.update(
             {
                 "userstory_list": userstory_list,
@@ -1022,6 +1067,13 @@ def view_list_adjusted_userstory(request):
         adjusted_list = adjusted_list.filter(created_by=request.user)
         project_list = project_list.filter(created_by=request.user)
 
+    file_used_list = NameFileUsed.objects.filter(created_by=request.user, is_active=True)
+    if file_used_list.exists():
+        file_used_list_id = file_used_list.values_list('name_file__id', flat=True)
+        adjusted_list = adjusted_list.filter(
+            userstory__UserStory_File_ID__in=list(file_used_list_id)
+        )
+
     q = request.GET.get("q", None)
     if q:
         adjusted_list = adjusted_list.filter(
@@ -1061,3 +1113,53 @@ def view_list_adjusted_userstory(request):
             "status_value": int(status) if status else None,
         },
     )
+
+
+@login_required(login_url=reverse_lazy("login_"))
+def get_json_project_use(request):
+    respon = {'success': False,}
+    projects = Project.objects.all()
+    if not request.user.is_superuser:
+        projects = projects.filter(created_by=request.user)
+    
+    if projects.exists():
+        data = []
+        for project in projects:
+            files = project.us_upload_set.all()
+            data_file = []
+            if files.exists():
+                for file in files:
+                    name_obj = NameFileUsed.objects.filter(
+                        created_by=request.user,
+                        name_file=file,
+                        is_active=True
+                    )
+                    data_file.append({
+                        'name': file.US_File_Name,
+                        'id': file.id,
+                        'selected': name_obj.exists()
+                    })
+            item = {
+                'project': project.Project_Name,
+                'project_id': project.id,
+                'file': data_file
+            }
+            data.append(item)
+        respon = {'success': True, 'data': data}
+    return JsonResponse(respon)
+
+
+def update_json_project_use(request):
+    respon = {'success': False,}
+    file_id = request.GET.get('file_id', None)
+    is_active = request.GET.get('is_active', None)
+
+    if file_id and request.user:
+        file_obj, created = NameFileUsed.objects.get_or_create(name_file_id=file_id, created_by=request.user)
+        if is_active and is_active == "true":
+            file_obj.is_active = True
+        else:
+            file_obj.is_active = False
+        file_obj.save()
+        respon = {'success': True,}
+    return JsonResponse(respon)
