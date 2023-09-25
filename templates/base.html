@@ -154,6 +154,11 @@
         </a>
         <ul id="components-nav-1" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
+            <a href="{% url 'projects_list_view' %}">
+              <i class="bi bi-circle"></i><span>Add new project</span>
+            </a>
+          </li>
+          <li>
             <!-- belum dibuat halamannya -->
             <a href="{% url 'add_single_userstory' %}">
               <i class="bi bi-circle"></i><span>Add user story</span>
@@ -213,11 +218,6 @@
           <i class="bi bi-gear"></i><span>Settings</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="components-nav-3" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="{% url 'projects_list_view' %}">
-              <i class="bi bi-circle"></i><span>Add new project</span>
-            </a>
-          </li>
           <li>
             <a href="{% url 'master_keyword' %}">
               <i class="bi bi-circle"></i><span>Action glossary (Müter et al., 2019)</span>
