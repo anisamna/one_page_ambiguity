@@ -637,6 +637,7 @@ def edit_userstory(request, report_id):
                             userstory_child = UserStory_element.objects.create(
                                 UserStory_Full_Text=item,
                                 Project_Name=userstory.Project_Name,
+                                UserStory_File_ID=userstory.UserStory_File_ID,
                                 parent=userstory,
                             )
                             AdjustedUserStory.objects.create(

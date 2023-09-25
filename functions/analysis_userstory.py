@@ -129,6 +129,7 @@ class AnalysisData:
             setattr(report, key, value)
         if self.user:
             report.created_by = self.user
+        report.is_processed = True
         report.is_problem = is_problem
         report.save()
 
@@ -147,9 +148,9 @@ class AnalysisData:
         is_conceptually_sound=True,
         is_uniqueness=True,
     ):
+        self.well_formed_data = self.well_formed()
         if is_well_formedness:
             # 1. well-formed
-            self.well_formed_data = self.well_formed()
             # print("well_formed", self.well_formed_data)
             for item in self.well_formed_data:
                 self.save_report(
