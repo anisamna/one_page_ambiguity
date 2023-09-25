@@ -93,6 +93,23 @@
     //const unique_criteria_id = $('#unique_criteria_id')
     const check_id = $('input[name=userstory_id]:checked').val()
   }
+
+  $('#gridCheck0').on('change', function(){
+    if ($('#gridCheck0').is(':checked')){
+      console.log('select all')
+      for (let i = 0; i < 6; i++) {
+        let number = i + 1
+        $(`#gridCheck${number}`).prop('checked', true);
+      }
+    } else {
+      console.log('remove select all')
+      for (let i = 0; i < 6; i++) {
+        let number = i + 1
+        $(`#gridCheck${number}`).prop('checked', false);
+      }
+    }
+  })
+
 </script>
 {% endblock %}
 
@@ -173,6 +190,16 @@
     </h4>
     <div class="card-body pt-3">
       <div class="row">
+        <div class="col-md-12">
+          <div class="form-group d-flex align-items-center">
+            <div class="form-check mr-2">
+              <input class="form-check-input" type="checkbox" id="gridCheck0" name="select_all_criteria">
+              <label class="form-check-label" for="gridCheck0">
+                Select All Assessment Criteria
+              </label>
+            </div>
+          </div>
+        </div>
         <div class="col-md-6">
           <label>Clarity</label>
           <div class="form-group d-flex align-items-center">

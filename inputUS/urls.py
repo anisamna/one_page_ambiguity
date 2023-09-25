@@ -70,4 +70,9 @@ urlpatterns = [
         views.update_json_project_use,
         name="update_json_project_use"
     ),
+    path(
+        "load-name-file-project",
+        views.load_name_file_project,
+        name="load_name_file_project"
+    ),
 ]

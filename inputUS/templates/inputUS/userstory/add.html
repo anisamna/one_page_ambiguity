@@ -60,5 +60,32 @@
       $('input[name=input_custom_file]').hide();
     }
   })
+
+  $('#project_id').on('change', function(event){
+    console.log(event)
+    const value = event.target.value;
+    if (value) {
+      $.ajax({
+        'url': `{% url 'load_name_file_project' %}`,
+        'type': 'GET',
+        data: {
+          project_id: value
+        },
+        success: function(response){
+          console.log(response)
+          let option_ = '<option value>Select</option>'
+          if (response.success) {
+            response.data.map(item => {
+              option_ += `
+                <option value="${item.id}">${item.text}</option>
+              `
+            })
+          } 
+          $('#file_id').html(option_)
+          $('#file_id').trigger('update');
+        }
+      })
+    }
+  })
 </script>
 {% endblock %}

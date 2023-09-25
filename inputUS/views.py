@@ -287,6 +287,13 @@ def analyze_data(request):
         uniqueness_input = request.POST.get("uniqueness_input", None)
         if uniqueness_input:
             similarity_value = uniqueness_input
+    
+    if preciseness_checkbox != "on" and well_formedness_checkbox != "on" and conciseness_checkbox != "on" and atomicity_checkbox != "on" and conceptually_sound_checkbox != "on" and uniqueness_checkbox != "on":
+        messages.warning(
+            request,
+            "Warning! Select at least one assessment criteria.",
+        )
+        return redirect(reverse("show_splitted_UserStory"))
 
     all_in_project = request.POST.get("all_in_project", None)
     if all_in_project == "on":
@@ -1162,4 +1169,23 @@ def update_json_project_use(request):
             file_obj.is_active = False
         file_obj.save()
         respon = {'success': True,}
+    return JsonResponse(respon)
+
+def load_name_file_project(request):
+    respon = {'success': False,}
+    project_id = request.GET.get('project_id', None)
+    try:
+        project_ = Project.objects.get(id=project_id)
+    except Project.DoesNotExist:
+        pass
+    else:
+        files = project_.us_upload_set.all()
+        if files.exists():
+            data = []
+            for item in files:
+                data.append({
+                    'id': item.id,
+                    'text': item.US_File_Name
+                })
+            respon = {'success': True, 'data': data}
     return JsonResponse(respon)
