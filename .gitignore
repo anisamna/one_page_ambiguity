@@ -28,3 +28,5 @@ venv.bak/
 # Celery stuff
 celerybeat-schedule
 celerybeat.pid
+
+erd
