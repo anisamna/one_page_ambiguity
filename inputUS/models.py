@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import JSONField
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
 
@@ -46,9 +46,6 @@ class KeywordGlossary(models.Model):
         verbose_name_plural = "Keyword_Glossary"
 
 
-# class Upload User Story
-
-
 class Project(MetaAttribute):
     Project_Name = models.CharField(max_length=100)
     Project_Desc = models.CharField(max_length=500)
@@ -71,9 +68,6 @@ class US_Upload(MetaAttribute):
     class Meta:
         verbose_name = "Upload_UserStory"
         verbose_name_plural = "Upload_UserStory"
-
-
-# class User Story segment
 
 
 class UserStory_Who(models.Model):
@@ -148,7 +142,7 @@ class UserStory_element(MetaAttribute):
 #         abstract = True
 
 
-class Result(models.Model):
+class Result(models.Model): # deprecated
     UserStory_Segment_ID = models.ForeignKey(
         UserStory_element, on_delete=models.CASCADE, null=True
     )
@@ -179,7 +173,7 @@ class Result(models.Model):
 #         verbose_name_plural = 'N_gram'
 
 
-class Similarity_Analysis(models.Model):
+class Similarity_Analysis(models.Model): # deprecated
     # UserStory_Segment_ID_1 = models.ForeignKey(UserStory_element, on_delete=models.CASCADE, null=True)
     Well_Formed_1 = models.ForeignKey(
         Result, on_delete=models.SET_NULL, null=True, related_name="well_formed_a_set"
@@ -256,7 +250,7 @@ class Similarity_Analysis(models.Model):
 #     label = models.IntegerField(null=True)
 
 
-class WordNet_classification(models.Model):
+class WordNet_classification(models.Model): # deprecated
     class Element_type(models.TextChoices):
         ROLE = "Role"
         ACTION = "Action"
@@ -361,7 +355,8 @@ class ReportTerms(MetaAttribute):
         UserStory_element, null=True, on_delete=models.CASCADE
     )
     type = models.IntegerField(choices=ReportUserStory.ANALYS_TYPE.choices, null=True)
-    action = models.CharField(null=True, max_length=100)
+    action = models.CharField(null=True, max_length=100) # deprecated
+    problem_action = models.JSONField(null=True)
     terms_actions = models.JSONField(null=True)
 
     class Meta:
@@ -369,7 +364,7 @@ class ReportTerms(MetaAttribute):
         verbose_name_plural = "Report Terms"
 
 
-class ProcessBackground(MetaAttribute):
+class ProcessBackground(MetaAttribute): # deprecated
     userstorys = models.ManyToManyField(UserStory_element)
     percentage = models.CharField(max_length=7, null=True)
     is_process = models.BooleanField(default=False)

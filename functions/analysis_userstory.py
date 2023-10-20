@@ -733,9 +733,17 @@ class AnalysisData:
             doc = self.nlp(action)
             sentence_class = set()
             keyword_words = set()
+            prob_act = []
+
             for token in doc:
-                if token.pos_ == "VERB":
+                # if token.pos_ == "VERB":
+                if token.pos_ == "VERB" and "VB" in [
+                    ancestor.tag_ for ancestor in token.ancestors
+                ]:
+                    tok_verb = token.text
                     word_class = self.get_word_class(token.text)
+                    prob_act.append(tok_verb)
+
                     if word_class:
                         sentence_class.add(word_class.keyword)
                         keyword_words.add(token.text)
@@ -769,6 +777,7 @@ class AnalysisData:
                     keyword_word: list(keyword_to_sentence_class[keyword_word])
                     for keyword_word in keyword_words
                 },
+                "problem_act": prob_act,
                 "label": "",
             }
             for key, value in sentence_classify["keyword_words"].items():
@@ -862,12 +871,29 @@ class AnalysisData:
                     sub["is_problem"] = is_problem
                     sub["recommendation_type"] = recommendation_type
 
+                    # cluster_texts = {
+                    #     "index": sub["index"],
+                    #     "userstory": sub["userstory"],
+                    #     "text": sub["text"],
+                    #     "role_actor": sub.get("actor"),
+                    #     "action_act": act.get("act_action"),
+                    #     "role_label": sub["cluster_label"],
+                    #     "std_role": sub["role_s_list"],
+                    #     "std_term": act["keyword_words"],
+                    #     "act_label": act["label"],
+                    #     "status": sub["status"],
+                    #     "problem_act": act.get("problem_act"),
+                    #     "recommendation": sub["recommendation"],
+                    #     "is_problem": sub["is_problem"],
+                    #     "recommendation_type": sub["recommendation_type"],
+                    # }
                     cluster_texts = {
                         "index": sub["index"],
                         "userstory": sub["userstory"],
                         "text": sub["text"],
                         "role_actor": sub.get("actor"),
                         "action_act": act.get("act_action"),
+                        "problem_act": act.get("problem_act"),
                         "role_label": sub["cluster_label"],
                         "std_role": sub["role_s_list"],
                         "std_term": act["keyword_words"],
@@ -898,11 +924,12 @@ class AnalysisData:
             if matching_sub or matching_act:
                 if Text and userstory:
                     # Accessing "actor" key from the "matching_sub" dictionary in "dic_sub"
-                    # print("Story #", matching_act["index"], ": ", Text)
-                    # print("Role:", matching_sub["actor"])
-                    # print("Action:", matching_act["act_action"])
-                    # print("Status:", matching_sub["status"])
-                    # print("Recommendation:", matching_sub["recommendation"])
+                    print("Story #", matching_act["index"], ": ", Text)
+                    print("Role:", matching_sub["actor"])
+                    print("Action:", matching_act["act_action"])
+                    print("Status:", matching_sub["status"])
+                    print("Recommendation:", matching_sub["recommendation"])
+
                     role_ = matching_sub["actor"]
                     action_ = matching_act["act_action"]
 
@@ -914,198 +941,61 @@ class AnalysisData:
 
                     if (
                         matching_sub["cluster_label"] == -1
-                        and matching_act["label"] != "1"
+                        and matching_act["label"] == ""
                     ):
-                        # print("Recommended terms: ")
                         # Perubahan disini, identify problematic terms in role and action, give recommended terms for role and actions
-                        # print("Problematic terms:")
-
-                        recommendation += "\n\nProblematic terms:\n\n"
-
-                        if (
-                            matching_sub["cluster_label"] == -1
-                            and matching_act["label"] == ""
-                        ):
-                            # print(
-                            #     "Recommendation for the user are:",
-                            #     matching_sub["role_s_list"],
-                            # )
-                            # print(
-                            #     "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
-                            # )
-                            # recommendation += f"""Recommendation for the user are:
-                            #     {matching_sub["role_s_list"]}
-                            #     Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague.
-                            # """
-                            # ini untuk mengambil data role, bisa diambil dari Who_actor table Who
-                            # print("Role:", matching_sub["actor"])
-                            # ini diambil dari role_s_list, data disimpan di tabel baru (ato gausah disimpan?) dengan nama role
-                            # print(
-                            #     "Recommendation terms for the user:",
-                            #     matching_sub["role_s_list"],
-                            # )
-                            # print(
-                            #     "Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
-                            # )
-
-                            if matching_sub["role_s_list"] and len(
-                                matching_sub["role_s_list"]
-                            ):
-                                for role_item in matching_sub["role_s_list"]:
-                                    role_key = role_item.strip().lower()
-                                    role_, created = Role.objects.get_or_create(
-                                        role_key=role_key,
-                                        userstory=userstory,
-                                        status=ReportUserStory.ANALYS_TYPE.PRECISE,
-                                    )
-                                    role_.role = role_item
-                                    role_.save()
-
-                            recommendation += f"""Role: {matching_sub["actor"]}\n
-                            Recommendation terms for the user: {matching_sub["role_s_list"]}\n
-                            Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague.\n
-                            """
-                            # recommendation_type = (
-                            #     ReportUserStory.RECOMENDATION_TYPE.ROLE
-                            # )
-                        elif (
-                            matching_sub["cluster_label"] == -1
-                            and matching_act["label"] == ">1"
-                        ):
-                            # print(
-                            #     "Recommendation for the user are:",
-                            #     matching_sub["role_s_list"],
-                            # )
-                            # print(
-                            #     "Recommendation for the action are:",
-                            #     matching_act["keyword_words"],
-                            # )
-                            # recommendation += f"""Recommendation for the user are:
-                            #     {matching_sub["role_s_list"]}
-                            #     Recommendation for the action are:
-                            #     {matching_act["keyword_words"]}
-                            # """
-                            # perubahan disini, get key values from dic matching_act["keyword_word"]
-                            # to identify problematic terms and the recommended actions
-                            data_act = matching_act["keyword_words"]
-                            key_act = next(iter(data_act))
-                            values_act = data_act[key_act]
-                            # ini untuk mengambil data role, bisa diambil dari Who_actor table Who
-                            # print("Role:", matching_sub["actor"])
-                            # ini untuk mengambil data action -have-, diambil dari key_act,
-                            # disimpan sebagai tambahan anggota di tabel keyword glossary
-                            # print("Action:", key_act)
-                            # print(
-                            #     "Recommendation terms for the user:",
-                            #     matching_sub["role_s_list"],
-                            # )
-                            # ini tidak disimpan, harusnya indexnya sudah ada di tabel keyword glossary -CRUD...-
-                            # print("Recommendation terms for the action:", values_act)
-
-                            if key_act:
-                                terms_obj, created = ReportTerms.objects.get_or_create(
-                                    userstory=userstory,
-                                    type=ReportUserStory.ANALYS_TYPE.PRECISE,
-                                )
-                                terms_obj.action = key_act
-                                if len(values_act):
-                                    terms_obj.terms_actions = values_act
-                                terms_obj.save()
-
-                            #     keyword_obj, created = KeywordGlossary.objects.get_or_create(
-                            #         keyword=key_act
-                            #     )
-                            #     terms_obj.keyword = keyword_obj
-
-                            #     if len(values_act):
-                            #         for act in values_act:
-                            #             glossary_obj, created = Glossary.objects.get_or_create(
-                            #                 Action_item=act
-                            #             )
-                            #             terms_obj.glossarys.add(glossary_obj)
-                            #             keyword_obj.item_name.add(glossary_obj)
-                            #             keyword_obj.save()
-                            #     terms_obj.save()
-
-                            recommendation += f"""Role: {matching_sub["actor"]}\n
-                            Action: {key_act}\n
-                            Recommendation terms for the user: {matching_sub["role_s_list"]}\n
-                            Recommendation terms for the action: {values_act}\n
-                            """
-                            # recommendation_type = (
-                            #     ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
-                            # )
+                        print("Problematic terms:")
+                        # ini untuk mengambil data role, bisa diambil dari Who_actor table Who
+                        print("Role:", matching_sub["actor"])
+                        print("Action:", matching_act["problem_act"])
+                        # ini diambil dari role_s_list, data disimpan di tabel baru (ato gausah disimpan?) dengan nama role
+                        print(
+                            "Recommendation terms for the user:",
+                            matching_sub["role_s_list"],
+                        )
+                        print(
+                            "Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
+                        )
+                        role_s_list = matching_sub["role_s_list"]
+                        actor_ = matching_sub["actor"]
+                        problem_act_ = matching_act["problem_act"]
+                        for role_item in role_s_list:
+                            role_key = role_item.strip().lower()
+                            role_, created = Role.objects.get_or_create(
+                                role_key=role_key,
+                                userstory=userstory,
+                                status=ReportUserStory.ANALYS_TYPE.PRECISE,
+                            )
+                            role_.role = role_item
+                            role_.save()
+                        if len(problem_act_):
+                            terms_obj, created = ReportTerms.objects.get_or_create(
+                                userstory=userstory,
+                                type=ReportUserStory.ANALYS_TYPE.PRECISE,
+                            )
+                            terms_obj.problem_action = problem_act_
+                            terms_obj.save()
+                        recommendation += (
+                            "\n\nProblematic terms:"
+                            f"\nRole: {actor_}"
+                            f"\nAction: {problem_act_}"
+                            f"\nRecommendation terms for the user: {role_s_list}"
+                            f"\nRecommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
+                        )
                     elif (
                         matching_sub["cluster_label"] == -1
-                        and matching_act["label"] == "1"
+                        and matching_act["label"] == ">1"
                     ):
-                        # print("Recommended terms: ")
-                        # print(
-                        #     "Recommendation for the user are:",
-                        #     matching_sub["role_s_list"],
-                        # )
-                        # recommendation += f"""Recommendation for the user are:
-                        #     {matching_sub["role_s_list"]}
-                        # """
-                        # Perubahan disini, identify problematic terms in role and action, give recommended terms for role and actions
-                        # print("Problematic terms:")
-                        # print("Role:", matching_sub["actor"])
-                        # print(
-                        #     "Recommendation terms for the user:",
-                        #     matching_sub["role_s_list"],
-                        # )
-                        if matching_sub["role_s_list"] and len(
-                            matching_sub["role_s_list"]
-                        ):
-                            for role_item in matching_sub["role_s_list"]:
-                                role_key = role_item.strip().lower()
-                                role_, created = Role.objects.get_or_create(
-                                    role_key=role_key,
-                                    userstory=userstory,
-                                    status=ReportUserStory.ANALYS_TYPE.PRECISE,
-                                )
-                                role_.role = role_item
-                                role_.save()
-                        recommendation += f"""\n\nProblematic terms:\n\n Role: {matching_sub["actor"]}\n
-                        Recommendation terms for the user: {matching_sub["role_s_list"]}\n
-                        """
-                        # recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ROLE
-                    elif (
-                        matching_sub["cluster_label"] != -1
-                        and matching_act["label"] != "1"
-                    ):
-                        # print("Recommended terms: ")
-                        if (
-                            matching_sub["cluster_label"] != -1
-                            and matching_act["label"] == ""
-                        ):
-                            # print(
-                            #     "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
-                            # )
-                            # recommendation += "Recommendation for the action are: Sorry. We do not have recommendation for the action. The action is too vague."
-                            # print(
-                            #     "Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
-                            # )
-                            recommendation += "\n\nRecommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
-                        elif (
-                            matching_sub["cluster_label"] != -1
-                            and matching_act["label"] == ">1"
-                        ):
-                            # print(
-                            #     "Recommendation for the action are:",
-                            #     matching_act["keyword_words"],
-                            # )
-                            # recommendation += f"""Recommendation for the user are:
-                            #     {matching_act["keyword_words"]}
-                            # """
-                            # perubahan disini, get key values from dic matching_act["keyword_word"]
-                            # to identify problematic terms and the recommended actions
-                            data_act = matching_act["keyword_words"]
-                            key_act = next(iter(data_act))
-                            values_act = data_act[key_act]
-                            # print("Problematic terms:")
-                            # print("Action:", key_act)
-                            # print("Recommendation terms for the action:", values_act)
+                        # perubahan disini, get key values from dic matching_act["keyword_word"]
+                        # to identify problematic terms and the recommended actions
+
+                        data_act = matching_act["keyword_words"]
+                        key_act = next(iter(data_act))
+                        values_act = data_act[key_act]
+                        actor_ = matching_sub["actor"]
+                        problem_act_ = matching_act["problem_act"]
+                        role_s_list = matching_sub["role_s_list"]
+                        if len(problem_act_):
                             terms_obj, created = ReportTerms.objects.get_or_create(
                                 userstory=userstory,
                                 type=ReportUserStory.ANALYS_TYPE.PRECISE,
@@ -1113,13 +1003,112 @@ class AnalysisData:
                             terms_obj.action = key_act
                             if len(values_act):
                                 terms_obj.terms_actions = values_act
+                            terms_obj.problem_action = problem_act_
                             terms_obj.save()
-                            recommendation += f"""\n\nProblematic terms:\n\n Action: {key_act}\n
-                            Recommendation terms for the action: {values_act}\n
-                            """
-                            # recommendation_type = (
-                            #     ReportUserStory.RECOMENDATION_TYPE.ACTION
-                            # )
+                        for role_item in role_s_list:
+                            role_key = role_item.strip().lower()
+                            role_, created = Role.objects.get_or_create(
+                                role_key=role_key,
+                                userstory=userstory,
+                                status=ReportUserStory.ANALYS_TYPE.PRECISE,
+                            )
+                            role_.role = role_item
+                            role_.save()
+
+                        print("Problematic terms: ")
+                        # ini untuk mengambil data role, bisa diambil dari Who_actor table Who
+                        print("Role:", actor_)
+                        # ini untuk mengambil data action -have-, diambil dari key_act,
+                        # disimpan sebagai tambahan anggota di tabel keyword glossary
+                        print("Action type:", type(problem_act_))
+                        print("Action:", problem_act_)
+                        print("Recommendation terms for the user:", role_s_list)
+                        # ini tidak disimpan, harusnya indexnya sudah ada di tabel keyword glossary -CRUD...-
+                        print("Recommendation terms for the action:", values_act)
+                        recommendation += (
+                            "\n\nProblematic terms:"
+                            f"\nRole: {actor_}"
+                            f"\nAction: {problem_act_}"
+                            f"\nRecommendation terms for the user: {role_s_list}"
+                            f"\nRecommendation terms for the action: {values_act}"
+                        )
+                    elif (
+                        matching_sub["cluster_label"] == -1
+                        and matching_act["label"] == "1"
+                    ):
+                        # Perubahan disini, identify problematic terms in role and action, give recommended terms for role and actions
+                        actor_ = matching_sub["actor"]
+                        role_s_list = matching_sub["role_s_list"]
+                        for role_item in role_s_list:
+                            role_key = role_item.strip().lower()
+                            role_, created = Role.objects.get_or_create(
+                                role_key=role_key,
+                                userstory=userstory,
+                                status=ReportUserStory.ANALYS_TYPE.PRECISE,
+                            )
+                            role_.role = role_item
+                            role_.save()
+                        print("Problematic terms:")
+                        print("Role:", actor_)
+                        print("Recommendation terms for the user:", role_s_list)
+                        recommendation += (
+                            "\n\nProblematic terms:"
+                            f"\nRole: {actor_}"
+                            f"\nRecommendation terms for the user: {role_s_list}"
+                        )
+                    elif (
+                        matching_sub["cluster_label"] != -1
+                        and matching_act["label"] == ""
+                    ):
+                        problem_act_ = matching_act["problem_act"]
+                        print(type(problem_act_))
+                        if len(problem_act_):
+                            terms_obj, created = ReportTerms.objects.get_or_create(
+                                userstory=userstory,
+                                type=ReportUserStory.ANALYS_TYPE.PRECISE,
+                            )
+                            terms_obj.problem_action = problem_act_
+                            terms_obj.save()
+                        print("Problematic terms:")
+                        print("Action type:", type(problem_act_))
+                        print("Action:", problem_act_)
+                        print(
+                            "Recommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
+                        )
+                        recommendation += (
+                            "\n\nProblematic terms:"
+                            f"\nAction: {problem_act_}"
+                            f"\nRecommendation terms for the action: Sorry. We do not have recommendation for the action. The action is too vague."
+                        )
+                    elif (
+                        matching_sub["cluster_label"] != -1
+                        and matching_act["label"] == ">1"
+                    ):
+                        data_act = matching_act["keyword_words"]
+                        key_act = next(iter(data_act))
+                        values_act = data_act[key_act]
+                        problem_act_ = matching_act["problem_act"]
+                        if len(problem_act_):
+                            terms_obj, created = ReportTerms.objects.get_or_create(
+                                userstory=userstory,
+                                type=ReportUserStory.ANALYS_TYPE.PRECISE,
+                            )
+                            terms_obj.action = key_act
+                            if len(values_act):
+                                terms_obj.terms_actions = values_act
+                            # if len(problem_act_):
+                            terms_obj.problem_action = problem_act_
+                            terms_obj.save()
+                        print("Problematic terms:")
+                        print("Action type:", type(problem_act_))
+                        print("Action:", problem_act_)
+                        print("Recommendation terms for the action:", values_act)
+                        recommendation += (
+                            "\n\nProblematic terms:"
+                            f"\nAction: {problem_act_}"
+                            f"\nRecommendation terms for the action: {values_act}"
+                        )
+                    ### end
                     self.save_report(
                         userstory,
                         matching_sub["status"],

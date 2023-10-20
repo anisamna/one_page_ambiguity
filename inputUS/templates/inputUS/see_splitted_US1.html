@@ -47,6 +47,8 @@
     const $this = $(this)
     if($this.val()){
       window.location.href = '?project='+$this.val()
+    } else {
+      window.location.href = '?project='
     }
   })
 
@@ -276,7 +278,7 @@
           <div class="form-group ms-3">
             <label for="domain_filter_id">Project Domain</label>
             <select class="form-control select2" aria-label="Project Domain" id="domain_filter_id" name="project_domain_id">
-              <option selected="">Select Project Domain</option>
+              <option selected="" value>Select Project Domain</option>
               {% for item in project_list %}
               {% if item.id == project_id %}
               <option value="{{ item.id }}" selected>{{ item }}</option>

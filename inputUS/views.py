@@ -575,6 +575,7 @@ def edit_userstory(request, report_id):
             )
 
             if reportterms.exists():
+                data = reportterms.last()
                 extra_context.update({"reportterms": reportterms.last()})
             role_list = role_list.filter(status=ReportUserStory.ANALYS_TYPE.PRECISE)
             extra_context.update(
