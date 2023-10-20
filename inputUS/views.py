@@ -206,8 +206,9 @@ def split_user_story_to_segment(request, id):
 def show_splitted_UserStory(request):
     # show table user story
     project = request.GET.get("project", None)
+    file_name_id = request.GET.get("filename", None)
     userstory_list = UserStory_element.objects.filter(is_processed=False)
-    
+
     if not request.user.is_superuser:
         userstory_list = userstory_list.filter(created_by=request.user)
 
@@ -221,9 +222,13 @@ def show_splitted_UserStory(request):
         userstory_list = UserStory_element.objects.none()
     extra_context = {"view_all": userstory_list.order_by("-id"), "project_list": Project.objects.all()}
     if project:
-        userstory_list = userstory_list.filter(Project_Name_id=project)
-        extra_context.update({"view_all": userstory_list, "project_id": int(project)})
-
+        file_names = US_Upload.objects.filter(US_Project_Domain_id=project)
+        if file_name_id:
+            extra_context.update({
+                "file_name_id":int(file_name_id)
+            })
+            userstory_list = userstory_list.filter(Project_Name_id=project,UserStory_File_ID=file_name_id)
+        extra_context.update({"view_all": userstory_list, "project_id": int(project), "file_names":file_names})
     return render(request, "inputUS/see_splitted_US1.html", extra_context)
 
 
