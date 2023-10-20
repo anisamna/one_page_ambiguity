@@ -1,0 +1,401 @@
+[
+{
+  "model": "inputUS.glossary",
+  "pk": 1,
+  "fields": {
+    "Action_item": "add"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 2,
+  "fields": {
+    "Action_item": "insert"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 3,
+  "fields": {
+    "Action_item": "create"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 4,
+  "fields": {
+    "Action_item": "make"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 5,
+  "fields": {
+    "Action_item": "build"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 6,
+  "fields": {
+    "Action_item": "develop"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 7,
+  "fields": {
+    "Action_item": "establish"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 8,
+  "fields": {
+    "Action_item": "generate"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 9,
+  "fields": {
+    "Action_item": "construct"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 10,
+  "fields": {
+    "Action_item": "view"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 11,
+  "fields": {
+    "Action_item": "read"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 12,
+  "fields": {
+    "Action_item": "display"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 13,
+  "fields": {
+    "Action_item": "show"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 14,
+  "fields": {
+    "Action_item": "retrieve"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 15,
+  "fields": {
+    "Action_item": "get"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 16,
+  "fields": {
+    "Action_item": "access"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 17,
+  "fields": {
+    "Action_item": "examine"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 18,
+  "fields": {
+    "Action_item": "browse"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 19,
+  "fields": {
+    "Action_item": "modify"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 20,
+  "fields": {
+    "Action_item": "edit"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 21,
+  "fields": {
+    "Action_item": "change"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 22,
+  "fields": {
+    "Action_item": "update"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 23,
+  "fields": {
+    "Action_item": "revise"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 24,
+  "fields": {
+    "Action_item": "alter"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 25,
+  "fields": {
+    "Action_item": "adjust"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 26,
+  "fields": {
+    "Action_item": "adapt"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 27,
+  "fields": {
+    "Action_item": "refine"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 28,
+  "fields": {
+    "Action_item": "fix"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 29,
+  "fields": {
+    "Action_item": "improve"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 30,
+  "fields": {
+    "Action_item": "renew"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 31,
+  "fields": {
+    "Action_item": "replace"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 32,
+  "fields": {
+    "Action_item": "remove"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 33,
+  "fields": {
+    "Action_item": "delete"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 34,
+  "fields": {
+    "Action_item": "erase"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 35,
+  "fields": {
+    "Action_item": "clear"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 36,
+  "fields": {
+    "Action_item": "eliminate"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 37,
+  "fields": {
+    "Action_item": "exclude"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 38,
+  "fields": {
+    "Action_item": "discard"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 39,
+  "fields": {
+    "Action_item": "purge"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 40,
+  "fields": {
+    "Action_item": "drop"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 41,
+  "fields": {
+    "Action_item": "bind"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 42,
+  "fields": {
+    "Action_item": "export"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 43,
+  "fields": {
+    "Action_item": "integrate"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 44,
+  "fields": {
+    "Action_item": "invite"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 45,
+  "fields": {
+    "Action_item": "link"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 46,
+  "fields": {
+    "Action_item": "list"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 47,
+  "fields": {
+    "Action_item": "offer"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 48,
+  "fields": {
+    "Action_item": "check"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 49,
+  "fields": {
+    "Action_item": "evaluate"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 50,
+  "fields": {
+    "Action_item": "test"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 51,
+  "fields": {
+    "Action_item": "verify"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 52,
+  "fields": {
+    "Action_item": "investigate"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 53,
+  "fields": {
+    "Action_item": "inquire"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 54,
+  "fields": {
+    "Action_item": "research"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 55,
+  "fields": {
+    "Action_item": "search"
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 56,
+  "fields": {
+    "Action_item": "redesign the Resources page, "
+  }
+},
+{
+  "model": "inputUS.glossary",
+  "pk": 57,
+  "fields": {
+    "Action_item": "the publish button in FABS to deactivate after I click it while the derivations are happening, "
+  }
+}
+]

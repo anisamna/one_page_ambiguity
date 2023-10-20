@@ -1,0 +1,131 @@
+[
+{
+  "model": "inputUS.keywordglossary",
+  "pk": 1,
+  "fields": {
+    "keyword": "create",
+    "item_name": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ]
+  }
+},
+{
+  "model": "inputUS.keywordglossary",
+  "pk": 2,
+  "fields": {
+    "keyword": "read",
+    "item_name": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      56
+    ]
+  }
+},
+{
+  "model": "inputUS.keywordglossary",
+  "pk": 3,
+  "fields": {
+    "keyword": "update",
+    "item_name": [
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ]
+  }
+},
+{
+  "model": "inputUS.keywordglossary",
+  "pk": 4,
+  "fields": {
+    "keyword": "delete",
+    "item_name": [
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40
+    ]
+  }
+},
+{
+  "model": "inputUS.keywordglossary",
+  "pk": 5,
+  "fields": {
+    "keyword": "merge",
+    "item_name": [
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47
+    ]
+  }
+},
+{
+  "model": "inputUS.keywordglossary",
+  "pk": 6,
+  "fields": {
+    "keyword": "validate",
+    "item_name": [
+      48,
+      49,
+      50,
+      51
+    ]
+  }
+},
+{
+  "model": "inputUS.keywordglossary",
+  "pk": 7,
+  "fields": {
+    "keyword": "search",
+    "item_name": [
+      52,
+      53,
+      54,
+      55
+    ]
+  }
+},
+{
+  "model": "inputUS.keywordglossary",
+  "pk": 8,
+  "fields": {
+    "keyword": "gilang",
+    "item_name": [
+      57
+    ]
+  }
+}
+]
