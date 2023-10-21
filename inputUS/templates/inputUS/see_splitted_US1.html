@@ -206,7 +206,7 @@
           <div class="form-group ms-3">
             <label for="domain_filter_id">Project Domain</label>
             <select class="form-control select2" aria-label="Project Domain" id="domain_filter_id" name="project_domain_id">
-              <option selected="" value>Select Project Domain</option>
+              <option selected="" value>Show All</option>
               {% for item in project_list %}
               {% if item.id == project_id %}
               <option value="{{ item.id }}" selected>{{ item }}</option>
