@@ -1080,7 +1080,7 @@ def view_list_adjusted_userstory(request):
     if not request.user.is_superuser:
         # adjusted_list = adjusted_list.filter(created_by=request.user)
         project_list = project_list.filter(created_by=request.user)
-
+        adjusted_list = adjusted_list.filter(created_by=request.user)
     # file_used_list = NameFileUsed.objects.filter(created_by=request.user, is_active=True)
     # if file_used_list.exists():
     #     file_used_list_id = file_used_list.values_list('name_file__id', flat=True)
