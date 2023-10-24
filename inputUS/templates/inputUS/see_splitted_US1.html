@@ -51,6 +51,16 @@
       window.location.href = '?project='
     }
   })
+  $('#filename_filter_id').on('change', function(){
+    const $this = $(this)
+    const urlParams = new URLSearchParams(window.location.search);
+    if($this.val()){
+      urlParams.set('filename', $this.val());
+    } else {
+      urlParams.set('filename', '');
+    }
+    window.location.search = urlParams;    
+  })
 
   const labels = document.querySelectorAll('.mylabel');
   labels.forEach(e => {
@@ -187,6 +197,106 @@
   </div> -->
 
   <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">
+        Select set of user stories
+      </h5>
+      <div class="row">
+        <div class="col-4">
+          <div class="form-group ms-3">
+            <label for="domain_filter_id">Project Domain</label>
+            <select class="form-control select2" aria-label="Project Domain" id="domain_filter_id" name="project_domain_id">
+              <option selected="" value>Show All</option>
+              {% for item in project_list %}
+              {% if item.id == project_id %}
+              <option value="{{ item.id }}" selected>{{ item }}</option>
+              {% else %}
+              <option value="{{ item.id }}">{{ item }}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="form-group ms-3">
+            <label for="filename_filter_id">Filename</label>
+            <select class="form-control select2" aria-label="Filename" id="filename_filter_id" name="filename_filter_id">
+              <option selected="" value>Show All</option>
+              {% for item in file_names %}
+                {% if item.id == file_name_id %}
+                <option value="{{ item.id }}" selected>{{ item }}</option>
+                {% else %}
+                <option value="{{ item.id }}">{{ item }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+      {% if request.GET.project %}
+      <input type="hidden" name="project" value="{{ request.GET.project }}">
+      <div class="row">
+        <div class="col-4 ms-3">
+          <div class="form-group">
+            <div class="form-check">
+              <input class="form-check-input" name="all_in_project" type="checkbox" id="flexCheckDefault">
+              <label class="form-check-label" for="flexCheckDefault">
+                Select all User Story this Project
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      
+      <table class="table table-striped" id="table_result_id">
+        <thead>
+          <tr>
+            <th>
+              <input type="checkbox" name="select_all" class="select_all_list">
+            </th>
+            <th scope="col">ID</th>
+            <th scope="col">
+              <nobr>Project Domain</nobr>
+            </th>
+            <th scope="col">User story</th>
+            <th scope="col">
+              <nobr>Role of actor (Who-)</nobr>
+            </th>
+            <th scope="col">
+              <nobr>Role of action (What-)</nobr>
+            </th>
+            <th scope="col">
+              <nobr>Roal of benefit (Why-)</nobr>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if view_all %}
+          {% for dt in view_all %}
+          <tr for="userstory_id_{{dt.id}}">
+            <td>
+              <input type="checkbox" name="userstory_id" id="userstory_id_{{dt.id}}" class="checklist-item" data-id="{{dt.id}}" value="{{dt.id}}">
+            </td>
+            <td class="mylabel">{{ dt.id }}</td>
+            <td class="mylabel">{{ dt.Project_Name }}</td>
+            <td class="mylabel">{{ dt.UserStory_Full_Text }}</td>
+            <td class="mylabel">{{ dt.Who_full }}</td>
+            <td class="mylabel">{{ dt.What_full }}</td>
+            <td class="mylabel">{{ dt.Why_full }}</td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="7" align="center">No data available in table</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="card">
     <h4 class="card-header">
       Input assessment criteria:
     </h4>
@@ -268,90 +378,6 @@
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-body">
-      <h5 class="card-title">
-        Select set of user stories
-      </h5>
-      <div class="row">
-        <div class="col-4">
-          <div class="form-group ms-3">
-            <label for="domain_filter_id">Project Domain</label>
-            <select class="form-control select2" aria-label="Project Domain" id="domain_filter_id" name="project_domain_id">
-              <option selected="" value>Select Project Domain</option>
-              {% for item in project_list %}
-              {% if item.id == project_id %}
-              <option value="{{ item.id }}" selected>{{ item }}</option>
-              {% else %}
-              <option value="{{ item.id }}">{{ item }}</option>
-              {% endif %}
-              {% endfor %}
-            </select>
-          </div>
-        </div>
-      </div>
-      {% if request.GET.project %}
-      <input type="hidden" name="project" value="{{ request.GET.project }}">
-      <div class="row">
-        <div class="col-4 ms-3">
-          <div class="form-group">
-            <div class="form-check">
-              <input class="form-check-input" name="all_in_project" type="checkbox" id="flexCheckDefault">
-              <label class="form-check-label" for="flexCheckDefault">
-                Select all User Story this Project
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endif %}
-      
-      <table class="table table-striped" id="table_result_id">
-        <thead>
-          <tr>
-            <th>
-              <input type="checkbox" name="select_all" class="select_all_list">
-            </th>
-            <th scope="col">ID</th>
-            <th scope="col">
-              <nobr>Project Domain</nobr>
-            </th>
-            <th scope="col">User story</th>
-            <th scope="col">
-              <nobr>Role of actor (Who-)</nobr>
-            </th>
-            <th scope="col">
-              <nobr>Role of action (What-)</nobr>
-            </th>
-            <th scope="col">
-              <nobr>Roal of benefit (Why-)</nobr>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if view_all %}
-          {% for dt in view_all %}
-          <tr for="userstory_id_{{dt.id}}">
-            <td>
-              <input type="checkbox" name="userstory_id" id="userstory_id_{{dt.id}}" class="checklist-item" data-id="{{dt.id}}" value="{{dt.id}}">
-            </td>
-            <td class="mylabel">{{ dt.id }}</td>
-            <td class="mylabel">{{ dt.Project_Name }}</td>
-            <td class="mylabel">{{ dt.UserStory_Full_Text }}</td>
-            <td class="mylabel">{{ dt.Who_full }}</td>
-            <td class="mylabel">{{ dt.What_full }}</td>
-            <td class="mylabel">{{ dt.Why_full }}</td>
-          </tr>
-          {% endfor %}
-          {% else %}
-          <tr>
-            <td colspan="7" align="center">No data available in table</td>
-          </tr>
-          {% endif %}
-        </tbody>
-      </table>
-    </div>
-  </div>
 </form>
 {% endblock contentLeft %}
 
