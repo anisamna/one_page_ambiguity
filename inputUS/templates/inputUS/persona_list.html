@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block contentLeft %}
+<div class="card">
+  <div class="card-header d-flex">
+    <h5>List of {{ title }}</h5>
+    <a href="{% url 'persona_add_view' %}" class="btn btn-primary btn-sm ms-auto"><i class="bi bi-plus"></i> Add</a>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Project</th>
+            <th>File name</th>
+            <th>Personas</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if view_all %}
+          {% for item in view_all %}
+          <tr>
+            <td>{{ item.project }}</td>
+            <td>{{ item.file_name }}</td>
+            <td>{{ item.persona }}</td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="3" align="center">empty data</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card-footer">
+    <nav aria-label="Page navigation example">
+      <ul class="pagination justify-content-end">
+        <li class="page-item">
+          {% if view_all.has_previous %}
+          <a class="page-link" href="?page={{ view_all.previous_page_number }}">Previous</a>
+          {% endif %}
+        </li>
+        {% for num_page in view_all.paginator.page_range %}
+        <br />
+        {% if view_all.number == num_page %}
+        <li class="page-item active" aria-current="page"><a class="page-link"
+            href="?page={{ num_page }}">{{ num_page }}</a></li>
+        {% else %}
+        <li class="page-item" aria-current="page"><a class="page-link"
+            href="?page={{ num_page }}">{{ num_page }}</a></li>
+        {% endif %}
+        <br />
+        {% endfor %}
+        <li class="page-item">
+          {% if view_all.has_next %}
+          <a class="page-link" href="?page={{ view_all.next_page_number }}">Next</a>
+          {% endif %}
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+{% endblock %}

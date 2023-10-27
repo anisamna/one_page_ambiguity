@@ -173,7 +173,22 @@ class AnalysisData:
             recommendation = item["atomicity_recommendation"]
             if sbar_label:
                 if sbar_label == 1:
-                    recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {item['sbar_text']} **"
+                    sbar_text = item['sbar_text']
+                    if is_atomicity:
+                        rt_obj, created = ReportTerms.objects.get_or_create(
+                            userstory=userstory,
+                            type=ReportUserStory.ANALYS_TYPE.ATOMICITY
+                        )
+                        rt_obj.sbar_text = sbar_text
+                        rt_obj.save()
+                    if is_conciseness:
+                        rt_obj, created = ReportTerms.objects.get_or_create(
+                            userstory=userstory,
+                            type=ReportUserStory.ANALYS_TYPE.CONCISENESS
+                        )
+                        rt_obj.sbar_text = sbar_text
+                        rt_obj.save()
+                    recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {sbar_text} **"
             if childs.exists():
                 description = ""
                 for index, child in enumerate(childs):
@@ -1582,15 +1597,16 @@ class AnalysisData:
             subject = dic_sent["subject"]
             predicate = dic_sent["predicate"] if dic_sent["predicate"] else ""
             obj = dic_sent["object"]
-            new_doc = "".join(predicate)
-
-            new_docs.append(new_doc)
+            # new_doc = "".join(predicate)
+            new_docs.append(predicate)
         X, vocabulary, vocab_dict = btm.get_words_freqs(new_docs)
         docs_vec = btm.get_vectorized_docs(new_docs, vocabulary)
         biterms = btm.get_biterms(docs_vec)
 
         # running model
         # the preferred number of topics (T) dapat diubah (2). T = 10 adalah default topic number
+        # model = btm.BTM(X, vocabulary, T = 10, M = 20, alpha = 50/7, beta = 0.01)
+        # model.fit(biterms, iterations = 100)
         model = btm.BTM(X, vocabulary, T=self.topics, M=20, alpha=50 / 7, beta=0.01)
         model.fit(biterms, iterations=100)
 
@@ -1755,20 +1771,13 @@ class AnalysisData:
             recommendation_type = None
             if not item["sentence_class"] or item["object"] == None:
                 # print("Status: The user story is potentially ambiguous. It might be underspecified.")
-                # print("Recommendation: Rewrite the predicate or the object ! ")
+                # print("Recommendation: Rewrite the user story !")
+                # "As a "+item["subject"]+", I want to "+new_action
                 status = "The user story is potentially ambiguous. It might be underspecified."
-                recommendation = "Recommendation: Rewrite the predicate !"
+                recommendation = "Recommendation: Rewrite the user story !"
                 is_problem = True
                 recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_MANUAL
-            elif len(item["sentence_class"]) > 1 or item["object"] == None:
-                # print(
-                #     "Status: The user story is potentially ambiguous. It might be wrongly decode."
-                # )
-                # print(
-                #     "Recommendation: Rewrite the predicate using one of these term : ",
-                #     item["sentence_class"],
-                # )
-                # perubahan disini, identify problematic terms in user story
+            elif len(item["sentence_class"]) > 1 or item["object"] == None: 
                 data_act = item["keyword_words"]
                 key_act = next(iter(data_act))
                 values_act = data_act[key_act]
@@ -1782,7 +1791,10 @@ class AnalysisData:
                     if len(values_act):
                         terms_obj.terms_actions = values_act
                     terms_obj.save()
+                # print("Status: The user story is potentially ambiguous. It might be wrongly decode.")
                 # print("Problematic terms:", key_act)
+                # print("Recommendation: Rewrite the predicate using one of these term :", item["sentence_class"])
+                # "As a "+item["subject"]+", I want to "+item["sentence_class"]+item["object"]
                 status = "The user story is potentially ambiguous. It might be wrongly decode."
                 recommendation = f'Recommendation: Rewrite the predicate using one of these term :\n{item["sentence_class"]}'
                 recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION
@@ -1790,10 +1802,19 @@ class AnalysisData:
             elif len(item["sentence_class"]) == 1 and item["object"] == None:
                 # print("Status: The user story is potentially ambiguous. The object is not exist.")
                 # print("Recommendation: Rewrite the user story !")
+                # "As a "+item["subject"]+", I want to "+new_action
                 status = (
                     "The user story is potentially ambiguous. The object is not exist."
                 )
                 recommendation = "Rewrite the user story !"
+                is_problem = True
+            elif len(item["sentence_class"]) < 1 and item["object"] == None:
+                # print("Status: The user story is potentially ambiguous. It does not sufficiently express the intended action")
+                # print("Recommendation: We dont have recommendation for the intended action. Rewrite the user story manually !")
+                # "As a "+item["subject"]+", I want to "+new_action
+                status = "The user story is potentially ambiguous. It does not sufficiently express the intended action"
+                recommendation = "We dont have recommendation for the intended action. Rewrite the user story manually !"
+                is_problem = True
             elif len(item["sentence_class"]) == 1:
                 # print("Status: user story is fine !")
                 status = "user story is fine !"

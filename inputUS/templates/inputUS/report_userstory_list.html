@@ -89,7 +89,7 @@
       {% if project_id %}
       <!-- <a href="{% url 'userstory_project_add' project_id  %}" class="btn btn-success">Add Userstory</a> -->
       {% endif %}
-      <button onclick="openNewTab()" class="btn btn-danger"><i class="bi bi-printer"></i> Download PDF</button>
+      <button onclick="openNewTab()" class="btn btn-danger"><i class="bi bi-database-fill"></i> Export Data</button>
     </div>
   </div>
   <div class="card-body p-1">
@@ -232,7 +232,8 @@
     project_id = ''
   }
   function openNewTab() {
-    const newTab = window.open(`{% url 'report_userstory_print' %}?project_id=${project_id}&type=${type}&status=${status}`, '_blank', 'toolbar=no');
+    // const newTab = window.open(`{% url 'report_userstory_print' %}?project_id=${project_id}&type=${type}&status=${status}`, '_blank', 'toolbar=no');
+    const newTab = window.open(`{% url 'report_userstory_print' %}?project_id=${project_id}&type=${type}&status=${status}`, '_blank');
 
     if (newTab === null) {
       alert('Pop-up blocker may be preventing the new tab from opening.');

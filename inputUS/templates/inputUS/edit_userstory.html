@@ -23,7 +23,7 @@
       </div>
       {% else %}
       <div class="form-group">
-        <label for="userstory_id">User Story {{ reportuserstory.type }}</label>
+        <label for="userstory_id">User Story</label>
         <div class="input-group mb-3">
           <input name="userstory" class="form-control" id="userstory_id" value="{{ userstory.UserStory_Full_Text }}" disabled />
           <div class="input-group-append">
@@ -31,6 +31,15 @@
           </div>
         </div>
       </div>
+      
+      {% if reportterms_label %}
+      <div class="form-group">
+        <label for="userstory_id">Problematic term:</label>
+        <div class="input-group mb-3">
+          <input name="sbar_label" class="form-control"value="{{ reportterms_label.sbar_text|default:'' }}" disabled />
+        </div>
+      </div>
+      {% endif %}
 
       {% if reportuserstory.type == '2' or reportuserstory.type == 2 %}
       <div id="list_form_story" class="my-2">
@@ -64,9 +73,15 @@
               <label for="">{{ role_label }}</label>
               <select name="improved_role" id="role_id" class="form-control select2 role-improved-1">
                 <option value="">Select Role</option>
+                {% if role_list %}
                 {% for item in role_list %}
-                <option value="{{ item.role }}">{{ item.role }}</option>
+                <option value="{{ item.role }}" {% if improved_role_select == item.role %}selected{% endif %}>{{ item.role }}</option>
                 {% endfor %}
+                {% else %}
+                {% for item in role_custom_list %}
+                <option value="{{ item.role }}" {% if improved_role_select == item.role %}selected{% endif %}>{{ item.role }}</option>
+                {% endfor %}
+                {% endif %}
               </select>
             </div>
           </div>
@@ -86,7 +101,7 @@
               <select name="improved_role" id="role_id" class="form-control select2 role-improved-2">
                 <option value="">Select Role</option>
                 {% for item in role_custom_list %}
-                <option value="{{ item.role }}">{{ item.role }}</option>
+                <option value="{{ item.role }}" {% if improved_role_select == item.role %}selected{% endif %}>{{ item.role }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -103,7 +118,7 @@
               {% if reportterms.problem_action %}
               <select name="problematic_action" id="problematic_action_1_id" class="form-control select2">
                 {% for item in reportterms.problem_action %}
-                <option value="{{item}}">{{item}}</option>
+                <option value="{{item}}" {% if problematic_action_select == item %}selected{% endif %}>{{item}}</option>
                 {% endfor %}
               </select>
               {% else  %}
@@ -135,9 +150,15 @@
               <label for="">{{ action_improve_label }}</label>
               <select name="improved_action" class="form-control select2 action-improved-1">
                 <option value="">Select Action</option>
+                {% if reportterms.terms_actions %}
                 {% for item in reportterms.terms_actions %}
-                <option value="{{ item }}">{{ item }}</option>
+                <option value="{{ item }}" {% if improved_action_select == item %}selected{% endif %}>{{ item }}</option>
                 {% endfor %}
+                {% else %}
+                {% for item in keywords %}
+                <option value="{{ item.keyword }}" {% if improved_action_select == item.keyword %}selected{% endif %}>{{ item.keyword }}</option>
+                {% endfor %}
+                {% endif %}
               </select>
             </div>
             {% else %}
@@ -153,12 +174,12 @@
             {% endif %}
             <div class="form-group mt-2">
               <div class="form-check mr-2">
-                <input class="form-check-input" type="checkbox" id="gridCheck5" name="improved_action_new">
+                <input class="form-check-input" type="checkbox" id="gridCheck5" name="improved_action_new" {% if improved_action_new_on %}checked{% endif %}>
                 <label class="form-check-label" for="gridCheck5">
                   add action keyword
                 </label>
               </div>
-              <input type="text" class="form-control" placeholder="example: read" name="improved_action_new_text" />
+              <input type="text" class="form-control" placeholder="example: read" name="improved_action_new_text" value="{% if improved_action_new_on %}{{ improved_action_select }}{% endif %}" />
             </div>
           </div>
         </div>
@@ -193,8 +214,13 @@
     </div>
     <div class="card-footer">
       <button class="btn btn-primary" name="submit_type" type="submit" value="preview"><i class="bi bi-binoculars"></i> Preview</button>
-      <button class="btn btn-success" name="submit_type" type="submit" value="preview"><i class="bi bi-send"></i> Submit</button>
-      <button type="button" class="btn btn-secondary" onclick="history.back()"><i class="bi bi-arrow-left-circle"></i> Cancel</button>
+      <button class="btn btn-success" name="submit_type" type="submit" value="submit"><i class="bi bi-send"></i> Submit</button>
+      <button type="button" class="btn btn-secondary" onclick="backHistory()"><i class="bi bi-arrow-left-circle"></i> Cancel</button>
+      {% if new_userstory %}
+      <div class="my-3">
+        <input type="text" disabled class="form-control" value="{{ new_userstory }}">
+      </div>
+      {% endif %}
     </div>
   </div>
 </form>
@@ -207,6 +233,10 @@
 {% block extrajs %}
 {{ block.super }}
 <script>
+  const backHistory = () => {
+    window.location.href = `/inputUS/report/list${window.location.search}`
+  }
+
   const remote_user_story = (elem) => {
     console.log('elem', elem)
     $(`.${elem}`).remove();

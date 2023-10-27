@@ -75,4 +75,14 @@ urlpatterns = [
         views.load_name_file_project,
         name="load_name_file_project"
     ),
+    path(
+        "personas",
+        views.persona_list_view,
+        name="persona_list_view"
+    ),
+    path(
+        "personas/add",
+        views.persona_add_view,
+        name="persona_add_view"
+    ),
 ]

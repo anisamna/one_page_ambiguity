@@ -1,77 +1,82 @@
-<style>
-  table {
-    border-collapse: collapse;
-    /* Collapse table borders for better appearance */
-    width: 100%;
-    /* Make sure the table fits within the container */
-  }
-
-  td,
-  th {
-    border: 1px solid black;
-    /* Add borders to all cells */
-    padding: 5px;
-    /* Add padding to cells for better spacing */
-  }
-
-  .no-border {
-    border: none !important;
-  }
-
-  @media print {
-    body {
-      width: 210mm;
-      height: 297mm;
-      padding: 10px;
+{% load reporttag static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'tableexport/css/tableexport.css' %}" rel="stylesheet">
+  <style>
+    @media print
+    {
+        .tableexport-caption
+        {
+          display: none !important;
+        }
     }
-
+  </style>
+  <style>
     table {
-      /* page-break-inside: avoid; Prevent breaking table inside pages */
-      border-collapse: collapse;
-      /* Collapse table borders for better print appearance */
+      /* border-collapse: collapse; */
       width: 100%;
-      /* Make sure the table fits within the printed page */
     }
-
-    th,
-    td {
+  
+    td,
+    th {
       border: 1px solid black;
-      /* Add borders to cells for better visibility */
       padding: 5px;
-      /* Add padding to cells for better spacing */
     }
-
-    tr {
-      page-break-inside: avoid;
-      /* Prevent breaking rows inside pages */
-    }
-
-    .table-breaked {
-      page-break-before: auto;
-    }
-
+  
     .no-border {
       border: none !important;
     }
-  }
-
-</style>
-{% load reporttag %}
-
-<div class="card p-0">
-  <div class="card-header p-3">
+  
+    @media print {
+      /* body {
+        width: 210mm;
+        height: 297mm;
+        padding: 10px;
+      } */
+  
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+  
+      th,
+      td {
+        border: 1px solid black;
+        padding: 5px;
+      }
+  
+      tr {
+        page-break-inside: avoid;
+      }
+  
+      .table-breaked {
+        page-break-before: auto;
+      }
+  
+      .no-border {
+        border: none !important;
+      }
+    }
+  
+  </style>
+</head>
+<body>
+  <div class="p-3">
     <h4 class="m-0" style="margin-bottom: -10px; ">Project Name: {{ project.Project_Name }}</h4>
     <h6>Total Story: <span class="total-userstory">-</span></h6>
     <h6>Total Good Quality: <span class="total-good">-</span></h6>
     <h6>Total Potential Ambiguity: <span class="total-potential">-</span></h6>
-  </div>
-  <div class="card-body p-1 table-breaked">
-    <table class="table table-bordered">
+    <table id="table_userstory_result_id">
       <thead>
         <!-- add extra space for printing -->
-        <tr class="no-border">
+        <!-- <tr class="no-border">
           <td class="no-border">&nbsp;</td>
-        </tr>
+        </tr> -->
         <!-- add extra space for printing -->
         <tr>
           <th>No.</th>
@@ -115,25 +120,63 @@
       </tbody>
     </table>
   </div>
-</div>
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-<script>
-  (function () {
-    let is_good_elem = $('table tbody tr td[data-is_problem=False]').length;
-    $('span.total-good').html(is_good_elem);
-    let is_potential = $('table tbody tr td[data-is_problem=True]').length;
-    $('span.total-potential').html(is_potential);
-
-    const userstory_list = $('table tbody tr td.userstory-number')
-    if (userstory_list.length > 0){
-      $('span.total-userstory').html(userstory_list.length)
-      userstory_list.map(index => {
-        userstory_list.eq(index).html(index+1);
-      })
+  
+  <script src="{% static 'js/jquery.min.js' %}"></script>
+  <script src="{% static 'tableexport/js/' %}FileSaver.min.js"></script>
+  <script src="{% static 'tableexport/js/' %}Blob.min.js"></script>
+  <script src="{% static 'tableexport/js/' %}xls.core.min.js"></script>
+  <script src="{% static 'tableexport/js/tableexport.js' %}"></script>
+  <script>
+    function download_DIVPdf() {
+      window.print()
     }
+    (function () {
+      let is_good_elem = $('table tbody tr td[data-is_problem=False]').length;
+      $('span.total-good').html(is_good_elem);
+      let is_potential = $('table tbody tr td[data-is_problem=True]').length;
+      $('span.total-potential').html(is_potential);
 
-    window.print();
-    window.onafterprint = window.close
-  })()
-</script>
+      const userstory_list = $('table tbody tr td.userstory-number')
+      if (userstory_list.length > 0){
+        $('span.total-userstory').html(userstory_list.length)
+        userstory_list.map(index => {
+          userstory_list.eq(index).html(index+1);
+        })
+      }
+
+
+      $.fn.tableExport.charset = "charset=utf-8";
+
+      // Filename fallback for exported files.
+      $.fn.tableExport.defaultFileName = "myDownload";
+
+      // Class applied to each export button element.
+      $.fn.tableExport.defaultButton = "btn btn-secondary btn-sm me-1";
+
+      // <a href="https://www.jqueryscript.net/tags.php?/Bootstrap/">Bootstrap</a> configuration classes ["base", "theme", "container"].
+      $.fn.tableExport.bootstrap = ["btn", "btn-default", "btn-toolbar"];
+
+      // Row delimeter.
+      $.fn.tableExport.rowDel = "\r\n";
+
+      // HTML entity <a href="https://www.jqueryscript.net/tags.php?/map/">map</a>ping for special characters.
+      $.fn.tableExport.entityMap = {"&": "&#38;", "<": "&#60;", ">": "&#62;", "'": '&#39;', "/": '&#47;'};
+
+      $('#table_userstory_result_id').tableExport({
+        headers:true,
+        formats: ["xlsx","xls", "csv", "txt",],
+        bootstrap:false,
+        position:"top", 
+        exportButtons:true,  
+        sheetname:"id"
+      })
+
+      $('.tableexport-caption').append(`
+        <button class="btn btn-secondary btn-sm" type="button" onclick="download_DIVPdf()">Export to PDF</button>
+      `)
+      // window.print();
+      // window.onafterprint = window.close
+    })()
+  </script>
+</body>
+</html>

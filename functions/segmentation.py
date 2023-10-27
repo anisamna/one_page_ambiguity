@@ -1,7 +1,7 @@
 import re
 
 from inputUS.models import (US_Upload, UserStory_element, UserStory_What,
-                            UserStory_Who, UserStory_Why)
+                            UserStory_Who, UserStory_Why, Personas)
 
 ROLE_DEL = "As an|As a|As"
 ACTION_DEL = "I have to| I have| I need to| I need |I'm able to|I am able to|I want to|I want|I wish to|I can|I should be able to|I do not want|I don't want|I only want"
@@ -137,6 +137,17 @@ def segmentation(obj_id):
         )
 
         userstory_obj_who.save()
+        if userstory_obj_who:
+            persona = role_act.strip()
+            key_persona = persona.lower()
+            persona_obj, created = Personas.objects.get_or_create(
+                key_name=key_persona,
+                file_name=retrieve_UserStory_data,
+                project=retrieve_UserStory_data.US_Project_Domain
+            )
+            persona_obj.persona = persona
+            persona_obj.created_by = retrieve_UserStory_data.created_by
+            persona_obj.save()
 
         userstory_obj_what = UserStory_What.objects.create(
             What_identifier=action_id,
@@ -291,6 +302,17 @@ def segmentation_edit_userstory(userstory_id, is_add=False):
             )
 
             userstory_obj_who.save()
+            if userstory_obj_who:
+                persona = role_act.strip()
+                key_persona = persona.lower()
+                persona_obj, created = Personas.objects.get_or_create(
+                    key_name=key_persona,
+                    file_name=userstory_obj.UserStory_File_ID,
+                    project=userstory_obj.Project_Name
+                )
+                persona_obj.persona = persona
+                persona_obj.created_by = userstory_obj.created_by
+                persona_obj.save()
 
             userstory_obj_what = UserStory_What.objects.create(
                 What_identifier=action_id,
@@ -320,6 +342,17 @@ def segmentation_edit_userstory(userstory_id, is_add=False):
                 who_obj.Who_action = role_act
                 who_obj.Who_full = who
                 who_obj.save()
+                if who_obj:
+                    persona = role_act.strip()
+                    key_persona = persona.lower()
+                    persona_obj, created = Personas.objects.get_or_create(
+                        key_name=key_persona,
+                        file_name=userstory_obj.UserStory_File_ID,
+                        project=userstory_obj.Project_Name
+                    )
+                    persona_obj.persona = persona
+                    persona_obj.created_by = userstory_obj.created_by
+                    persona_obj.save()
 
             if userstory_obj.What_full:
                 what_obj = userstory_obj.What_full

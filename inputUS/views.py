@@ -13,9 +13,20 @@ from django.views.generic.base import TemplateView
 from functions.segmentation import segmentation, segmentation_edit_userstory
 
 from .forms import InputUserStory_Form
-from .models import (AdjustedUserStory, Glossary, KeywordGlossary,
-                     ProcessBackground, Project, ReportUserStory, Result, Role,
-                     US_Upload, UserStory_element, NameFileUsed)
+from .models import (
+    AdjustedUserStory,
+    Glossary,
+    KeywordGlossary,
+    ProcessBackground,
+    Project,
+    ReportUserStory,
+    Result,
+    Role,
+    US_Upload,
+    UserStory_element,
+    NameFileUsed,
+    Personas
+)
 
 # from .tasks import task_process_analys_data
 
@@ -67,7 +78,7 @@ class AddSingleUserStory(TemplateView):
             if userstory_obj.UserStory_File_ID:
                 file_obj, created = NameFileUsed.objects.get_or_create(
                     name_file=userstory_obj.UserStory_File_ID,
-                    created_by=userstory_obj.created_by
+                    created_by=userstory_obj.created_by,
                 )
                 file_obj.is_active = True
                 file_obj.save()
@@ -116,8 +127,7 @@ def Upload_UserStory(request):
             upload_user_story.save()
 
             file_obj, created = NameFileUsed.objects.get_or_create(
-                name_file=upload_user_story,
-                created_by=request.user
+                name_file=upload_user_story, created_by=request.user
             )
             file_obj.is_active = True
             file_obj.save()
@@ -212,23 +222,34 @@ def show_splitted_UserStory(request):
     if not request.user.is_superuser:
         userstory_list = userstory_list.filter(created_by=request.user)
 
-    file_used_list = NameFileUsed.objects.filter(created_by=request.user, is_active=True)
+    file_used_list = NameFileUsed.objects.filter(
+        created_by=request.user, is_active=True
+    )
     if file_used_list.exists():
-        file_used_list_id = file_used_list.values_list('name_file__id', flat=True)
+        file_used_list_id = file_used_list.values_list("name_file__id", flat=True)
         userstory_list = userstory_list.filter(
             UserStory_File_ID__in=list(file_used_list_id)
         )
     else:
         userstory_list = UserStory_element.objects.none()
-    extra_context = {"view_all": userstory_list.order_by("-id"), "project_list": Project.objects.all()}
+    extra_context = {
+        "view_all": userstory_list.order_by("-id"),
+        "project_list": Project.objects.all(),
+    }
     if project:
         file_names = US_Upload.objects.filter(US_Project_Domain_id=project)
         if file_name_id:
-            extra_context.update({
-                "file_name_id":int(file_name_id)
-            })
-            userstory_list = userstory_list.filter(Project_Name_id=project,UserStory_File_ID=file_name_id)
-        extra_context.update({"view_all": userstory_list, "project_id": int(project), "file_names":file_names})
+            extra_context.update({"file_name_id": int(file_name_id)})
+            userstory_list = userstory_list.filter(
+                Project_Name_id=project, UserStory_File_ID=file_name_id
+            )
+        extra_context.update(
+            {
+                "view_all": userstory_list,
+                "project_id": int(project),
+                "file_names": file_names,
+            }
+        )
     return render(request, "inputUS/see_splitted_US1.html", extra_context)
 
 
@@ -292,8 +313,15 @@ def analyze_data(request):
         uniqueness_input = request.POST.get("uniqueness_input", None)
         if uniqueness_input:
             similarity_value = uniqueness_input
-    
-    if preciseness_checkbox != "on" and well_formedness_checkbox != "on" and conciseness_checkbox != "on" and atomicity_checkbox != "on" and conceptually_sound_checkbox != "on" and uniqueness_checkbox != "on":
+
+    if (
+        preciseness_checkbox != "on"
+        and well_formedness_checkbox != "on"
+        and conciseness_checkbox != "on"
+        and atomicity_checkbox != "on"
+        and conceptually_sound_checkbox != "on"
+        and uniqueness_checkbox != "on"
+    ):
         messages.warning(
             request,
             "Warning! Select at least one assessment criteria.",
@@ -476,10 +504,11 @@ def view_report_userstory_list(request):
         elif type_value in [ReportUserStory.ANALYS_TYPE.UNIQUENESS]:
             extra_context.update({"potential_problem_list": ((4, "Duplication"),)})
 
-
-        file_used_list = NameFileUsed.objects.filter(created_by=request.user, is_active=True)
+        file_used_list = NameFileUsed.objects.filter(
+            created_by=request.user, is_active=True
+        )
         if file_used_list.exists():
-            file_used_list_id = file_used_list.values_list('name_file__id', flat=True)
+            file_used_list_id = file_used_list.values_list("name_file__id", flat=True)
             userstory_list = userstory_list.filter(
                 UserStory_File_ID__in=list(file_used_list_id)
             )
@@ -578,16 +607,24 @@ def edit_userstory(request, report_id):
             reportterms = userstory.reportterms_set.filter(
                 type=ReportUserStory.ANALYS_TYPE.PRECISE
             )
-
             if reportterms.exists():
-                data = reportterms.last()
+                # data = reportterms.last()
                 extra_context.update({"reportterms": reportterms.last()})
             role_list = role_list.filter(status=ReportUserStory.ANALYS_TYPE.PRECISE)
-            extra_context.update(
-                {
-                    "role_list": role_list,
-                }
-            )
+            if role_list.exists():
+                extra_context.update(
+                    {
+                        "role_list": role_list,
+                    }
+                )
+            else:
+                extra_context.update(
+                    {
+                        "role_custom_list": Role.objects.filter(
+                            userstory__Project_Name=userstory.Project_Name
+                        ).distinct("role_key"),
+                    }
+                )
         elif reportuserstory.type == ReportUserStory.ANALYS_TYPE.CONSISTENT:
             role_list = role_list.filter(status=ReportUserStory.ANALYS_TYPE.CONSISTENT)
             extra_context.update(
@@ -612,6 +649,17 @@ def edit_userstory(request, report_id):
                     "role_list": role_list,
                 }
             )
+    elif (
+        reportuserstory.type
+        in [
+            ReportUserStory.ANALYS_TYPE.ATOMICITY,
+            ReportUserStory.ANALYS_TYPE.CONCISENESS,
+        ]
+        and status == 1
+    ):
+        reportterms = userstory.reportterms_set.filter(type=reportuserstory.type)
+        if reportterms.exists():
+            extra_context.update({"reportterms_label": reportterms.last()})
 
     extra_context.update(
         {
@@ -625,6 +673,8 @@ def edit_userstory(request, report_id):
 
     if request.POST:
         type_status = request.POST.get("status", 0)
+        submit_type = request.POST.get("submit_type", None)
+        print("submit_type", submit_type)
         userstory_list = request.POST.getlist("userstory_list[]", [])
         if int(type_status) == ReportUserStory.ANALYS_TYPE.ATOMICITY:
             if len(userstory_list):
@@ -690,24 +740,29 @@ def edit_userstory(request, report_id):
             problematic_role = request.POST.get("problematic_role", None)
             improved_role = request.POST.get("improved_role", None)
             # print(problematic_role, improved_role)
+            new_userstory = userstory.UserStory_Full_Text
             old_text = userstory.UserStory_Full_Text
             if problematic_role and improved_role:
+                if submit_type == "preview":
+                    extra_context.update({"improved_role_select": improved_role})
                 improved_role = f" {improved_role} "
                 textstory = userstory.UserStory_Full_Text.replace(
                     problematic_role, improved_role
                 )
                 textstory = re.sub(" +", " ", textstory.strip())
-                userstory.UserStory_Full_Text = textstory
-                userstory.old_userstory = old_text
-                userstory.save()
-                AdjustedUserStory.objects.create(
-                    created_by=request.user,
-                    userstory=userstory,
-                    userstory_text=old_text,
-                    adjusted=textstory,
-                    status=int(type_status) if type_status else None,
-                )
-                is_edit = True
+                new_userstory = textstory
+                if submit_type == "submit":
+                    userstory.UserStory_Full_Text = textstory
+                    userstory.old_userstory = old_text
+                    userstory.save()
+                    AdjustedUserStory.objects.create(
+                        created_by=request.user,
+                        userstory=userstory,
+                        userstory_text=old_text,
+                        adjusted=textstory,
+                        status=int(type_status) if type_status else None,
+                    )
+                    is_edit = True
 
             problematic_action = request.POST.get("problematic_action", None)
             improved_action = request.POST.get("improved_action", None)
@@ -721,40 +776,51 @@ def edit_userstory(request, report_id):
             # print('improved_action', improved_action)
             # print(problematic_action, improved_action)
             if problematic_action and improved_action:
-                glosasry_obj, created = Glossary.objects.get_or_create(
-                    Action_item=problematic_action
-                )
+                if submit_type == "preview":
+                    extra_context.update(
+                        {
+                            "problematic_action_select": problematic_action,
+                            "improved_action_select": improved_action,
+                            "improved_action_new_on": improved_action_new,
+                        }
+                    )
+                if submit_type == "submit":
+                    glosasry_obj, created = Glossary.objects.get_or_create(
+                        Action_item=problematic_action
+                    )
 
-                keyword_obj, created = KeywordGlossary.objects.get_or_create(
-                    keyword=improved_action
-                )
-                keyword_obj.item_name.add(glosasry_obj)
-                keyword_obj.save()
+                    keyword_obj, created = KeywordGlossary.objects.get_or_create(
+                        keyword=improved_action
+                    )
+                    keyword_obj.item_name.add(glosasry_obj)
+                    keyword_obj.save()
 
                 improved_action = f" {improved_action} "
-                textstory = userstory.UserStory_Full_Text.replace(
-                    problematic_action, improved_action
-                )
+                textstory = new_userstory.replace(problematic_action, improved_action)
                 textstory = re.sub(" +", " ", textstory.strip())
-                userstory.UserStory_Full_Text = textstory
-                userstory.old_userstory = old_text
-                userstory.save()
-                AdjustedUserStory.objects.create(
-                    created_by=request.user,
-                    userstory=userstory,
-                    userstory_text=old_text,
-                    adjusted=textstory,
-                    status=int(type_status) if type_status else None,
-                )
-                is_edit = True
+                new_userstory = textstory
+                if submit_type == "submit":
+                    userstory.UserStory_Full_Text = textstory
+                    userstory.old_userstory = old_text
+                    userstory.save()
+                    AdjustedUserStory.objects.create(
+                        created_by=request.user,
+                        userstory=userstory,
+                        userstory_text=old_text,
+                        adjusted=textstory,
+                        status=int(type_status) if type_status else None,
+                    )
+                    is_edit = True
 
+            if submit_type == "preview":
+                extra_context.update({"new_userstory": new_userstory})
             if is_edit:
-                userstory.is_processed = False
-                userstory.save()
-                segmentation_edit_userstory(userstory.id)
-                if userstory.get_report_list().exists():
-                    # delete data report
-                    userstory.get_report_list().delete()
+                if submit_type == "submit":
+                    userstory.is_processed = False
+                    userstory.save()
+                    segmentation_edit_userstory(userstory.id)
+                    if userstory.get_report_list().exists():
+                        userstory.get_report_list().delete()
                 messages.success(request, "Success update userstory.")
                 return redirect(
                     reverse("report_userstory_list") + f"?{path_url[1]}"
@@ -838,121 +904,6 @@ def view_delete_project(request, project_id):
     return redirect(reverse("projects_list_view"))
 
 
-# def see_precise(request):
-
-#     precise_db = WordNet_classification.objects.all()
-
-#     paginator = Paginator(precise_db, 5)
-#     page = request.GET.get("page", 1)
-#     view_all = paginator.get_page(page)
-#     extra_context = {
-#         "view_all": view_all,
-#         "current": view_all.number,
-#         "has_next": view_all.has_next(),
-#         "has_previous": view_all.has_previous(),
-#         "page_next": int(page) + 1 if view_all.has_next() else None,
-#         "page_previous": int(page) - 1 if view_all.has_previous() else None,
-#         "list_pagination": list(
-#             view_all.paginator.get_elided_page_range(page, on_each_side=1)
-#         ),
-#         "active_page": int(page),
-#     }
-
-#     return render(request, "importUS/see_precise_US.html", extra_context)
-
-
-# def see_explicit(request):
-
-#     explicit_db = TopicModeling.objects.all()
-
-#     paginator = Paginator(explicit_db, 5)
-#     page = request.GET.get("page", 1)
-#     view_all = paginator.get_page(page)
-#     extra_context = {
-#         "view_all": view_all,
-#         "current": view_all.number,
-#         "has_next": view_all.has_next(),
-#         "has_previous": view_all.has_previous(),
-#         "page_next": int(page) + 1 if view_all.has_next() else None,
-#         "page_previous": int(page) - 1 if view_all.has_previous() else None,
-#         "list_pagination": list(
-#             view_all.paginator.get_elided_page_range(page, on_each_side=1)
-#         ),
-#         "active_page": int(page),
-#     }
-
-#     return render(request, "importUS/see_explicit_US.html", extra_context)
-
-
-# def get_list_parsing_detail_json(request):
-#     '''
-#         function untuk mendapatkan daftar improvement dengan parameter parser
-#     '''
-#     response = {'success': False, 'message': 'parsing detail not found'}
-#     parser_id = request.GET.get('id', None)
-#     if parser_id:
-#         try:
-#             parser_obj = Parser.objects.get(id=parser_id)
-#         except Parser.DoesNotExist:
-#             pass
-#         else:
-#             data = []
-#             parsing_list = parser_obj.parsingdetail_set.all()
-#             if parsing_list.exists():
-#                 for item in parsing_list:
-#                     data.append({
-#                         'id': item.id,
-#                         'text': item.Text_improvement,
-#                         'is_selected': item.is_selected
-#                     })
-#                 response = {'success': True, 'data': data, 'is_lock': parser_obj.is_lock}
-#     return JsonResponse(response)
-
-# def set_or_unset_selected_improvement(request):
-#     response = {'success': False, 'message': 'parsing detail not found'}
-#     parsing_id = request.POST.get('id', None)
-#     is_selected_value = request.POST.get('is_selected', None)
-#     is_selected = False
-#     if is_selected_value == 'true':
-#         is_selected = True
-
-#     if parsing_id:
-#         try:
-#             parsing_obj = ParsingDetail.objects.get(id=parsing_id)
-#         except ParsingDetail.DoesNotExist:
-#             pass
-#         else:
-#             parsing_obj.is_selected = is_selected
-#             parsing_obj.save()
-#             response = {'success': True, 'message': 'Success'}
-#     return JsonResponse(response)
-
-
-# def save_improvement(request):
-#     response = {'success': False, 'message': 'parsing detail not found'}
-#     parser_id = request.POST.get('id', None)
-#     is_manual_value = request.POST.get('is_manual', None)
-#     value = request.POST.get('value', None)
-#     is_manual = False
-#     if is_manual_value == 'true':
-#         is_manual = True
-#     if parser_id:
-#         try:
-#             parser_obj = Parser.objects.get(id=parser_id)
-#         except Parser.DoesNotExist:
-#             pass
-#         else:
-#             if is_manual:
-#                 ParsingDetail.objects.create(
-#                     is_manual=True,
-#                     is_selected=True,
-#                     Text_improvement=value,
-#                     Parsing_ID_fk=parser_obj
-#                 )
-#             parser_obj.is_lock = True
-#             parser_obj.save()
-#             response = {'success': True, 'message': 'Success save'}
-#     return JsonResponse(response)
 def print_report(request):
     project_id = request.GET.get("project_id", None)
     project = get_object_or_404(Project, pk=project_id)
@@ -965,9 +916,11 @@ def print_report(request):
         if not request.user.is_superuser:
             userstory_list = userstory_list.filter(created_by=request.user)
 
-        file_used_list = NameFileUsed.objects.filter(created_by=request.user, is_active=True)
+        file_used_list = NameFileUsed.objects.filter(
+            created_by=request.user, is_active=True
+        )
         if file_used_list.exists():
-            file_used_list_id = file_used_list.values_list('name_file__id', flat=True)
+            file_used_list_id = file_used_list.values_list("name_file__id", flat=True)
             userstory_list = userstory_list.filter(
                 UserStory_File_ID__in=list(file_used_list_id)
             )
@@ -1131,11 +1084,13 @@ def view_list_adjusted_userstory(request):
 
 @login_required(login_url=reverse_lazy("login_"))
 def get_json_project_use(request):
-    respon = {'success': False,}
+    respon = {
+        "success": False,
+    }
     projects = Project.objects.all()
     if not request.user.is_superuser:
         projects = projects.filter(created_by=request.user)
-    
+
     if projects.exists():
         data = []
         for project in projects:
@@ -1144,43 +1099,52 @@ def get_json_project_use(request):
             if files.exists():
                 for file in files:
                     name_obj = NameFileUsed.objects.filter(
-                        created_by=request.user,
-                        name_file=file,
-                        is_active=True
+                        created_by=request.user, name_file=file, is_active=True
                     )
-                    data_file.append({
-                        'name': file.US_File_Name,
-                        'id': file.id,
-                        'selected': name_obj.exists()
-                    })
+                    data_file.append(
+                        {
+                            "name": file.US_File_Name,
+                            "id": file.id,
+                            "selected": name_obj.exists(),
+                        }
+                    )
             item = {
-                'project': project.Project_Name,
-                'project_id': project.id,
-                'file': data_file
+                "project": project.Project_Name,
+                "project_id": project.id,
+                "file": data_file,
             }
             data.append(item)
-        respon = {'success': True, 'data': data}
+        respon = {"success": True, "data": data}
     return JsonResponse(respon)
 
 
 def update_json_project_use(request):
-    respon = {'success': False,}
-    file_id = request.GET.get('file_id', None)
-    is_active = request.GET.get('is_active', None)
+    respon = {
+        "success": False,
+    }
+    file_id = request.GET.get("file_id", None)
+    is_active = request.GET.get("is_active", None)
 
     if file_id and request.user:
-        file_obj, created = NameFileUsed.objects.get_or_create(name_file_id=file_id, created_by=request.user)
+        file_obj, created = NameFileUsed.objects.get_or_create(
+            name_file_id=file_id, created_by=request.user
+        )
         if is_active and is_active == "true":
             file_obj.is_active = True
         else:
             file_obj.is_active = False
         file_obj.save()
-        respon = {'success': True,}
+        respon = {
+            "success": True,
+        }
     return JsonResponse(respon)
 
+
 def load_name_file_project(request):
-    respon = {'success': False,}
-    project_id = request.GET.get('project_id', None)
+    respon = {
+        "success": False,
+    }
+    project_id = request.GET.get("project_id", None)
     try:
         project_ = Project.objects.get(id=project_id)
     except Project.DoesNotExist:
@@ -1190,9 +1154,57 @@ def load_name_file_project(request):
         if files.exists():
             data = []
             for item in files:
-                data.append({
-                    'id': item.id,
-                    'text': item.US_File_Name
-                })
-            respon = {'success': True, 'data': data}
+                data.append({"id": item.id, "text": item.US_File_Name})
+            respon = {"success": True, "data": data}
     return JsonResponse(respon)
+
+
+@login_required(login_url=reverse_lazy("login_"))
+def persona_list_view(request):
+    # NOTE: untuk who action ditampilkan semua dari userstory atau ditampilkan satu dari semua userstory yang who actionya sama
+    extra_context = {
+        'title': "Personas"
+    }
+
+    personas_list = Personas.objects.all().order_by('project', 'file_name')
+
+    paginator = Paginator(personas_list, 20)
+    page = request.GET.get("page", 1)
+    view_all = paginator.get_page(page)
+
+    # userstory_list = UserStory_element.objects.filter(
+    #     Who_full__Who_action__isnull=False
+    # )\
+    # .distinct('Who_full__Who_action')\
+    # .order_by('Project_Name', 'UserStory_File_ID')
+    extra_context.update({
+        'view_all': view_all
+    })
+    
+    return render(request, "inputUS/persona_list.html", extra_context)
+
+@login_required(login_url=reverse_lazy("login_"))
+def persona_add_view(request):
+    project_list = Project.objects.all()
+    extra_context = {
+        'title': "Personas",
+        'project_list': project_list
+    }
+    if request.POST:
+        project = request.POST.get('project')
+        file_name = request.POST.get('file_name')
+        persona = request.POST.get('persona')
+        if project and file_name and persona:
+            key_name = persona.strip().lower()
+            persona_obj, created = Personas.objects.get_or_create(
+                key_name=key_name,
+                file_name_id=file_name,
+                project_id=project,
+            )
+            persona_obj.persona = persona
+            persona_obj.created_by = request.user
+            persona_obj.save()
+            messages.success(request, "Successfully added persona data")
+            return redirect(reverse('persona_list_view'))
+        messages.warning(request, "please check again")
+    return render(request, "inputUS/persona_add.html", extra_context)

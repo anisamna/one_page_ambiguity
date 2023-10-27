@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block contentLeft %}
+<form method="post">
+  {% csrf_token %}
+  <div class="card">
+    <div class="card-header">
+      <h5>Add new {{ title }}</h5>
+    </div>
+    <div class="card-body">
+      <div class="row my-3">
+        <label for="project_id" class="col-sm-2 col-form-label">Select Project</label>
+        <div class="col-sm-10">
+          <select class="form-control select2" id="project_id" required name="project">
+            <option value>choose project</option>
+            {% for item in project_list %}
+            <option value="{{item.id}}">{{item}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <label for="file_name_id" class="col-sm-2 col-form-label">Select File</label>
+        <div class="col-sm-10">
+          <select class="form-control select2" id="file_name_id" required name="file_name" disabled>
+            <option value>choose file</option>
+          </select>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="">Input persona</label>
+        <input type="text" class="form-control mt-2" placeholder="ex: System administrator" required name="persona">
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-primary" type="submit">Submit</button>
+      <button class="btn btn-secondary" type="button" onclick="history.back()">Cancel</button>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block extrajs %}
+{{ block.super }}
+<script>
+  $('#project_id').on('change', function(event){
+    const value = event.target.value;
+    let option_ = '<option value>Select file</option>'
+    if (value) {
+      $.ajax({
+        'url': `{% url 'load_name_file_project' %}`,
+        'type': 'GET',
+        data: {
+          project_id: value
+        },
+        success: function(response){
+          if (response.success) {
+            response.data.map(item => {
+              option_ += `
+                <option value="${item.id}">${item.text}</option>
+              `
+            })
+            $('#file_name_id').attr('disabled', false)
+          } else {
+            $('#file_name_id').attr('disabled', true)
+          }
+          $('#file_name_id').html(option_)
+          $('#file_name_id').trigger('update');
+        }
+      })
+    } else {
+      $('#file_name_id').attr('disabled', true)
+      $('#file_name_id').html(option_)
+      $('#file_name_id').trigger('update');
+    }
+  })
+</script>
+{% endblock %}

@@ -142,7 +142,7 @@ class UserStory_element(MetaAttribute):
 #         abstract = True
 
 
-class Result(models.Model): # deprecated
+class Result(models.Model):  # deprecated
     UserStory_Segment_ID = models.ForeignKey(
         UserStory_element, on_delete=models.CASCADE, null=True
     )
@@ -173,7 +173,7 @@ class Result(models.Model): # deprecated
 #         verbose_name_plural = 'N_gram'
 
 
-class Similarity_Analysis(models.Model): # deprecated
+class Similarity_Analysis(models.Model):  # deprecated
     # UserStory_Segment_ID_1 = models.ForeignKey(UserStory_element, on_delete=models.CASCADE, null=True)
     Well_Formed_1 = models.ForeignKey(
         Result, on_delete=models.SET_NULL, null=True, related_name="well_formed_a_set"
@@ -250,7 +250,7 @@ class Similarity_Analysis(models.Model): # deprecated
 #     label = models.IntegerField(null=True)
 
 
-class WordNet_classification(models.Model): # deprecated
+class WordNet_classification(models.Model):  # deprecated
     class Element_type(models.TextChoices):
         ROLE = "Role"
         ACTION = "Action"
@@ -355,16 +355,17 @@ class ReportTerms(MetaAttribute):
         UserStory_element, null=True, on_delete=models.CASCADE
     )
     type = models.IntegerField(choices=ReportUserStory.ANALYS_TYPE.choices, null=True)
-    action = models.CharField(null=True, max_length=100) # deprecated
+    action = models.CharField(null=True, max_length=100)  # deprecated
     problem_action = models.JSONField(null=True)
     terms_actions = models.JSONField(null=True)
+    sbar_text = models.CharField(null=True, max_length=200)
 
     class Meta:
         verbose_name = "Report Terms"
         verbose_name_plural = "Report Terms"
 
 
-class ProcessBackground(MetaAttribute): # deprecated
+class ProcessBackground(MetaAttribute):  # deprecated
     userstorys = models.ManyToManyField(UserStory_element)
     percentage = models.CharField(max_length=7, null=True)
     is_process = models.BooleanField(default=False)
@@ -438,3 +439,19 @@ class NameFileUsed(MetaAttribute):
     class Meta:
         verbose_name = "Name File Used"
         verbose_name_plural = "Name File Used"
+
+
+class Personas(MetaAttribute):
+    key_name = models.CharField(max_length=200, null=True)
+    persona = models.CharField(max_length=200, null=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
+    file_name = models.ForeignKey(US_Upload, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        if self.persona:
+            return self.persona
+        return str(self.persona)
+
+    class Meta:
+        verbose_name = "Personas"
+        verbose_name_plural = "Personas"

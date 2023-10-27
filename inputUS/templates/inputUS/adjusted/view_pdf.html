@@ -6,11 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ title }}</title>
   <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'tableexport/css/tableexport.css' %}" rel="stylesheet">
+  <style>
+    @media print
+    {
+        .tableexport-caption
+        {
+          display: none !important;
+        }
+    }
+  </style>
 </head>
-<body onload="window.print()">
+<body>
   <div class="p-3">
     <h5>{{ title }}</h5>
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped" id="table_result_id" data-name="{{ title }}">
       <thead>
         <tr>
           <th>No.</th>
@@ -31,31 +41,70 @@
       </tbody>
     </table>
   </div>
-<script>
-  (function() {
-    var beforePrint = function() {
-      console.log('Functionality to run before printing.');
-    };
-
-    var afterPrint = function() {
-      console.log('Functionality to run after printing');
-      window.close();
-    };
-
-    if (window.matchMedia) {
-      var mediaQueryList = window.matchMedia('print');
-      mediaQueryList.addListener(function(mql) {
-          if (mql.matches) {
-              beforePrint();
-          } else {
-              afterPrint();
-          }
-      });
+  <script src="{% static 'js/jquery.min.js' %}"></script>
+  <script src="{% static 'tableexport/js/' %}FileSaver.min.js"></script>
+  <script src="{% static 'tableexport/js/' %}Blob.min.js"></script>
+  <script src="{% static 'tableexport/js/' %}xls.core.min.js"></script>
+  <script src="{% static 'tableexport/js/tableexport.js' %}"></script>
+  <script>
+    function download_DIVPdf() {
+      window.print()
     }
+    
+    (function() {
+      // Character set (character encoding) of the HTML.
+      $.fn.tableExport.charset = "charset=utf-8";
 
-    window.onbeforeprint = beforePrint;
-    window.onafterprint = afterPrint;
-  }());
-</script>
+      // Filename fallback for exported files.
+      $.fn.tableExport.defaultFileName = "myDownload";
+
+      // Class applied to each export button element.
+      $.fn.tableExport.defaultButton = "btn btn-secondary btn-sm me-1";
+
+      // <a href="https://www.jqueryscript.net/tags.php?/Bootstrap/">Bootstrap</a> configuration classes ["base", "theme", "container"].
+      $.fn.tableExport.bootstrap = ["btn", "btn-default", "btn-toolbar"];
+
+      // Row delimeter.
+      $.fn.tableExport.rowDel = "\r\n";
+
+      // HTML entity <a href="https://www.jqueryscript.net/tags.php?/map/">map</a>ping for special characters.
+      $.fn.tableExport.entityMap = {"&": "&#38;", "<": "&#60;", ">": "&#62;", "'": '&#39;', "/": '&#47;'};
+      $('#table_result_id').tableExport({
+        headers:true,
+        formats: ["xlsx","xls", "csv", "txt",],
+        bootstrap:false,
+        position:"top", 
+        exportButtons:true,  
+        sheetname:"id"
+      })
+
+      $('.tableexport-caption').append(`
+        <button class="btn btn-secondary btn-sm" type="button" onclick="download_DIVPdf()">Export to PDF</button>
+      `)
+
+    //   var beforePrint = function() {
+    //     console.log('Functionality to run before printing.');
+    //   };
+
+    //   var afterPrint = function() {
+    //     console.log('Functionality to run after printing');
+    //     window.close();
+    //   };
+
+    //   if (window.matchMedia) {
+    //     var mediaQueryList = window.matchMedia('print');
+    //     mediaQueryList.addListener(function(mql) {
+    //         if (mql.matches) {
+    //             beforePrint();
+    //         } else {
+    //             afterPrint();
+    //         }
+    //     });
+    //   }
+
+    //   window.onbeforeprint = beforePrint;
+    //   window.onafterprint = afterPrint;
+    }());
+  </script>
 </body>
 </html>
