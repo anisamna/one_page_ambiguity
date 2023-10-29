@@ -323,6 +323,7 @@ class ReportUserStory(MetaAttribute):
     )
     subject = models.CharField(max_length=255, null=True)
     predicate = models.CharField(max_length=255, null=True)
+    classification = models.CharField(max_length=255, null=True)
 
     def __str__(self):
         if self.userstory and self.status:

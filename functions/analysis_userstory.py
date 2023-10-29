@@ -1760,15 +1760,23 @@ class AnalysisData:
             # print("Action terms: ", item["keyword_words"])
             subject = item["subject"]
             predicate = item["predicate"]
-
+            if predicate:
+                predicate = predicate.replace(" ,", "")
+                if " ." in predicate:
+                    predicate = predicate.replace(" .", "")
+                predicate = predicate.strip()
+            object_text = item.get('object', '')
+            if object_text == 'None' or object_text == None:
+                object_text = ''
             description = f"""Subject: {subject}
             Predicate: {predicate}
-            Object: {item.get('object', '')}
+            Object: {object_text}
             """
             status = None
             recommendation = None
             is_problem = False
             recommendation_type = None
+            classification = None
             if not item["sentence_class"] or item["object"] == None:
                 # print("Status: The user story is potentially ambiguous. It might be underspecified.")
                 # print("Recommendation: Rewrite the user story !")
@@ -1777,6 +1785,7 @@ class AnalysisData:
                 recommendation = "Recommendation: Rewrite the user story !"
                 is_problem = True
                 recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_MANUAL
+                classification = "As a "+item["subject"]+", I want to new_action"
             elif len(item["sentence_class"]) > 1 or item["object"] == None: 
                 data_act = item["keyword_words"]
                 key_act = next(iter(data_act))
@@ -1799,6 +1808,7 @@ class AnalysisData:
                 recommendation = f'Recommendation: Rewrite the predicate using one of these term :\n{item["sentence_class"]}'
                 recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION
                 is_problem = True
+                classification = "As a "+item["subject"]+", I want to "+str(item["sentence_class"])+str(item["object"])
             elif len(item["sentence_class"]) == 1 and item["object"] == None:
                 # print("Status: The user story is potentially ambiguous. The object is not exist.")
                 # print("Recommendation: Rewrite the user story !")
@@ -1807,14 +1817,18 @@ class AnalysisData:
                     "The user story is potentially ambiguous. The object is not exist."
                 )
                 recommendation = "Rewrite the user story !"
+                recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_MANUAL
                 is_problem = True
+                classification = "As a "+item["subject"]+", I want to new_action"
             elif len(item["sentence_class"]) < 1 and item["object"] == None:
                 # print("Status: The user story is potentially ambiguous. It does not sufficiently express the intended action")
                 # print("Recommendation: We dont have recommendation for the intended action. Rewrite the user story manually !")
                 # "As a "+item["subject"]+", I want to "+new_action
                 status = "The user story is potentially ambiguous. It does not sufficiently express the intended action"
                 recommendation = "We dont have recommendation for the intended action. Rewrite the user story manually !"
+                recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_MANUAL
                 is_problem = True
+                classification = "As a "+item["subject"]+", I want to new_action"
             elif len(item["sentence_class"]) == 1:
                 # print("Status: user story is fine !")
                 status = "user story is fine !"
@@ -1830,6 +1844,7 @@ class AnalysisData:
                         "recommendation_type": recommendation_type,
                         "subject": subject,
                         "predicate": predicate,
+                        "classification": classification
                     },
                     is_problem,
                 )

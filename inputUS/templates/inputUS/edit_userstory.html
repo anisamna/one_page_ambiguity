@@ -41,7 +41,7 @@
       </div>
       {% endif %}
 
-      {% if reportuserstory.type == '2' or reportuserstory.type == 2 %}
+      {% if reportuserstory.type == 2 or reportuserstory.type == 7 %}
       <div id="list_form_story" class="my-2">
       </div>
       <button class="btn btn-primary btn-sm" id="add_story_id" type="button">Add Story</button>
@@ -167,7 +167,7 @@
               <select name="improved_action" class="form-control select2 action-improved-2">
                 <option value="">Select</option>
                 {% for item in keywords %}
-                <option value="{{ item.keyword }}">{{ item.keyword }}</option>
+                <option value="{{ item.keyword }}" {% if improved_action_select == item.keyword %}selected{% endif %}>{{ item.keyword }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -181,6 +181,12 @@
               </div>
               <input type="text" class="form-control" placeholder="example: read" name="improved_action_new_text" value="{% if improved_action_new_on %}{{ improved_action_select }}{% endif %}" />
             </div>
+            {% if not reportterms and reportuserstory.recommendation_type == 5 and reportuserstory.type == 5 %}
+            <div class="form-group mt-2">
+              <label for="">Rewrite Predicate:</label>
+              <input type="text" class="form-control" name="rewrite_predicate" value="{{ rewrite_predicate }}">
+            </div>
+            {% endif %}
           </div>
         </div>
         {% elif not is_edit_action and not reportuserstory.recommendation_type %}
@@ -213,7 +219,10 @@
       {% endif %}
     </div>
     <div class="card-footer">
+      {% if reportuserstory.type == 2 or reportuserstory.type == 7  %}
+      {% else %}
       <button class="btn btn-primary" name="submit_type" type="submit" value="preview"><i class="bi bi-binoculars"></i> Preview</button>
+      {% endif %}
       <button class="btn btn-success" name="submit_type" type="submit" value="submit"><i class="bi bi-send"></i> Submit</button>
       <button type="button" class="btn btn-secondary" onclick="backHistory()"><i class="bi bi-arrow-left-circle"></i> Cancel</button>
       {% if new_userstory %}

@@ -639,7 +639,11 @@ def edit_userstory(request, report_id):
             reportterms = userstory.reportterms_set.filter(
                 type=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY
             )
+            print(reportuserstory.get_recommendation_type_display())
+            print(reportuserstory.classification)
             if reportterms.exists():
+                data = reportterms.last()
+                print(data)
                 extra_context.update({"reportterms": reportterms.last()})
             role_list = role_list.filter(
                 status=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY
@@ -716,25 +720,63 @@ def edit_userstory(request, report_id):
                     request, "Warning, at least one user story must be inputted."
                 )
         elif int(type_status) == ReportUserStory.ANALYS_TYPE.CONCEPTUALLY:
+            is_edit = False
             improved_predicate = request.POST.get("improved_action", None)
             problematic_predicate = request.POST.get("problematic_action", None)
+            rewrite_predicate = request.POST.get("rewrite_predicate", None)
+            improved_action_new = request.POST.get("improved_action_new", None)
+            improved_action_new_text = request.POST.get("improved_action_new_text", None)
+            new_userstory = userstory.UserStory_Full_Text
+            if improved_action_new == "on":
+                improved_predicate = improved_action_new_text
+                extra_context.update({
+                    "improved_action_new_on": True,
+                })
+
             if improved_predicate and problematic_predicate:
                 # adjusted = userstory.UserStory_Full_Text.replace(
                 #     problematic_predicate, improved_predicate
                 # )
-                AdjustedUserStory.objects.create(
-                    created_by=request.user,
-                    userstory=userstory,
-                    userstory_text=userstory.UserStory_Full_Text,
-                    adjusted=improved_predicate,
-                    status=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY,
-                )
-                messages.success(request, "Success update userstory.")
-                return redirect(
-                    reverse("report_userstory_list") + f"?{path_url[1]}"
-                    if len(path_url) > 1
-                    else ""
-                )
+                if problematic_predicate in new_userstory:
+                    if rewrite_predicate:
+                        if improved_predicate in rewrite_predicate:
+                            new_userstory = new_userstory.replace(problematic_predicate, rewrite_predicate)
+                            is_edit = True
+                        else:
+                            messages.warning(request, "Warning!, rewriting predicates must have the Implied Action word selected")
+                    else:
+                        new_userstory = new_userstory.replace(problematic_predicate, improved_predicate)
+                        is_edit = True
+                    if submit_type == "submit":
+                        if is_edit:
+                            AdjustedUserStory.objects.create(
+                                created_by=request.user,
+                                userstory=userstory,
+                                userstory_text=userstory.UserStory_Full_Text,
+                                adjusted=new_userstory,
+                                status=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY,
+                            )
+                            messages.success(request, "Success update userstory.")
+                            return redirect(
+                                reverse("report_userstory_list") + f"?{path_url[1]}"
+                                if len(path_url) > 1
+                                else ""
+                            )
+                    elif submit_type == "preview":
+                        if rewrite_predicate:
+                            extra_context.update({
+                                "rewrite_predicate": rewrite_predicate,
+                                "improved_action_select": improved_predicate,
+                            })
+                        else:
+                            extra_context.update({
+                                "improved_action_select": improved_predicate,
+                            })
+                        extra_context.update({
+                            "new_userstory": new_userstory
+                            })
+                else:
+                    messages.warning(request, "Warning!, predicates not found in the user story")
         else:
             is_edit = False
             problematic_role = request.POST.get("problematic_role", None)
