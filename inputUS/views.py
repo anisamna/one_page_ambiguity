@@ -678,9 +678,8 @@ def edit_userstory(request, report_id):
     if request.POST:
         type_status = request.POST.get("status", 0)
         submit_type = request.POST.get("submit_type", None)
-        print("submit_type", submit_type)
         userstory_list = request.POST.getlist("userstory_list[]", [])
-        if int(type_status) == ReportUserStory.ANALYS_TYPE.ATOMICITY:
+        if int(type_status) in [ReportUserStory.ANALYS_TYPE.ATOMICITY, ReportUserStory.ANALYS_TYPE.CONCISENESS]:
             if len(userstory_list):
                 # NOTE: add new child userstory only in status type Atomicity
                 # userstory.is_processed = False
@@ -705,7 +704,7 @@ def edit_userstory(request, report_id):
                                 userstory=userstory,
                                 userstory_text=userstory.UserStory_Full_Text,
                                 adjusted=item,
-                                status=ReportUserStory.ANALYS_TYPE.ATOMICITY,
+                                status=int(type_status),
                             )
                             segmentation_edit_userstory(userstory_child.id, True)
 
