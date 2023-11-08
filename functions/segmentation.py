@@ -4,7 +4,7 @@ from inputUS.models import (US_Upload, UserStory_element, UserStory_What,
                             UserStory_Who, UserStory_Why, Personas)
 
 ROLE_DEL = "As an|As a|As"
-ACTION_DEL = "I have to| I have| I need to| I need |I'm able to|I am able to|I want to|I want|I wish to|I can|I should be able to|I do not want|I don't want|I only want"
+ACTION_DEL = "I have| I need|I'm able|I am able|I want|I wish|I can|I should be able|I do not want|I don't want|I only want"
 GOAL_DEL = "So that|so that|So|so|in order to"
 
 
