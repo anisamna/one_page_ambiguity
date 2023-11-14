@@ -30,6 +30,16 @@
           {% endfor %}
         </select>
       </div>
+      
+      <div class="form-group mt-2">
+        <label for="filename_id">File Name</label>
+        <select name="filename_id" id="filename_id" class="form-control">
+          <option value>Select File Name</option>
+          {% for item in filename_list %}
+          <option value="{{ item.id }}" {% if filename_id == item.id %}selected{% endif %}>{{ item.US_File_Name }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
       <div class="form-group mt-2">
         <label for="type_id">Type</label>
@@ -199,6 +209,19 @@
     url.searchParams.set('status', 1);
     window.location.href = url.search;
   })
+
+  $('select#filename_id').on('change', function(){
+    const value_project = $('select#project_id').val()
+    const value_filename = $('select#filename_id').val()
+    const url = new URL(window.location.href);
+    url.searchParams.set('project_id', value_project);
+    url.searchParams.set('filename_id', value_filename);
+    url.searchParams.delete('type');
+    url.searchParams.delete('potential_problem');
+    url.searchParams.set('status', 1);
+    window.location.href = url.search;
+  })
+
   $('select#type_id').on('change', function(){
     const value_type = $('select#type_id').val()
     const url = new URL(window.location.href);

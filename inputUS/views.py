@@ -459,11 +459,16 @@ def view_report_userstory_list(request):
         "status_list": status_list,
     }
     project_id = request.GET.get("project_id", None)
+    filename_id = request.GET.get("filename_id", None)
     # status = request.GET.get('status', None)
     if project_id:
         userstory_list = UserStory_element.objects.filter(
             Project_Name_id=project_id, is_processed=True
         )
+        if filename_id:
+            userstory_list = userstory_list.filter(
+                UserStory_File_ID_id=filename_id
+            )
 
         if not request.user.is_superuser:
             userstory_list = userstory_list.filter(created_by=request.user)
@@ -503,6 +508,16 @@ def view_report_userstory_list(request):
             )
         elif type_value in [ReportUserStory.ANALYS_TYPE.UNIQUENESS]:
             extra_context.update({"potential_problem_list": ((4, "Duplication"),)})
+        
+
+        filename_list = US_Upload.objects.filter(
+            US_Project_Domain_id=project_id,
+            is_show=True
+        )
+        if not request.user.is_superuser:
+            filename_list = filename_list.filter(
+                created_by=request.user
+            )
 
         file_used_list = NameFileUsed.objects.filter(
             created_by=request.user, is_active=True
@@ -516,11 +531,15 @@ def view_report_userstory_list(request):
             {
                 "userstory_list": userstory_list,
                 "project_id": int(project_id),
+                "filename_list": filename_list,
                 "type": int(request.GET.get("type", None))
                 if request.GET.get("type", None)
                 else None,
                 "status": int(request.GET.get("status", None))
                 if request.GET.get("status", None)
+                else None,
+                "filename_id": int(request.GET.get("filename_id"))
+                if request.GET.get("filename_id", None)
                 else None,
                 "potential_problem": int(request.GET.get("potential_problem", None))
                 if request.GET.get("potential_problem", None)
@@ -639,11 +658,7 @@ def edit_userstory(request, report_id):
             reportterms = userstory.reportterms_set.filter(
                 type=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY
             )
-            print(reportuserstory.get_recommendation_type_display())
-            print(reportuserstory.classification)
             if reportterms.exists():
-                data = reportterms.last()
-                print(data)
                 extra_context.update({"reportterms": reportterms.last()})
             role_list = role_list.filter(
                 status=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY
@@ -698,6 +713,7 @@ def edit_userstory(request, report_id):
                                 Project_Name=userstory.Project_Name,
                                 UserStory_File_ID=userstory.UserStory_File_ID,
                                 parent=userstory,
+                                created_by=request.user
                             )
                             AdjustedUserStory.objects.create(
                                 created_by=request.user,
@@ -748,6 +764,10 @@ def edit_userstory(request, report_id):
                         is_edit = True
                     if submit_type == "submit":
                         if is_edit:
+                            userstory.UserStory_Full_Text = new_userstory
+                            userstory.old_userstory = userstory.UserStory_Full_Text
+                            userstory.is_processed
+                            userstory.save()
                             AdjustedUserStory.objects.create(
                                 created_by=request.user,
                                 userstory=userstory,
