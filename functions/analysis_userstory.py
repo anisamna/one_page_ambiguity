@@ -271,30 +271,43 @@ class AnalysisData:
 
                 is_problem = False
 
-                if userstory.Who_full and userstory.What_full:
+                if userstory.Who_full and userstory.What_full and userstory.Why_full:
                     Who_full = userstory.Who_full
                     What_full = userstory.What_full
+                    Why_full = userstory.Why_full
                     if (
                         Who_full.Who_identifier != ""
                         and Who_full.Who_action != ""
                         and What_full.What_identifier != ""
                         and What_full.What_action != ""
+                        and Why_full.Why_identifier !=""
+                        and Why_full.Why_action !=""
                     ):
                         Who_identifier = Who_full.Who_identifier.lower()
                         What_identifier = What_full.What_identifier.lower()
+                        Why_identifier = Why_full.Why_identifier.lower()
                         if Who_identifier not in (
                             "as an",
                             "as a",
                             "as",
                         ) or What_identifier not in (
                             "i want",
-                            "i want to",
-                            "i'm able to",
-                            "i am able to",
                             "i'm able",
                             "i am able",
+                            "i have",
+                            "i need",
+                            "i wish",
+                            "i can",
+                            "i should be able",
+                            "i do not want",
+                            "i don't want", 
+                            "i only want",
+                        ) or Why_identifier not in(
+                            "so",
+                            "so that",
                         ):
-                            status = "Well-formed criteria is not achieved, anbiguity does not exist !"
+                            status = "Well-formed criteria is not achieved, ambiguity does not exist !"
+                            recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
                             is_problem = True
                         else:
                             status = (
@@ -305,6 +318,8 @@ class AnalysisData:
                         and Who_full.Who_action == ""
                         and What_full.What_identifier != ""
                         and What_full.What_action != ""
+                        and Why_full.Why_identified !=""
+                        and Why_full.Why_action !=""
                     ):
                         status = "Well-formed is not achieved ! WHO segment is not not found !"
                         recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
@@ -314,6 +329,8 @@ class AnalysisData:
                         and Who_full.Who_action != ""
                         and What_full.What_identifier != ""
                         and What_full.What_action != ""
+                        and Why_full.Why_identified !=""
+                        and Why_full.Why_action !=""
                     ):
                         status = "Well-formed is achieved ! WHO segment is not complete. WHO identifier does not found !"
                         recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
@@ -323,6 +340,8 @@ class AnalysisData:
                         and Who_full.Who_action != ""
                         and What_full.What_identifier == ""
                         and What_full.What_action != ""
+                        and Why_full.Why_identified !=""
+                        and Why_full.Why_action !=""
                     ):
                         status = "Well-formed is achieved ! WHAT segment is not complete. WHAT identifier does not found !"
                         recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
@@ -332,11 +351,35 @@ class AnalysisData:
                         and Who_full.Who_action != ""
                         and What_full.What_identifier == ""
                         and What_full.What_action == ""
+                        and Why_full.Why_identified !=""
+                        and Why_full.Why_action !=""
                     ):
                         status = "Well-formed is not achieved ! WHAT segment is not not found !"
                         recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
                         is_problem = True
-
+                    elif(
+                        Who_full.Who_identifier != ""
+                        and Who_full.Who_action != ""
+                        and What_full.What_identifier != ""
+                        and What_full.What_action != ""
+                        and Why_full.Why_identified ==""
+                        and Why_full.Why_action !=""
+                    ):
+                        status = "Well-formed is achieved ! WHY segment is not complete. WHY identifier does not found !"
+                        recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
+                        is_problem = True
+                    elif(
+                        Who_full.Who_identifier != ""
+                        and Who_full.Who_action != ""
+                        and What_full.What_identifier != ""
+                        and What_full.What_action != ""
+                        and Why_full.Why_identified !=""
+                        and Why_full.Why_action ==""
+                    ):
+                        status = "Well-formed is achieved ! WHY segment is not complete. WHY segment does not found !"
+                        recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
+                        is_problem = True 
+                           
                 well_formed_result = {
                     "index": index,
                     "userstory_obj": userstory,
