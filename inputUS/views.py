@@ -60,7 +60,9 @@ class AddSingleUserStory(TemplateView):
 
         if userstory and project:
             userstory_obj = UserStory_element.objects.create(
-                Project_Name_id=project, UserStory_Full_Text=userstory, created_by=user
+                Project_Name_id=project,
+                UserStory_Full_Text=userstory,
+                created_by=user
             )
             if custom_file == "on":
                 us_upload_obj, created = US_Upload.objects.get_or_create(
@@ -694,7 +696,23 @@ def edit_userstory(request, report_id):
         type_status = request.POST.get("status", 0)
         submit_type = request.POST.get("submit_type", None)
         userstory_list = request.POST.getlist("userstory_list[]", [])
-        if int(type_status) in [ReportUserStory.ANALYS_TYPE.ATOMICITY, ReportUserStory.ANALYS_TYPE.CONCISENESS]:
+        if int(type_status) == ReportUserStory.ANALYS_TYPE.WELL_FORMED:
+            userstory_improved = request.POST.get('userstory_improved', None)
+            if userstory_improved:
+                if submit_type == "submit":
+                    AdjustedUserStory.objects.create(
+                        created_by=request.user,
+                        userstory=userstory,
+                        userstory_text=userstory.UserStory_Full_Text,
+                        adjusted=userstory_improved,
+                        status=ReportUserStory.ANALYS_TYPE.WELL_FORMED,
+                    )
+                    userstory.UserStory_Full_Text = userstory_improved
+                    userstory.old_userstory = userstory.UserStory_Full_Text
+                    userstory.is_processed = False
+                    userstory.save()
+                    segmentation_edit_userstory(userstory.id, True)
+        elif int(type_status) in [ReportUserStory.ANALYS_TYPE.ATOMICITY, ReportUserStory.ANALYS_TYPE.CONCISENESS]:
             if len(userstory_list):
                 # NOTE: add new child userstory only in status type Atomicity
                 # userstory.is_processed = False
@@ -764,10 +782,6 @@ def edit_userstory(request, report_id):
                         is_edit = True
                     if submit_type == "submit":
                         if is_edit:
-                            userstory.UserStory_Full_Text = new_userstory
-                            userstory.old_userstory = userstory.UserStory_Full_Text
-                            userstory.is_processed
-                            userstory.save()
                             AdjustedUserStory.objects.create(
                                 created_by=request.user,
                                 userstory=userstory,
@@ -775,6 +789,11 @@ def edit_userstory(request, report_id):
                                 adjusted=new_userstory,
                                 status=ReportUserStory.ANALYS_TYPE.CONCEPTUALLY,
                             )
+                            userstory.UserStory_Full_Text = new_userstory
+                            userstory.old_userstory = userstory.UserStory_Full_Text
+                            userstory.is_processed = False
+                            userstory.save()
+                            segmentation_edit_userstory(userstory.id, True)
                             messages.success(request, "Success update userstory.")
                             return redirect(
                                 reverse("report_userstory_list") + f"?{path_url[1]}"
@@ -904,6 +923,7 @@ def add_userstory(request, project_id):
                     userstory = UserStory_element.objects.create(
                         UserStory_Full_Text=item,
                         Project_Name=project,
+                        created_by=request.user
                     )
                     segmentation_edit_userstory(userstory.id, True)
             messages.success(request, "Success add userstory.")

@@ -17,12 +17,12 @@
       </div>
 
       {% if improved_terms_show %}
-      <div class="form-group">
+      <div class="form-group mt-3">
         <label for="userstory_id">User Story</label>
         <input class="form-control" id="userstory_id" value="{{ userstory.UserStory_Full_Text }}" disabled />
       </div>
       {% else %}
-      <div class="form-group">
+      <div class="form-group mt-3">
         <label for="userstory_id">User Story</label>
         <div class="input-group mb-3">
           <input name="userstory" class="form-control" id="userstory_id" value="{{ userstory.UserStory_Full_Text }}" disabled />
@@ -48,8 +48,14 @@
       {% endif %}
       {% endif %}
 
+      {% if reportuserstory.type == 1 %}
+      <div class="form-group">
+        <label for="userstory_improved_id">Improved User Story</label>
+        <input class="form-control" id="userstory_improved_id" name="userstory_improved" value="{{ userstory.UserStory_Full_Text }}"/>
+      </div>
+      {% endif %}
+
       {% if improved_terms_show %}
-      
       <div class="row" style="margin-top: 25px;">
         <div class="col-6">
           <strong>Problematic terms:</strong>
@@ -219,7 +225,7 @@
       {% endif %}
     </div>
     <div class="card-footer">
-      {% if reportuserstory.type == 2 or reportuserstory.type == 7  %}
+      {% if reportuserstory.type == 2 or reportuserstory.type == 7 or reportuserstory.type == 1  %}
       {% else %}
       <button class="btn btn-primary" name="submit_type" type="submit" value="preview"><i class="bi bi-binoculars"></i> Preview</button>
       {% endif %}
