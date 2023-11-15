@@ -318,7 +318,7 @@ class AnalysisData:
                         and Who_full.Who_action == ""
                         and What_full.What_identifier != ""
                         and What_full.What_action != ""
-                        and Why_full.Why_identified !=""
+                        and Why_full.Why_identifier !=""
                         and Why_full.Why_action !=""
                     ):
                         status = "Well-formed is not achieved ! WHO segment is not not found !"
@@ -329,7 +329,7 @@ class AnalysisData:
                         and Who_full.Who_action != ""
                         and What_full.What_identifier != ""
                         and What_full.What_action != ""
-                        and Why_full.Why_identified !=""
+                        and Why_full.Why_identifier !=""
                         and Why_full.Why_action !=""
                     ):
                         status = "Well-formed is achieved ! WHO segment is not complete. WHO identifier does not found !"
@@ -340,7 +340,7 @@ class AnalysisData:
                         and Who_full.Who_action != ""
                         and What_full.What_identifier == ""
                         and What_full.What_action != ""
-                        and Why_full.Why_identified !=""
+                        and Why_full.Why_identifier !=""
                         and Why_full.Why_action !=""
                     ):
                         status = "Well-formed is achieved ! WHAT segment is not complete. WHAT identifier does not found !"
@@ -351,7 +351,7 @@ class AnalysisData:
                         and Who_full.Who_action != ""
                         and What_full.What_identifier == ""
                         and What_full.What_action == ""
-                        and Why_full.Why_identified !=""
+                        and Why_full.Why_identifier !=""
                         and Why_full.Why_action !=""
                     ):
                         status = "Well-formed is not achieved ! WHAT segment is not not found !"
@@ -362,7 +362,7 @@ class AnalysisData:
                         and Who_full.Who_action != ""
                         and What_full.What_identifier != ""
                         and What_full.What_action != ""
-                        and Why_full.Why_identified ==""
+                        and Why_full.Why_identifier ==""
                         and Why_full.Why_action !=""
                     ):
                         status = "Well-formed is achieved ! WHY segment is not complete. WHY identifier does not found !"
@@ -373,7 +373,7 @@ class AnalysisData:
                         and Who_full.Who_action != ""
                         and What_full.What_identifier != ""
                         and What_full.What_action != ""
-                        and Why_full.Why_identified !=""
+                        and Why_full.Why_identifier !=""
                         and Why_full.Why_action ==""
                     ):
                         status = "Well-formed is achieved ! WHY segment is not complete. WHY segment does not found !"
