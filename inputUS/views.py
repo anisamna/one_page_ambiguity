@@ -234,12 +234,17 @@ def show_splitted_UserStory(request):
         )
     else:
         userstory_list = UserStory_element.objects.none()
+    
+    project_list = Project.objects.all()
+    if not request.user.is_superuser:
+        project_list = project_list.filter(created_by=request.user)
+
     extra_context = {
         "view_all": userstory_list.order_by("-id"),
-        "project_list": Project.objects.all(),
+        "project_list": project_list,
     }
     if project:
-        file_names = US_Upload.objects.filter(US_Project_Domain_id=project)
+        file_names = US_Upload.objects.filter(US_Project_Domain_id=project, created_by=request.user)
         if file_name_id:
             extra_context.update({"file_name_id": int(file_name_id)})
             userstory_list = userstory_list.filter(
