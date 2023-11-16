@@ -1197,7 +1197,7 @@ class AnalysisData:
                             "\n\nProblematic terms:"
                             f"\nRole: {actor_}"
                             f"\nAction: {problem_act_}"
-                            f"\nnRecommended terms:"
+                            f"\nRecommended terms:"
                             f"\nRole: {recommended_actor_}"
                             f"\nAction: {recommended_act_}"
                         )
@@ -1224,7 +1224,7 @@ class AnalysisData:
                         recommendation += (
                             "\n\nProblematic terms:"
                             f"\nRole: {actor_}"
-                            f"\nnRecommended terms:"
+                            f"\nRecommended terms:"
                             f"\nRole: {role_s_list}"
                         )
                     elif (
@@ -1233,8 +1233,6 @@ class AnalysisData:
                     ):
                         #problem_act_ = matching_act["problem_act"]
                         problem_act_ = matching_act["problematic_action"]
-
-                        print(type(problem_act_))
                         if len(problem_act_):
                             terms_obj, created = ReportTerms.objects.get_or_create(
                                 userstory=userstory,
@@ -1253,7 +1251,7 @@ class AnalysisData:
                         recommendation += (
                             "\n\nProblematic terms:"
                             f"\nAction: {problem_act_}"
-                            f"\nnRecommendation terms:"
+                            f"\nRecommendation terms:"
                             f"\nAction: Unfortunately, we do not have a specific recommendation for the problematic action. It would be appreciated if you could let me know what term you would like to use."
                         )
                     elif (
@@ -1268,17 +1266,15 @@ class AnalysisData:
                         problem_act_ = matching_act["problematic_action"]
                         recommended_act_ = matching_act["recommended_action"]
                         
-                        # if len(problem_act_):
-                        #     terms_obj, created = ReportTerms.objects.get_or_create(
-                        #         userstory=userstory,
-                        #         type=ReportUserStory.ANALYS_TYPE.PRECISE,
-                        #     )
-                        #     terms_obj.action = key_act
-                        #     if len(values_act):
-                        #         terms_obj.terms_actions = values_act
-                        #     # if len(problem_act_):
-                        #     terms_obj.problem_action = problem_act_
-                        #     terms_obj.save()
+                        if len(problem_act_):
+                            terms_obj, created = ReportTerms.objects.get_or_create(
+                                userstory=userstory,
+                                type=ReportUserStory.ANALYS_TYPE.PRECISE,
+                            )
+                            terms_obj.problem_action = problem_act_
+                            if len(recommended_act_):
+                                terms_obj.terms_actions = recommended_act_
+                            terms_obj.save()
 
                         print("Problematic terms:")
                         print("Action type:", type(problem_act_))
@@ -1303,17 +1299,15 @@ class AnalysisData:
                         problem_act_ = matching_act["problematic_action"]
                         recommended_act_ = matching_act["recommended_action"]
                         
-                        # if len(problem_act_):
-                        #     terms_obj, created = ReportTerms.objects.get_or_create(
-                        #         userstory=userstory,
-                        #         type=ReportUserStory.ANALYS_TYPE.PRECISE,
-                        #     )
-                        #     terms_obj.action = key_act
-                        #     if len(values_act):
-                        #         terms_obj.terms_actions = values_act
-                        #     # if len(problem_act_):
-                        #     terms_obj.problem_action = problem_act_
-                        #     terms_obj.save()
+                        if len(problem_act_):
+                            terms_obj, created = ReportTerms.objects.get_or_create(
+                                userstory=userstory,
+                                type=ReportUserStory.ANALYS_TYPE.PRECISE,
+                            )
+                            terms_obj.problem_action = problem_act_
+                            if len(recommended_act_):
+                                terms_obj.terms_actions = recommended_act_
+                            terms_obj.save()
 
                         print("Problematic terms:")
                         print("Action type:", type(problem_act_))
