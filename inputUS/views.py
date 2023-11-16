@@ -717,6 +717,16 @@ def edit_userstory(request, report_id):
                     userstory.is_processed = False
                     userstory.save()
                     segmentation_edit_userstory(userstory.id, True)
+                    messages.success(request, "Success update userstory.")
+                    return redirect(
+                        reverse("report_userstory_list") + f"?{path_url[1]}"
+                        if len(path_url) > 1
+                        else ""
+                    )
+            else:
+                messages.warning(
+                    request, "Warning, Improved User Story must not be empty."
+                )
         elif int(type_status) in [ReportUserStory.ANALYS_TYPE.ATOMICITY, ReportUserStory.ANALYS_TYPE.CONCISENESS]:
             if len(userstory_list):
                 # NOTE: add new child userstory only in status type Atomicity
