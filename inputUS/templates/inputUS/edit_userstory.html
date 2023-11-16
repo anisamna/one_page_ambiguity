@@ -24,13 +24,15 @@
       {% if improved_terms_show %}
       <div class="form-group mt-3">
         <label for="userstory_id">User Story</label>
-        <input class="form-control" id="userstory_id" value="{{ userstory.UserStory_Full_Text }}" disabled />
+        <!-- <input class="form-control" id="userstory_id" value="{{ userstory.UserStory_Full_Text }}" disabled /> -->
+        <textarea class="form-control" id="userstory_id" disabled>{{ userstory.UserStory_Full_Text }}</textarea>
       </div>
       {% else %}
       <div class="form-group mt-3">
         <label for="userstory_id">User Story</label>
         <div class="input-group mb-3">
-          <input name="userstory" class="form-control" id="userstory_id" value="{{ userstory.UserStory_Full_Text }}" disabled />
+          <textarea name="userstory" class="form-control" id="userstory_id" disabled>{{ userstory.UserStory_Full_Text }}</textarea>
+          <!-- <input name="userstory" class="form-control" id="userstory_id" value="{{ userstory.UserStory_Full_Text }}" disabled /> -->
           <div class="input-group-append">
             <button class="btn btn-outline-secondary" type="button" id="btn_clipboard_id"><i class="bi bi-clipboard"></i></button>
           </div>
@@ -258,7 +260,6 @@
   }
 
   const remote_user_story = (elem) => {
-    console.log('elem', elem)
     $(`.${elem}`).remove();
   }
 
@@ -281,14 +282,15 @@
 
     $('#add_story_id').on('click', function(){
       const elem_list_story = $('#list_form_story')
-      const input_story = elem_list_story.find('input')
+      const input_story = elem_list_story.find('.input-userstory-list')
       if (input_story.length > 0){
         const index_story = input_story.length+1
+        // <input name="userstory_list[]" class="form-control" id="userstory_id_${index_story}" />
         elem_list_story.append(`
           <div class="form-group mt-2 form-input-userstory-${index_story}">
             <label for="userstory_id_${index_story}">User Story #${index_story}</label>
             <div class="input-group mb-3">
-              <input name="userstory_list[]" class="form-control" id="userstory_id_${index_story}" />
+              <textarea name="userstory_list[]" class="form-control input-userstory-list" id="userstory_id_${index_story}"></textarea>
               <div class="input-group-append">
                 <button class="btn btn-outline-danger" type="button" onclick="remote_user_story('form-input-userstory-${index_story}')">Remove</button>
               </div>
@@ -299,7 +301,7 @@
         elem_list_story.html(`
           <div class="form-group mt-2">
             <label for="userstory_id_1">User Story #1</label>
-            <input name="userstory_list[]" class="form-control" id="userstory_id_1" />
+            <textarea name="userstory_list[]" class="form-control input-userstory-list" id="userstory_id_1"></textarea>
           </div>
         `)
       }
