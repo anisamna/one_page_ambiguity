@@ -172,7 +172,7 @@ class AnalysisData:
             sbar_label = item.get("sbar_label", None)
             recommendation = item["atomicity_recommendation"]
             if sbar_label:
-                if sbar_label == 1:
+                if sbar_label == 1 and cc_label ==1:
                     sbar_text = item['sbar_text']
                     if is_atomicity:
                         rt_obj, created = ReportTerms.objects.get_or_create(
@@ -181,6 +181,8 @@ class AnalysisData:
                         )
                         rt_obj.sbar_text = sbar_text
                         rt_obj.save()
+                        recommendation += f"\n\nSubordinating conjunction that could trigger semantic ambiguity: ** {sbar_text} **"
+                        recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {cc_text} **"
                     if is_conciseness:
                         rt_obj, created = ReportTerms.objects.get_or_create(
                             userstory=userstory,
@@ -189,6 +191,38 @@ class AnalysisData:
                         rt_obj.sbar_text = sbar_text
                         rt_obj.save()
                     recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {sbar_text} **"
+                elif sbar_label == 1 and cc_label ==0:
+                    sbar_text = item['sbar_text']
+                    #disini harusnya ga ada, hanya conciseness yang bermasalah
+                    if is_atomicity:
+                        rt_obj, created = ReportTerms.objects.get_or_create(
+                            userstory=userstory,
+                            type=ReportUserStory.ANALYS_TYPE.ATOMICITY
+                        )
+                        rt_obj.sbar_text = sbar_text
+                        rt_obj.save()
+                        recommendation += f"\n\nSubordinating conjunction that could trigger semantic ambiguity: ** {sbar_text} **"
+                        recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {cc_text} **"
+                    if is_conciseness:
+                        rt_obj, created = ReportTerms.objects.get_or_create(
+                            userstory=userstory,
+                            type=ReportUserStory.ANALYS_TYPE.CONCISENESS
+                        )
+                        rt_obj.sbar_text = sbar_text
+                        rt_obj.save()
+                        recommendation += f"\n\nSubordinating conjunction that could trigger semantic ambiguity: ** {sbar_text} **"
+                elif cc_label == 1 and sbar_label == 0:
+                    cc_text = item["cc_text"]
+                    if is_atomicity:
+                        rt_obj, created = ReportTerms.objects.get_or_create(
+                            userstory=userstory,
+                            type=ReportUserStory.ANALYS_TYPE.ATOMICITY
+                        )
+                        rt_obj.sbar_text = sbar_text
+                        rt_obj.save()
+                        recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {cc_text} **"
+                    #disini ga ada conciseness problem, jadi is_conciseness ga ada
+
             if childs.exists():
                 description = ""
                 for index, child in enumerate(childs):
@@ -592,10 +626,12 @@ class AnalysisData:
                     if self.get_pos_label(token) == "CC":
                         cc_stat = "CC is found"
                         cc_label = 1
+                        cc_text = token
                         break
                     else:
                         cc_stat = "CC is not found"
                         cc_label = 0
+                        cc_text = None
             else:
                 sbar_stat = "There is SBAR in this user story"
                 sbar_label = 1
@@ -607,16 +643,19 @@ class AnalysisData:
                     if pos_label == "CC":
                         cc_stat = "CC is found"
                         cc_label = 1
+                        cc_text = token
                         break
                     else:
                         cc_stat = "CC is not found"
                         cc_label = 0
+                        cc_label = None
             # define dic_atomic
             dic_atomicity = {
                 "text": text,
                 "userstory_obj": item["userstory_obj"],
                 "action_user": action_user,
                 "sbar_text": sbar_text,
+                "cc_text": cc_text,
                 "text_without_sbar": text_tanpa_SBAR,
                 "new_text_wth_sbar": captured_text,
                 "is_last_token_a_verb": is_last_token_a_verb,
