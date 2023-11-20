@@ -171,8 +171,10 @@ class AnalysisData:
             childs = userstory.get_childrens()
             sbar_label = item.get("sbar_label", None)
             recommendation = item["atomicity_recommendation"]
+            cc_label = item.get('cc_label', None)
+            cc_text = item.get('cc_text', None)
             if sbar_label:
-                if sbar_label == 1 and cc_label ==1:
+                if sbar_label == 1 and cc_label == 1:
                     sbar_text = item['sbar_text']
                     if is_atomicity:
                         rt_obj, created = ReportTerms.objects.get_or_create(
@@ -182,7 +184,7 @@ class AnalysisData:
                         rt_obj.sbar_text = sbar_text
                         rt_obj.save()
                         recommendation += f"\n\nSubordinating conjunction that could trigger semantic ambiguity: ** {sbar_text} **"
-                        recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {cc_text} **"
+                        recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {cc_text if cc_text else ''} **"
                     if is_conciseness:
                         rt_obj, created = ReportTerms.objects.get_or_create(
                             userstory=userstory,
@@ -191,7 +193,7 @@ class AnalysisData:
                         rt_obj.sbar_text = sbar_text
                         rt_obj.save()
                     recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {sbar_text} **"
-                elif sbar_label == 1 and cc_label ==0:
+                elif sbar_label == 1 and cc_label == 0:
                     sbar_text = item['sbar_text']
                     #disini harusnya ga ada, hanya conciseness yang bermasalah
                     if is_atomicity:
@@ -202,7 +204,7 @@ class AnalysisData:
                         rt_obj.sbar_text = sbar_text
                         rt_obj.save()
                         recommendation += f"\n\nSubordinating conjunction that could trigger semantic ambiguity: ** {sbar_text} **"
-                        recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {cc_text} **"
+                        recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {cc_text if cc_text else ''} **"
                     if is_conciseness:
                         rt_obj, created = ReportTerms.objects.get_or_create(
                             userstory=userstory,
@@ -212,7 +214,6 @@ class AnalysisData:
                         rt_obj.save()
                         recommendation += f"\n\nSubordinating conjunction that could trigger semantic ambiguity: ** {sbar_text} **"
                 elif cc_label == 1 and sbar_label == 0:
-                    cc_text = item["cc_text"]
                     if is_atomicity:
                         rt_obj, created = ReportTerms.objects.get_or_create(
                             userstory=userstory,
@@ -220,7 +221,7 @@ class AnalysisData:
                         )
                         rt_obj.sbar_text = sbar_text
                         rt_obj.save()
-                        recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {cc_text} **"
+                        recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {cc_text if cc_text else ''} **"
                     #disini ga ada conciseness problem, jadi is_conciseness ga ada
 
             if childs.exists():
@@ -731,6 +732,7 @@ class AnalysisData:
                         "last_token_verb_or_not": sbar_item["is_last_token_a_verb"],
                         "sbar_text": sbar_item["sbar_text"],
                         "cc_label": atomic_item["cc_label"],
+                        "cc_text": atomic_item["cc_text"],
                         "sbar_label": atomic_item["sbar_label"],
                         "atomicity_status": atomic_item["atomicity_status"],
                         "atomicity_recommendation": atomic_item[
