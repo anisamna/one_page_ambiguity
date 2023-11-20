@@ -615,6 +615,7 @@ class AnalysisData:
             status = ""
             cc_stat = ""
             cc_label = ""
+            cc_text = None
             sbar_stat = ""
             sbar_label = ""
             captured_text = ""
