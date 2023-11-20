@@ -171,15 +171,15 @@ class AnalysisData:
             childs = userstory.get_childrens()
             sbar_label = item.get("sbar_label", None)
             recommendation = item["atomicity_recommendation"]
-            cc_label = item.get('cc_label', None)
-            cc_text = item.get('cc_text', None)
+            cc_label = item.get("cc_label", None)
+            cc_text = item.get("cc_text", None)
             if sbar_label:
                 if sbar_label == 1 and cc_label == 1:
-                    sbar_text = item['sbar_text']
+                    sbar_text = item["sbar_text"]
                     if is_atomicity:
                         rt_obj, created = ReportTerms.objects.get_or_create(
                             userstory=userstory,
-                            type=ReportUserStory.ANALYS_TYPE.ATOMICITY
+                            type=ReportUserStory.ANALYS_TYPE.ATOMICITY,
                         )
                         rt_obj.sbar_text = sbar_text
                         rt_obj.save()
@@ -188,18 +188,18 @@ class AnalysisData:
                     if is_conciseness:
                         rt_obj, created = ReportTerms.objects.get_or_create(
                             userstory=userstory,
-                            type=ReportUserStory.ANALYS_TYPE.CONCISENESS
+                            type=ReportUserStory.ANALYS_TYPE.CONCISENESS,
                         )
                         rt_obj.sbar_text = sbar_text
                         rt_obj.save()
                     recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {sbar_text} **"
                 elif sbar_label == 1 and cc_label == 0:
-                    sbar_text = item['sbar_text']
-                    #disini harusnya ga ada, hanya conciseness yang bermasalah
+                    sbar_text = item["sbar_text"]
+                    # disini harusnya ga ada, hanya conciseness yang bermasalah
                     if is_atomicity:
                         rt_obj, created = ReportTerms.objects.get_or_create(
                             userstory=userstory,
-                            type=ReportUserStory.ANALYS_TYPE.ATOMICITY
+                            type=ReportUserStory.ANALYS_TYPE.ATOMICITY,
                         )
                         rt_obj.sbar_text = sbar_text
                         rt_obj.save()
@@ -208,7 +208,7 @@ class AnalysisData:
                     if is_conciseness:
                         rt_obj, created = ReportTerms.objects.get_or_create(
                             userstory=userstory,
-                            type=ReportUserStory.ANALYS_TYPE.CONCISENESS
+                            type=ReportUserStory.ANALYS_TYPE.CONCISENESS,
                         )
                         rt_obj.sbar_text = sbar_text
                         rt_obj.save()
@@ -217,12 +217,12 @@ class AnalysisData:
                     if is_atomicity:
                         rt_obj, created = ReportTerms.objects.get_or_create(
                             userstory=userstory,
-                            type=ReportUserStory.ANALYS_TYPE.ATOMICITY
+                            type=ReportUserStory.ANALYS_TYPE.ATOMICITY,
                         )
                         rt_obj.sbar_text = sbar_text
                         rt_obj.save()
                         recommendation += f"\n\nSubordinate conjunction that could trigger semantic ambiguity: ** {cc_text if cc_text else ''} **"
-                    #disini ga ada conciseness problem, jadi is_conciseness ga ada
+                    # disini ga ada conciseness problem, jadi is_conciseness ga ada
 
             if childs.exists():
                 description = ""
@@ -315,31 +315,38 @@ class AnalysisData:
                         and Who_full.Who_action != ""
                         and What_full.What_identifier != ""
                         and What_full.What_action != ""
-                        and Why_full.Why_identifier !=""
-                        and Why_full.Why_action !=""
+                        and Why_full.Why_identifier != ""
+                        and Why_full.Why_action != ""
                     ):
                         Who_identifier = Who_full.Who_identifier.lower()
                         What_identifier = What_full.What_identifier.lower()
                         Why_identifier = Why_full.Why_identifier.lower()
-                        if Who_identifier not in (
-                            "as an",
-                            "as a",
-                            "as",
-                        ) or What_identifier not in (
-                            "i want",
-                            "i'm able",
-                            "i am able",
-                            "i have",
-                            "i need",
-                            "i wish",
-                            "i can",
-                            "i should be able",
-                            "i do not want",
-                            "i don't want", 
-                            "i only want",
-                        ) or Why_identifier not in(
-                            "so",
-                            "so that",
+                        if (
+                            Who_identifier
+                            not in (
+                                "as an",
+                                "as a",
+                                "as",
+                            )
+                            or What_identifier
+                            not in (
+                                "i want",
+                                "i'm able",
+                                "i am able",
+                                "i have",
+                                "i need",
+                                "i wish",
+                                "i can",
+                                "i should be able",
+                                "i do not want",
+                                "i don't want",
+                                "i only want",
+                            )
+                            or Why_identifier
+                            not in (
+                                "so",
+                                "so that",
+                            )
                         ):
                             status = "Well-formed criteria is not achieved, ambiguity does not exist !"
                             recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
@@ -353,8 +360,8 @@ class AnalysisData:
                         and Who_full.Who_action == ""
                         and What_full.What_identifier != ""
                         and What_full.What_action != ""
-                        and Why_full.Why_identifier !=""
-                        and Why_full.Why_action !=""
+                        and Why_full.Why_identifier != ""
+                        and Why_full.Why_action != ""
                     ):
                         status = "Well-formed is not achieved ! WHO segment is not not found !"
                         recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
@@ -364,8 +371,8 @@ class AnalysisData:
                         and Who_full.Who_action != ""
                         and What_full.What_identifier != ""
                         and What_full.What_action != ""
-                        and Why_full.Why_identifier !=""
-                        and Why_full.Why_action !=""
+                        and Why_full.Why_identifier != ""
+                        and Why_full.Why_action != ""
                     ):
                         status = "Well-formed is achieved ! WHO segment is not complete. WHO identifier does not found !"
                         recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
@@ -375,8 +382,8 @@ class AnalysisData:
                         and Who_full.Who_action != ""
                         and What_full.What_identifier == ""
                         and What_full.What_action != ""
-                        and Why_full.Why_identifier !=""
-                        and Why_full.Why_action !=""
+                        and Why_full.Why_identifier != ""
+                        and Why_full.Why_action != ""
                     ):
                         status = "Well-formed is achieved ! WHAT segment is not complete. WHAT identifier does not found !"
                         recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
@@ -386,35 +393,35 @@ class AnalysisData:
                         and Who_full.Who_action != ""
                         and What_full.What_identifier == ""
                         and What_full.What_action == ""
-                        and Why_full.Why_identifier !=""
-                        and Why_full.Why_action !=""
+                        and Why_full.Why_identifier != ""
+                        and Why_full.Why_action != ""
                     ):
                         status = "Well-formed is not achieved ! WHAT segment is not not found !"
                         recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
                         is_problem = True
-                    elif(
+                    elif (
                         Who_full.Who_identifier != ""
                         and Who_full.Who_action != ""
                         and What_full.What_identifier != ""
                         and What_full.What_action != ""
-                        and Why_full.Why_identifier ==""
-                        and Why_full.Why_action !=""
+                        and Why_full.Why_identifier == ""
+                        and Why_full.Why_action != ""
                     ):
                         status = "Well-formed is achieved ! WHY segment is not complete. WHY identifier does not found !"
                         recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
                         is_problem = True
-                    elif(
+                    elif (
                         Who_full.Who_identifier != ""
                         and Who_full.Who_action != ""
                         and What_full.What_identifier != ""
                         and What_full.What_action != ""
-                        and Why_full.Why_identifier !=""
-                        and Why_full.Why_action ==""
+                        and Why_full.Why_identifier != ""
+                        and Why_full.Why_action == ""
                     ):
                         status = "Well-formed is achieved ! WHY segment is not complete. WHY segment does not found !"
                         recommendation = "Rewrite user story in Connextra format: *As a <role>, I want <action>, so that <goal>*"
-                        is_problem = True 
-                           
+                        is_problem = True
+
                 well_formed_result = {
                     "index": index,
                     "userstory_obj": userstory,
@@ -768,7 +775,7 @@ class AnalysisData:
                 return keyword_list.last()
         return None
 
-    #ini tambahan, baru (06112023)
+    # ini tambahan, baru (06112023)
     def find_verbs_from_lemma(self):
         # for (index, row) in df_segment.iterrows():
         #     text=row['UserStory']
@@ -779,16 +786,17 @@ class AnalysisData:
             action = (
                 item.get("action").What_action if item.get("action", None) else None
             )
-            
+
         tokens = self.nltk.word_tokenize(action)
         verb_forms = []
-        
+
         for token in tokens:
-            synsets = wordnet.synsets(token, pos = wordnet.VERB)
+            synsets = wordnet.synsets(token, pos=wordnet.VERB)
             if synsets:
                 verb_forms.append(synsets[0].lemmas()[0].name())
         return verb_forms
-    #sampai sini
+
+    # sampai sini
 
     def actor_precise(self):
         role_s_values = []
@@ -870,13 +878,13 @@ class AnalysisData:
                     prob_act.append(tok_verb)
                     prob_act_lemma.append(tok_process)
 
-                    #word_class = self.get_word_class(token.text)
+                    # word_class = self.get_word_class(token.text)
                     word_class = self.get_word_class(tok_process)
                     has_verb = True
 
                     if word_class:
                         sentence_class.add(word_class.keyword)
-                        #keyword_words.add(token.text)
+                        # keyword_words.add(token.text)
                         keyword_words.add(tok_process)
 
                         for keyword_word in keyword_words:
@@ -886,13 +894,13 @@ class AnalysisData:
                                 word_class.keyword
                             )
                     else:
-                        #synsets = wordnet.synsets(token.text)
+                        # synsets = wordnet.synsets(token.text)
                         synsets = wordnet.synsets(tok_process)
                         for synset in synsets:
                             synset_class = self.get_synset_class(synset)
                             if synset_class:
                                 sentence_class.add(synset_class.keyword)
-                                #keyword_words.add(token.text)
+                                # keyword_words.add(token.text)
                                 keyword_words.add(tok_process)
                                 for keyword_word in keyword_words:
                                     if keyword_word not in keyword_to_sentence_class:
@@ -938,10 +946,10 @@ class AnalysisData:
 
         status = ""
         recommendation = ""
-        problematic_role=""
-        problematic_action=""
-        recommended_role=""
-        recommended_action=""
+        problematic_role = ""
+        problematic_action = ""
+        recommended_role = ""
+        recommended_action = ""
 
         for act in sentence_classifications:
             for sub in dic_sub:
@@ -949,22 +957,24 @@ class AnalysisData:
                     is_problem = False
                     recommendation_type = None
                     if sub["cluster_label"] == -1 and act["label"] == "":
-                        #penambahan disini
+                        # penambahan disini
                         problematic_role = sub["actor"]
                         problematic_action = act["problem_act"]
-                        
+
                         recommended_role = sub["role_s_list"]
                         recommended_action = act["sentence_class"]
-                        #sampai sini
+                        # sampai sini
 
                         status = "The user story lacks conceptual clarity which might result in vagueness problems."
-                        recommendation = "Please change the role and the word of action !"
+                        recommendation = (
+                            "Please change the role and the word of action !"
+                        )
                         is_problem = True
                         recommendation_type = (
                             ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
                         )
                     elif sub["cluster_label"] == -1 and act["label"] == "1":
-                        #perubahan disini
+                        # perubahan disini
                         problematic_role = sub["actor"]
                         recommended_action = act["sentence_class"]
 
@@ -973,36 +983,38 @@ class AnalysisData:
 
                         recommended_role = sub["role_s_list"]
                         recommended_action = ""
-                        #sampai sini
+                        # sampai sini
 
                         is_problem = True
                         recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ROLE
                     elif sub["cluster_label"] == -1 and act["label"] == ">1":
-                        #perubahan disini
+                        # perubahan disini
                         problematic_role = sub["actor"]
                         problematic_action = act["problem_act"]
 
                         status = "The user story lacks conceptual clarity which might result in inconsistency problems."
-                        recommendation = "Please change the role and the word of action !"
+                        recommendation = (
+                            "Please change the role and the word of action !"
+                        )
 
                         recommended_role = sub["role_s_list"]
                         recommended_action = act["sentence_class"]
-                        #sampai sini
+                        # sampai sini
 
                         is_problem = True
                         recommendation_type = (
                             ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
                         )
                     elif sub["cluster_label"] != -1 and act["label"] == "":
-                        #perubahan disini
+                        # perubahan disini
                         problematic_action = act["problem_act"]
-                        
+
                         status = "The user story lacks conceptual clarity which might result in vagueness problems."
                         recommendation = "Please change the word of action !"
-                        
+
                         recommended_term_role = ""
                         recommended_action = act["sentence_class"]
-                        #sampai sini
+                        # sampai sini
 
                         is_problem = True
                         recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION
@@ -1012,7 +1024,7 @@ class AnalysisData:
                         )
                         recommendation = ""
                     elif sub["cluster_label"] != -1 and act["label"] == ">1":
-                        #perubahan disini
+                        # perubahan disini
                         problematic_role = ""
                         problematic_action = act["problem_act"]
 
@@ -1021,22 +1033,22 @@ class AnalysisData:
 
                         recommended_role = ""
                         recommended_action = act["sentence_class"]
-                        #sampai sini
+                        # sampai sini
 
                         is_problem = True
                         recommendation_type = (
                             ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE
                         )
-                    
+
                     else:
-                        #tambahan disini
+                        # tambahan disini
                         problematic_action = act["problem_act"]
 
                         status = "The user story lacks conceptual clarity which might result in inconsistency problems."
                         recommendation = "Please change the word of action !"
 
                         recommended_action = act["sentence_class"]
-                        #sampai sini
+                        # sampai sini
 
                         is_problem = True
                         recommendation_type = (
@@ -1074,10 +1086,10 @@ class AnalysisData:
                         "text": sub["text"],
                         "role_actor": sub.get("actor"),
                         "action_act": act.get("act_action"),
-                        #"problem_act": act.get("problem_act"),
+                        # "problem_act": act.get("problem_act"),
                         "role_label": sub["cluster_label"],
-                        #"std_role": sub["role_s_list"],
-                        #"std_term": act["keyword_words"],
+                        # "std_role": sub["role_s_list"],
+                        # "std_term": act["keyword_words"],
                         "problem_role": sub["problematic_role"],
                         "problem_action": act["problematic_action"],
                         "recommended_term_role": sub["recommended_role"],
@@ -1136,10 +1148,10 @@ class AnalysisData:
                         print("Role: ", matching_sub["problematic_role"])
                         print("Action: ", matching_act["problematic_action"])
                         # ini diambil dari role_s_list, data disimpan di tabel baru (ato gausah disimpan?) dengan nama role
+                        print("Recommendation terms:")
                         print(
-                            "Recommendation terms:")
-                        print("Role:",
-                            #matching_sub["role_s_list"],
+                            "Role:",
+                            # matching_sub["role_s_list"],
                             matching_sub["recommended_role"],
                         )
                         print(
@@ -1147,7 +1159,7 @@ class AnalysisData:
                         )
                         role_s_list = matching_sub["role_s_list"]
                         actor_ = matching_sub["actor"]
-                        #problem_act_ = matching_act["problem_act"]
+                        # problem_act_ = matching_act["problem_act"]
                         problem_act_ = matching_act["problematic_action"]
 
                         for role_item in role_s_list:
@@ -1190,15 +1202,15 @@ class AnalysisData:
                         # problem_act_ = matching_act["problem_act"]
 
                         actor_ = matching_sub["problematic_role"]
-                        problem_act_= matching_act["problematic_action"]
+                        problem_act_ = matching_act["problematic_action"]
 
                         recommended_actor_ = matching_sub["recommended_role"]
                         recommended_act_ = matching_act["recommended_action"]
 
                         role_s_list = matching_sub["role_s_list"]
-                        
-                        #ini buat apa mas?
-                        #kalo recommended termsnya udah tak keluarkan di recommended_act_ apakah kode ini masih perlu?
+
+                        # ini buat apa mas?
+                        # kalo recommended termsnya udah tak keluarkan di recommended_act_ apakah kode ini masih perlu?
 
                         # if len(problem_act_):
                         #     terms_obj, created = ReportTerms.objects.get_or_create(
@@ -1229,10 +1241,10 @@ class AnalysisData:
                         print("Action type:", type(problem_act_))
                         print("Action:", problem_act_)
                         print("Recommendation terms")
-                        #print("Role:", role_s_list)
+                        # print("Role:", role_s_list)
                         print("Role:", recommended_actor_)
                         # ini tidak disimpan, harusnya indexnya sudah ada di tabel keyword glossary -CRUD...-
-                        #print("Action:", values_act)
+                        # print("Action:", values_act)
                         print("Action:", recommended_act_)
                         recommendation += (
                             "\n\nProblematic terms:"
@@ -1272,7 +1284,7 @@ class AnalysisData:
                         matching_sub["cluster_label"] != -1
                         and matching_act["label"] == ""
                     ):
-                        #problem_act_ = matching_act["problem_act"]
+                        # problem_act_ = matching_act["problem_act"]
                         problem_act_ = matching_act["problematic_action"]
                         if len(problem_act_):
                             terms_obj, created = ReportTerms.objects.get_or_create(
@@ -1285,9 +1297,9 @@ class AnalysisData:
                         print("Problematic terms:")
                         print("Action type:", type(problem_act_))
                         print("Action:", problem_act_)
+                        print("Recommendation terms")
                         print(
-                            "Recommendation terms")
-                        print("Action: Unfortunately, we do not have a specific recommendation for the problematic action. It would be appreciated if you could let me know what term you would like to use."
+                            "Action: Unfortunately, we do not have a specific recommendation for the problematic action. It would be appreciated if you could let me know what term you would like to use."
                         )
                         recommendation += (
                             "\n\nProblematic terms:"
@@ -1302,11 +1314,11 @@ class AnalysisData:
                         # data_act = matching_act["keyword_words"]
                         # key_act = next(iter(data_act))
                         # values_act = data_act[key_act]
-                        #problem_act_ = matching_act["problem_act"]
+                        # problem_act_ = matching_act["problem_act"]
 
                         problem_act_ = matching_act["problematic_action"]
                         recommended_act_ = matching_act["recommended_action"]
-                        
+
                         if len(problem_act_):
                             terms_obj, created = ReportTerms.objects.get_or_create(
                                 userstory=userstory,
@@ -1325,21 +1337,19 @@ class AnalysisData:
                         recommendation += (
                             "\n\nProblematic terms:"
                             f"\nAction: {problem_act_}"
-                            #f"\nRecommendation terms for the action: {values_act}"
+                            # f"\nRecommendation terms for the action: {values_act}"
                             f"\n\nRecommendation terms:"
                             f"\nAction: {recommended_act_}"
                         )
-                    elif(
+                    elif (
                         matching_sub["cluster_label"] != -1
                         and matching_act["label"] == "1"
                     ):
-                        recommendation += (
-                            f"\nPass"
-                        )
+                        recommendation += f"\nPass"
                     else:
                         problem_act_ = matching_act["problematic_action"]
                         recommended_act_ = matching_act["recommended_action"]
-                        
+
                         if len(problem_act_):
                             terms_obj, created = ReportTerms.objects.get_or_create(
                                 userstory=userstory,
@@ -1358,7 +1368,7 @@ class AnalysisData:
                         recommendation += (
                             "\n\nProblematic terms:"
                             f"\nAction: {problem_act_}"
-                            #f"\nRecommendation terms for the action: {values_act}"
+                            # f"\nRecommendation terms for the action: {values_act}"
                             f"\n\nRecommendation terms:"
                             f"\nAction: {recommended_act_}"
                         )
@@ -2004,9 +2014,9 @@ class AnalysisData:
                 if " ." in predicate:
                     predicate = predicate.replace(" .", "")
                 predicate = predicate.strip()
-            object_text = item.get('object', '')
-            if object_text == 'None' or object_text == None:
-                object_text = ''
+            object_text = item.get("object", "")
+            if object_text == "None" or object_text == None:
+                object_text = ""
             description = f"""Subject: {subject}
             Predicate: {predicate}
             Object: {object_text}
@@ -2024,8 +2034,8 @@ class AnalysisData:
                 recommendation = "Recommendation: Rewrite the user story !"
                 is_problem = True
                 recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_MANUAL
-                classification = "As a "+item["subject"]+", I want to new_action"
-            elif len(item["sentence_class"]) > 1 or item["object"] == None: 
+                classification = "As a " + item["subject"] + ", I want to new_action"
+            elif len(item["sentence_class"]) > 1 or item["object"] == None:
                 data_act = item["keyword_words"]
                 key_act = next(iter(data_act))
                 values_act = data_act[key_act]
@@ -2047,7 +2057,13 @@ class AnalysisData:
                 recommendation = f'Recommendation: Rewrite the predicate using one of these term :\n{item["sentence_class"]}'
                 recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION
                 is_problem = True
-                classification = "As a "+item["subject"]+", I want to "+str(item["sentence_class"])+str(item["object"])
+                classification = (
+                    "As a "
+                    + item["subject"]
+                    + ", I want to "
+                    + str(item["sentence_class"])
+                    + str(item["object"])
+                )
             elif len(item["sentence_class"]) == 1 and item["object"] == None:
                 # print("Status: The user story is potentially ambiguous. The object is not exist.")
                 # print("Recommendation: Rewrite the user story !")
@@ -2058,7 +2074,7 @@ class AnalysisData:
                 recommendation = "Rewrite the user story !"
                 recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_MANUAL
                 is_problem = True
-                classification = "As a "+item["subject"]+", I want to new_action"
+                classification = "As a " + item["subject"] + ", I want to new_action"
             elif len(item["sentence_class"]) < 1 and item["object"] == None:
                 # print("Status: The user story is potentially ambiguous. It does not sufficiently express the intended action")
                 # print("Recommendation: We dont have recommendation for the intended action. Rewrite the user story manually !")
@@ -2067,7 +2083,7 @@ class AnalysisData:
                 recommendation = "We dont have recommendation for the intended action. Rewrite the user story manually !"
                 recommendation_type = ReportUserStory.RECOMENDATION_TYPE.ACTION_MANUAL
                 is_problem = True
-                classification = "As a "+item["subject"]+", I want to new_action"
+                classification = "As a " + item["subject"] + ", I want to new_action"
             elif len(item["sentence_class"]) == 1:
                 # print("Status: user story is fine !")
                 status = "user story is fine !"
@@ -2083,7 +2099,7 @@ class AnalysisData:
                         "recommendation_type": recommendation_type,
                         "subject": subject,
                         "predicate": predicate,
-                        "classification": classification
+                        "classification": classification,
                     },
                     is_problem,
                 )
