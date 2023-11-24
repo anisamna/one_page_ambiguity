@@ -156,10 +156,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
-    "https://furiosa.my.id",
-    "http://furiosa.my.id",
-    "https://v1.furiosa.my.id",
-    "http://v1.furiosa.my.id",
+    "https://*.furiosa.my.id",
+    "http://*.furiosa.my.id",
 ]
 
 AUTHENTICATION_BACKENDS = ("one_page_ambiguity_base.backends.EmailBackend",)
