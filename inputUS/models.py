@@ -112,6 +112,7 @@ class UserStory_element(MetaAttribute):
     )
     is_processed = models.BooleanField(default=False)
     is_problem = models.BooleanField(default=False)
+    is_agree = models.BooleanField(default=False)
     parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):

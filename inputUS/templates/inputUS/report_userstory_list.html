@@ -102,7 +102,7 @@
       <button onclick="openNewTab()" class="btn btn-danger"><i class="bi bi-database-fill"></i> Export Data</button>
     </div>
   </div>
-  <div class="card-body p-1">
+  <div class="card-body p-1 table-responsive">
     <table class="table table-bordered mb-0">
       <thead>
         <tr>
@@ -114,7 +114,7 @@
           <th>Description</th>
           {% endif %}
           <th>Type</th>
-          <th>Action</th>
+          <th style="min-width: 150px;">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -148,7 +148,26 @@
           {% endif %}
           <td>{{ report.get_type_display }}</td>
           <td>
+            {% if report.is_agree %}
             <a href="{% url 'report_userstory_edit' report.id %}" class="btn btn-primary link-edit">Edit</a>
+            {% else %}
+            <div class="form-group align-items-center group-action">
+              <div class="form-radio mr-2">
+                <input class="form-radio-input" type="radio" id="radioAgree_{{report.id}}" name="report_agree_{{report.id}}" value="agree">
+                <label class="form-radio-label" for="radioAgree_{{report.id}}">
+                  Agree
+                </label>
+              </div>
+              <div class="form-radio mr-2">
+                <input class="form-radio-input" type="radio" id="radioDisagree_{{report.id}}" name="report_agree_{{report.id}}" value="disagree">
+                <label class="form-radio-label" for="radioDisagree_{{report.id}}">
+                  Disagree
+                </label>
+                <textarea name="" class="form-control" style="display: none;"></textarea>
+              </div>
+              <button class="btn btn-sm btn-primary mt-3">Submit</button>
+            </div>
+            {% endif %}
           </td>
         </tr>
         {% endfor %}
@@ -167,6 +186,15 @@
   </div>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+  .form-radio-input, .form-radio-label {
+    cursor: pointer;
+  }
+</style>
 {% endblock %}
 
 {% block extrajs %}
@@ -193,6 +221,22 @@
     });
 
     $('#form_filter_id select').select2();
+  })
+
+  $('.form-radio-input').on('change', function(){
+    const $this = $(this)
+    const parent = $this.parents('.group-action')
+    const value_ = $this.val()
+    if (value_ == 'agree'){
+      parent.find('textarea').val('');
+      parent.find('textarea').hide();
+    } else if (value_ == 'disagree'){
+      parent.find('textarea').val('');
+      parent.find('textarea').show();
+    } else {
+      parent.find('textarea').val('');
+      parent.find('textarea').hide();
+    }
   })
 
   $('select.filter_submit').on('change', function(){
