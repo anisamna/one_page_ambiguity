@@ -17,14 +17,8 @@ from sentence_transformers import util
 from sklearn.cluster import DBSCAN
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from inputUS.models import (
-    Glossary,
-    KeywordGlossary,
-    ReportTerms,
-    ReportUserStory,
-    Role,
-    UserStory_element,
-)
+from inputUS.models import (Glossary, KeywordGlossary, ReportTerms,
+                            ReportUserStory, Role, UserStory_element)
 
 
 class AnalysisData:
@@ -182,7 +176,7 @@ class AnalysisData:
                 recommendation = item["atomicity_recommendation"]
                 cc_label = item.get("cc_label", None)
                 cc_text = item.get("cc_text", None)
-                problem = item["is_problem"]
+                problem = item.get("is_problem", False)
                 # hanya is_problem = False yang dianalisis
                 # if problem == False:
                 # if sbar_label:
@@ -653,7 +647,7 @@ class AnalysisData:
                             "text": text,
                             "userstory_obj": well_formed["userstory_obj"],
                             "action_user": action.What_action,
-                            "goal_obj": goal,
+                            "goal_obj": goal.Why_action,
                             "sbar_text": " ".join(sbar_text),
                             "removable_sbar_text": new_text,
                             "captured_text": captured_text,
@@ -822,11 +816,11 @@ class AnalysisData:
                                 atomicity_amb_status = "Not pass !"
                                 atomicity_amb_recommendation = (
                                     "Please split user story at ** "
-                                    + {
+                                    + (
                                         atomic_item["cc_text"]
                                         if atomic_item["cc_text"]
                                         else ""
-                                    }
+                                    )
                                     + " ** to achieve this goal ** "
                                     + atomic_item["goal_text"]
                                     + " ** !"
@@ -836,11 +830,11 @@ class AnalysisData:
                                 atomicity_amb_status = "Not pass !"
                                 atomicity_amb_recommendation = (
                                     "Please split user story at ** "
-                                    + {
+                                    + (
                                         atomic_item["cc_text"]
                                         if atomic_item["cc_text"]
                                         else ""
-                                    }
+                                    )
                                     + " ** !"
                                 )
                         else:
@@ -852,11 +846,11 @@ class AnalysisData:
                                 atomicity_amb_status = "Not pass !"
                                 atomicity_amb_recommendation = (
                                     "Please split user story at ** "
-                                    + {
+                                    + (
                                         atomic_item["cc_text"]
                                         if atomic_item["cc_text"]
                                         else ""
-                                    }
+                                    )
                                     + " ** to achieve this goal ** "
                                     + atomic_item["goal_text"]
                                     + " ** !"
@@ -866,11 +860,11 @@ class AnalysisData:
                                 atomicity_amb_status = "Not pass !"
                                 atomicity_amb_recommendation = (
                                     "Please split user story at ** "
-                                    + {
+                                    + (
                                         atomic_item["cc_text"]
                                         if atomic_item["cc_text"]
                                         else ""
-                                    }
+                                    )
                                     + " ** !"
                                 )
                                 atomicity_amb_is_problem = False
@@ -911,11 +905,11 @@ class AnalysisData:
                                 atomicity_amb_status = "Not pass !"
                                 atomicity_amb_recommendation = (
                                     "Please split user story at **"
-                                    + {
+                                    + (
                                         atomic_item["cc_text"]
                                         if atomic_item["cc_text"]
                                         else ""
-                                    }
+                                    )
                                     + "** and remove **"
                                     + atomic_item["sbar_text"]
                                     + "** from the sentence to achieve this goal ** "
@@ -926,11 +920,11 @@ class AnalysisData:
                                 atomicity_amb_status = "Not pass !"
                                 atomicity_amb_recommendation = (
                                     "Please split user story at **"
-                                    + {
+                                    + (
                                         atomic_item["cc_text"]
                                         if atomic_item["cc_text"]
                                         else ""
-                                    }
+                                    )
                                     + "** and remove **"
                                     + atomic_item["sbar_text"]
                                     + "** from the sentence !"
@@ -944,11 +938,11 @@ class AnalysisData:
                                 atomicity_amb_status = "Not pass !"
                                 atomicity_amb_recommendation = (
                                     "Please split user story at **"
-                                    + {
+                                    + (
                                         atomic_item["cc_text"]
                                         if atomic_item["cc_text"]
                                         else ""
-                                    }
+                                    )
                                     + "** and remove **"
                                     + atomic_item["sbar_text"]
                                     + "** from the sentence to achieve this goal ** "
@@ -959,11 +953,11 @@ class AnalysisData:
                                 atomicity_amb_status = "Not pass !"
                                 atomicity_amb_recommendation = (
                                     "Please split user story at **"
-                                    + {
+                                    + (
                                         atomic_item["cc_text"]
                                         if atomic_item["cc_text"]
                                         else ""
-                                    }
+                                    )
                                     + "** and remove **"
                                     + atomic_item["sbar_text"]
                                     + "** from the sentence !"
@@ -1281,8 +1275,8 @@ class AnalysisData:
                             # "Preciseness criterion is achieved. User story is good."
                             "Pass !"
                         )
-                        # recommendation = ""
-                        recommendation = None
+                        recommendation = ""
+                        # recommendation = None
 
                     elif sub["cluster_label"] != -1 and act["label"] == ">1":
                         # perubahan disini
@@ -1293,7 +1287,7 @@ class AnalysisData:
                         status = "Not pass !"
                         recommendation = (
                             "Please change the word of action using the recommended action(s) ** "
-                            + act["sentence_class"]
+                            + str(act["sentence_class"])
                             + " ** !"
                         )
 
@@ -1626,7 +1620,7 @@ class AnalysisData:
                             matching_sub["cluster_label"] != -1
                             and matching_act["label"] == "1"
                         ):
-                            recommendation += f"\nPass"
+                            recommendation += "\nPass"
                         else:
                             problem_act_ = matching_act["problematic_action"]
                             recommended_act_ = matching_act["recommended_action"]
