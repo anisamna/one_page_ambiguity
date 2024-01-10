@@ -1285,12 +1285,9 @@ class AnalysisData:
 
                         # status = "The user story lacks conceptual clarity which might result in inconsistency problems."
                         status = "Not pass !"
-                        text = act["sentence_class"]
-                        if isinstance(act["sentence_class"], list):
-                            text = ", ".join(act["sentence_class"])
                         recommendation = (
                             "Please change the word of action using the recommended action(s) ** "
-                            + text
+                            + str(act["sentence_class"])
                             + " ** !"
                         )
 
@@ -1408,7 +1405,7 @@ class AnalysisData:
                         description = f"""Role: {role_}
                                         Action: {action_}"""
 
-                        recommendation = matching_sub.get("recommendation", "")
+                        recommendation = matching_sub["recommendation"]
                         recommendation_type = matching_sub.get(
                             "recommendation_type", None
                         )
