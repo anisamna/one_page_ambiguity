@@ -662,9 +662,6 @@ class AnalysisData:
             text = item["text"]
             action_user = item["action_user"]
             goal = item["goal_obj"]
-            print("===============")
-            print(goal)
-            print("===============")
             sbar_text = item["sbar_text"]
             text_tanpa_SBAR = item["removable_sbar_text"]
             capt_text = item["captured_text"]
