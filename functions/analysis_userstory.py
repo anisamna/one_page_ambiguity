@@ -1278,8 +1278,8 @@ class AnalysisData:
                             # "Preciseness criterion is achieved. User story is good."
                             "Pass !"
                         )
-                        # recommendation = ""
-                        recommendation = None
+                        recommendation = ""
+                        # recommendation = None
 
                     elif sub["cluster_label"] != -1 and act["label"] == ">1":
                         # perubahan disini
@@ -1288,9 +1288,12 @@ class AnalysisData:
 
                         # status = "The user story lacks conceptual clarity which might result in inconsistency problems."
                         status = "Not pass !"
+                        text = act["sentence_class"]
+                        if isinstance(act["sentence_class"], list):
+                            text = ", ".join(act["sentence_class"])
                         recommendation = (
                             "Please change the word of action using the recommended action(s) ** "
-                            + act["sentence_class"]
+                            + text
                             + " ** !"
                         )
 
@@ -1408,7 +1411,7 @@ class AnalysisData:
                         description = f"""Role: {role_}
                                         Action: {action_}"""
 
-                        recommendation = matching_sub["recommendation"]
+                        recommendation = matching_sub.get("recommendation", "")
                         recommendation_type = matching_sub.get(
                             "recommendation_type", None
                         )
@@ -1623,7 +1626,7 @@ class AnalysisData:
                             matching_sub["cluster_label"] != -1
                             and matching_act["label"] == "1"
                         ):
-                            recommendation += f"\nPass"
+                            recommendation += "\nPass"
                         else:
                             problem_act_ = matching_act["problematic_action"]
                             recommended_act_ = matching_act["recommended_action"]
