@@ -85,4 +85,9 @@ urlpatterns = [
         views.persona_add_view,
         name="persona_add_view"
     ),
+    path(
+        "report-comment/add",
+        views.save_comment_report,
+        name="report_save_comment"
+    ),
 ]

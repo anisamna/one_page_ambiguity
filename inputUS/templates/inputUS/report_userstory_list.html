@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load reporttag %}
+{% load reporttag static %}
 
 {% block title %}Report User Stories{% endblock title %}
 
@@ -148,24 +148,27 @@
           {% endif %}
           <td>{{ report.get_type_display }}</td>
           <td>
-            {% if report.is_agree %}
+            {% if report.is_submited %}
             <a href="{% url 'report_userstory_edit' report.id %}" class="btn btn-primary link-edit">Edit</a>
             {% else %}
             <div class="form-group align-items-center group-action">
-              <div class="form-radio mr-2">
-                <input class="form-radio-input" type="radio" id="radioAgree_{{report.id}}" name="report_agree_{{report.id}}" value="agree">
-                <label class="form-radio-label" for="radioAgree_{{report.id}}">
-                  Agree
-                </label>
-              </div>
-              <div class="form-radio mr-2">
-                <input class="form-radio-input" type="radio" id="radioDisagree_{{report.id}}" name="report_agree_{{report.id}}" value="disagree">
-                <label class="form-radio-label" for="radioDisagree_{{report.id}}">
-                  Disagree
-                </label>
-                <textarea name="" class="form-control" style="display: none;"></textarea>
-              </div>
-              <button class="btn btn-sm btn-primary mt-3">Submit</button>
+              <form action="" method="post" id="form_post_comment_{{report.id}}">
+                <input type="hidden" name="report_id" value="{{report.id}}">
+                <div class="form-radio mr-2">
+                  <input class="form-radio-input" type="radio" id="radioAgree" name="report_agree" value="agree">
+                  <label class="form-radio-label" for="radioAgree">
+                    Agree
+                  </label>
+                </div>
+                <div class="form-radio mr-2">
+                  <input class="form-radio-input" type="radio" id="radioDisagree" name="report_agree" value="disagree">
+                  <label class="form-radio-label" for="radioDisagree">
+                    Disagree
+                  </label>
+                  <textarea name="report_comment" class="form-control" style="display: none;"></textarea>
+                </div>
+                <button type="button" class="btn btn-sm btn-primary mt-3" onclick="SubmitAction('form_post_comment_{{report.id}}')">Submit</button>
+              </form>
             </div>
             {% endif %}
           </td>
@@ -190,6 +193,7 @@
 
 {% block styles %}
 {{ block.super }}
+<link rel="stylesheet" href="{% static "css/jquery.toast.min.css" %}">
 <style>
   .form-radio-input, .form-radio-label {
     cursor: pointer;
@@ -199,6 +203,7 @@
 
 {% block extrajs %}
 {{ block.super }}
+<script src="{% static "js/jquery.toast.min.js" %}"></script>
 <script>
   $(function(){
     let is_good_elem = $('table tbody tr td[data-is_problem=False]').length;
@@ -305,6 +310,40 @@
     if (newTab === null) {
       alert('Pop-up blocker may be preventing the new tab from opening.');
     }
+  }
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        // Does this cookie string begin with the name we want?
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  const SubmitAction = (id) =>{
+    data = $("#"+id).serializeArray()
+    data.push({name:"csrfmiddlewaretoken", value:getCookie("csrftoken")})
+    $.ajax({
+      url:"{% url "report_save_comment" %}",
+      type:"POST",
+      data:data,
+      success:function(res){
+        if(res.success){
+          $.toast('Success set comment')
+          setTimeout(function(){
+            window.location.reload();
+          },500)
+        }else{
+          $.toast('There is a problem while saving comment')
+        }
+      },
+    })
   }
 </script>
 {% endblock %}
