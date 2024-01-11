@@ -314,7 +314,7 @@ class ReportUserStory(MetaAttribute):
         UNIQUENESS = 6, "Uniqueness"
 
     userstory = models.ForeignKey(UserStory_element, on_delete=models.CASCADE)
-    status = models.CharField(max_length=255, null=True, blank=True)
+    status = models.CharField(max_length=500, null=True, blank=True)
     recommendation = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     type = models.IntegerField(choices=ANALYS_TYPE.choices, null=True)
@@ -322,9 +322,12 @@ class ReportUserStory(MetaAttribute):
     recommendation_type = models.IntegerField(
         choices=RECOMENDATION_TYPE.choices, null=True
     )
-    subject = models.CharField(max_length=255, null=True)
-    predicate = models.CharField(max_length=255, null=True)
-    classification = models.CharField(max_length=255, null=True)
+    subject = models.CharField(max_length=500, null=True)
+    predicate = models.CharField(max_length=500, null=True)
+    classification = models.CharField(max_length=500, null=True)
+    is_submited = models.BooleanField(default=False)
+    is_agree = models.BooleanField(null=True)
+    disagree_comment = models.CharField(max_length=500, null=True)
 
     def __str__(self):
         if self.userstory and self.status:

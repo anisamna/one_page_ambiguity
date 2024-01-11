@@ -5,28 +5,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, redirect, render
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
 
 from functions.segmentation import segmentation, segmentation_edit_userstory
 
 from .forms import InputUserStory_Form
-from .models import (
-    AdjustedUserStory,
-    Glossary,
-    KeywordGlossary,
-    ProcessBackground,
-    Project,
-    ReportUserStory,
-    Result,
-    Role,
-    US_Upload,
-    UserStory_element,
-    NameFileUsed,
-    Personas
-)
+from .models import (AdjustedUserStory, Glossary, KeywordGlossary,
+                     NameFileUsed, Personas, ProcessBackground, Project,
+                     ReportUserStory, Result, Role, US_Upload,
+                     UserStory_element)
 
 # from .tasks import task_process_analys_data
 
@@ -1304,3 +1294,36 @@ def persona_add_view(request):
             return redirect(reverse('persona_list_view'))
         messages.warning(request, "please check again")
     return render(request, "inputUS/persona_add.html", extra_context)
+
+
+@login_required(login_url=reverse_lazy("login_"))
+def save_comment_report(request):
+    respon = {
+        "success": False,
+    }
+    if request.POST:
+        report_id = request.POST.get('report_id', None)
+        report_agree = request.POST.get('report_agree', None)
+        report_comment = request.POST.get('report_comment', None)
+        is_submited = False
+        if report_id:
+            report_obj = get_object_or_404(ReportUserStory, pk=report_id)
+            if report_agree == "agree":
+                report_agree = True
+                report_comment = None
+                is_submited = True
+            elif report_agree == "disagree":
+                report_agree = False
+                is_submited = True
+            else:
+                report_agree = None
+                report_comment = None
+
+            report_obj.is_submited = is_submited
+            report_obj.is_agree = report_agree
+            report_obj.disagree_comment = report_comment
+            report_obj.save()
+            respon = {
+                "success": True,
+            }
+    return JsonResponse(respon)
