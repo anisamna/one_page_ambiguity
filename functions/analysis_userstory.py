@@ -1223,7 +1223,7 @@ class AnalysisData:
                         status = "Not pass !"
                         recommendation = (
                             "Please change the role using the recommended role(s) ** "
-                            + sub["role_s_list"]
+                            + str(sub["role_s_list"])
                             + " ** !"
                         )
 
@@ -1242,9 +1242,9 @@ class AnalysisData:
                         status = "Not pass !"
                         recommendation = (
                             "Please change the role using the recommended role(s) ** "
-                            + sub["role_s_list"]
+                            + str(sub["role_s_list"])
                             + "** and the word of action(s) ** "
-                            + act["sentence_class"]
+                            + str(act["sentence_class"])
                             + " ** !"
                         )
 
@@ -1308,7 +1308,7 @@ class AnalysisData:
                         status = "Not pass !"
                         recommendation = (
                             "Please change the word of action using the recommended action(s) ** "
-                            + act["sentence_class"]
+                            + str(act["sentence_class"])
                             + " **!"
                         )
 
