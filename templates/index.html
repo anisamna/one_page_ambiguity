@@ -21,8 +21,12 @@
     <p>
       In Agile methodology, ambiguity is not necessarily something that must be eliminated. However, unclarity, inconsistent features, missing requirements, and duplication are all consequences of ambiguity that must be reduced. The reason for this is that these issues can lead to technical debts which could compromise software quality.
     </p>
-    <p>As a result, we proposed the QUAS framework, a set of quality criteria that user stories should meet in order to prevent potential ambiguities. In the QUAS framework, criteria are classified according to the linguistic levels where the potential ambiguity occurs and contra situations of RE problems (i.e., unclarity, inconsistency, inadequacy, duplication). Apart from proposing some criteria, the QUAS framework also proposes recommendations for potential problematic user stories according to the linguistic level at which the problems occur. Consequently, one user story might have multiple linguistic problems and be recommended for improvement in multiple ways. </p>
-    <p>The criteria in the QUAS framework are depicted as follows:</p>
+    <p>Given these issues, we proposed the ambiguity analysis framework that is extracted based on a systematic review of the previous studies addressing ambiguity issues in user stories. The framework serves as a tool to identify potential ambiguity issues in a set of user stories by detecting user stories content based on their conformity with the framework quality criteria.</p>
+    <p>We further incorporate the framework with NLP techniques to allow users to independently analyze their set of user stories, express their opinion about the analysis results, and contribute to provide recommendations on how user stories should be improved. </p>
+    <p>However, this analysis is limitedly applied to user story that follow Connextra template and have been written in English. In addition, the analysis covers text-to-text analysis, meaning that the potential ambiguities identified and the recommendation of improvement that are suggested is limited to achieve a better understanding of user stories content in order to avoid the aforementioned problems.</p>
+    <p>Despite of the criteria of the framework that are depicted, the analysis only focus on Lexical, Syntactic, and Semantic levels.</p>
+
+    <p><b>The Ambiguity Analysis Framework</b></p>
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
@@ -33,48 +37,51 @@
           <th>Lexical</th>
           <th>Syntactic</th>
           <th>Semantic</th>
-          <th>Pragmatic*</th>
+          <th>Pragmatic***</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td>Clarity</td>
           <td>Precise term.</td>
-          <td>Well-formedness</td>
+          <td>Atomicity</td>
           <td>Conciseness</td>
-          <td>Well-understood*</td>
+          <td>Well-understood***</td>
         </tr>
         <tr>
           <td>Consistency</td>
-          <td></td>
-          <td>Atomicity</td>
-          <td></td>
-          <td>Mutual understanding*</td>
+          <td>Consistent terminology</td>
+          <td>Well-formedness</td>
+          <td>Conceptually sound*</td>
+          <td>N/A**</td>
         </tr>
         <tr>
           <td>Adequacy</td>
-          <td></td>
-          <td></td>
+          <td>N/A**</td>
+          <td>N/A**</td>
           <td>Conceptually sound</td>
-          <td>Supportive*</td>
+          <td>Supportive***</td>
         </tr>
         <tr>
+          <td>Extend to semantic***</td>
+          <td>N/A**</td>
+          <td>N/A**</td>
           <td>Uniqueness</td>
-          <td></td>
-          <td></td>
-          <td>Uniqueness</td>
-          <td></td>
+          <td>N/A**</td>
         </tr>
       </tbody>
     </table>
-    <p>* does not supported by the QUAS prototype</p>
+    <p>*  Occurs during user story transformation into conceptual models</p>
+    <p>** Existing research has not found</p>
+    <p>*** Extentended into semantic analysis [23], out of the scope of the tool</p>
 
-    <p>In order to use the QUAS framework as a tool to identify potential ambiguity in user story, each criterion, violation, and improvement was described as follows:</p>
+    <p>The definition, situation for violation, and what we can do in the attempt of improvement are described as follows:</p>
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
           <th><nobr>Req. Quality</nobr></th>
           <th>Criterion</th>
+          <th>Definition</th>
           <th>Violation</th>
           <th>Recommendation for improvement</th>
         </tr>
@@ -82,41 +89,53 @@
       <tbody>
         <tr>
           <td rowspan="3">Clarity</td>
-          <td>Precise term.</td>
-          <td>Unclear/imprecise term.</td>
-          <td>Replace unclear/imprecise term. with a standard glossary proposed by Müter et al. (2019)</td>
+          <td>Precise terminology</td>
+          <td>A situation where the actor/action in the WHO/WHAT segments are precisely described without allowing any other interpretations</td>
+          <td>A situation where the actor/action in the WHO/WHAT segments are specified using broader terminologies which potentially results in different interpretations of action in WHAT and WHY segments</td>
+          <td>Replace unclear/imprecise terminology with the standard glossary provided. When the standard glossary cannot give you sufficient recommendation, please add a new terminology to the library. </td>
         </tr>
         <tr>
-          <td>Well-formedness</td>
-          <td>Ill-formedness</td>
-          <td>Change the structure of user story using Connextra template <b><i>“As a [role], I want [goal], so that [benefit]”</i></b></td>
+          <td>Atomicity</td>
+          <td>A situation where a user story only deliver one functionality or feature.</td>
+          <td>A situation where a user story potentially deliver more than one functionality or feature which could be observed from the presence of conjunctions.</td>
+          <td>Split user story to avoid multiple functionalities or features delivered by a single user story</td>
         </tr>
         <tr>
           <td>Conciseness</td>
-          <td>Verbosity</td>
-          <td>Detect <i>subordinate conjunction</i> and inquire users to change user story into simple sentence</td>
+          <td>A situation when user stories provide sufficient information about the expected functionality/feature</td>
+          <td>A situation when user stories express a lot of information but still cannot clearly express what the system should deliver.</td>
+          <td>Rephrase user stories to deliver sufficient information using simple sentence</td>
         </tr>
         <tr>
-          <td>Consistency</td>
-          <td>Atomicity</td>
-          <td>Complex and/or compound sentence</td>
-          <td>Detect <i>coordinate conjunction</i> and inquire users to change user story into simple sentence</td>
+          <td rowspan="2">Consistency</td>
+          <td>Consistent terminology</td>
+          <td>A condition when user stories are expressed using consistent terminology to express the same actor in the WHO segment or similar behavior in the WHAT and WHY segments</td>
+          <td>A condition when user stories are expressed using different terminology to express the same actor in the WHO segment or similar behavior in the WHAT and WHY segments.</td>
+          <td>Change inconsistent terminology with standard terminology provided in the glossary.</td>
+        </tr>
+        <tr>
+          <td>Well-formedness</td>
+          <td>A condition when user story use a consistent template and contains a complete segment of WHO, WHAT, and WHY.</td>
+          <td>A condition when user story does not written using a consistent template or does not have a complete segment of WHO, WHAT, and WHY.</td>
+          <td>Change the structure of user story using Connextra template <b><i>“As a [role], I want [goal], so that [benefit]”</i></b></td> 
         </tr>
         <tr>
           <td>Adequacy</td>
           <td>Conceptually sound</td>
-          <td>Under and/or over specified</td>
-          <td>Inquire users to provide interpretation of the expected action</td>
+          <td>A condition when user stories are sufficiently specified to deliver system requirements.</td>
+          <td>A condition when user stories are overspecified or underspecified in order to convey system requirements.</td>
+          <td>Rephrase user stories to avoid uoverspecified or underspecified action. Use terminology from the standard glossary to rephrase user stories.</td>
         </tr>
         <tr>
           <td>Uniqueness</td>
           <td>Uniqueness</td>
-          <td>Duplication</td>
-          <td>Remove one of two duplicated user stories</td>
+          <td>A condition when one user story specified one specific functionality or feature.</td>
+          <td>A condition when one functionality expected from a system are described in more than one user story.</td>
+          <td>Remove one of two duplicated user stories.</td>
         </tr>
       </tbody>
     </table>
-    <p>In order to facilitate the adoption of the QUAS framework, we developed the QUAS prototype that utilizes several NLP techniques to identify potential ambiguities in user stories.</p>
+    
   </div>
 </div>
 {% endblock contentLeft %}
