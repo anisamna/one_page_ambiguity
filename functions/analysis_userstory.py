@@ -497,6 +497,18 @@ class AnalysisData:
                     status = "Not pass !"
                     recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
                     is_problem = True
+                elif (
+                    Who_identifier_text != ""
+                    and Who_action_text != ""
+                    and What_identifier_text != ""
+                    and What_action_text != ""
+                    and Why_identifier_text == ""
+                    and Why_action_text == ""
+                ):
+                    # status = "Well-formed is achieved ! WHY segment is not complete. WHY segment does not found !"
+                    status = "Not pass !"
+                    recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
+                    is_problem = True
 
                 well_formed_result = {
                     "index": index,

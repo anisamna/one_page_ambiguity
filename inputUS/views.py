@@ -355,6 +355,7 @@ def analyze_data(request):
             request,
             "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
         )
+        return redirect(f"{reverse('report_userstory_list')}?project_id={project_id}&filename_id=&type=&potential_problem=&status=1&q=")
         # return redirect(reverse("view_process_background"))
     else:
         data_list_id = request.POST.getlist("userstory_id", [])
@@ -405,6 +406,7 @@ def analyze_data(request):
             request,
             "User stories have been successfully analyzed. The list of user stories with potential ambiguities have been updated !",
         )
+        return redirect(f"{reverse('report_userstory_list')}")
 
     return redirect(reverse("show_splitted_UserStory"))
 
