@@ -348,132 +348,155 @@ class AnalysisData:
 
                 is_problem = False
 
-                if userstory.Who_full and userstory.What_full and userstory.Why_full:
-                    Who_full = userstory.Who_full
-                    What_full = userstory.What_full
-                    Why_full = userstory.Why_full
-                    if (
-                        Who_full.Who_identifier != ""
-                        and Who_full.Who_action != ""
-                        and What_full.What_identifier != ""
-                        and What_full.What_action != ""
-                        and Why_full.Why_identifier != ""
-                        and Why_full.Why_action != ""
-                    ):
-                        Who_identifier = Who_full.Who_identifier.lower()
-                        What_identifier = What_full.What_identifier.lower()
-                        Why_identifier = Why_full.Why_identifier.lower()
-                        if (
-                            Who_identifier
-                            not in (
-                                "as an",
-                                "as a",
-                                "as",
-                            )
-                            or What_identifier
-                            not in (
-                                "i want",
-                                "i'm able",
-                                "i am able",
-                                "i have",
-                                "i need",
-                                "i wish",
-                                "i can",
-                                "i should be able",
-                                "i do not want",
-                                "i don't want",
-                                "i only want",
-                            )
-                            or Why_identifier
-                            not in (
-                                "so",
-                                "so that",
-                            )
-                        ):
-                            # status = "Well-formed criteria is not achieved, ambiguity does not exist !"
-                            is_pass = 0
-                            status = "Not pass !"
-                            recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
-                            is_problem = True
-                        else:
-                            status = (
-                                # "Well-formed criteria is achieved! User story is fine"
-                                "Pass !"
-                            )
-                            # hanya user story yang memenuhi kriteria ini yang bisa dilanjutkan proses analisisnya
+                # if userstory.Who_full and userstory.What_full and userstory.Why_full:
+                Who_identifier_text = ""
+                Who_action_text = ""
+                Who_full = userstory.Who_full
+                if Who_full:
+                    if Who_full.Who_identifier:
+                        Who_identifier_text = Who_full.Who_identifier
+                    if Who_full.Who_action:
+                        Who_action_text = Who_full.Who_action
 
-                    elif (
-                        Who_full.Who_identifier == ""
-                        and Who_full.Who_action == ""
-                        and What_full.What_identifier != ""
-                        and What_full.What_action != ""
-                        and Why_full.Why_identifier != ""
-                        and Why_full.Why_action != ""
+                What_identifier_text = ""
+                What_action_text = ""
+                What_full = userstory.What_full
+                if What_full:
+                    if What_full.What_identifier:
+                        What_identifier_text = What_full.What_identifier
+                    if What_full.What_action:
+                        What_action_text = What_full.What_action
+
+                Why_identifier_text = ""
+                Why_action_text = ""
+                Why_full = userstory.Why_full
+                if Why_full:
+                    if Why_full.Why_identifier:
+                        Why_identifier_text = Why_full.Why_identifier
+                    if Why_full.Why_action:
+                        Why_action_text = Why_full.Why_action
+                if (
+                    Who_identifier_text != ""
+                    and Who_action_text != ""
+                    and What_identifier_text != ""
+                    and What_action_text != ""
+                    and Why_identifier_text != ""
+                    and Why_action_text != ""
+                ):
+                    Who_identifier = Who_identifier_text.lower()
+                    What_identifier = What_identifier_text.lower()
+                    Why_identifier = Why_identifier_text.lower()
+                    if (
+                        Who_identifier
+                        not in (
+                            "as an",
+                            "as a",
+                            "as",
+                        )
+                        or What_identifier
+                        not in (
+                            "i want",
+                            "i'm able",
+                            "i am able",
+                            "i have",
+                            "i need",
+                            "i wish",
+                            "i can",
+                            "i should be able",
+                            "i do not want",
+                            "i don't want",
+                            "i only want",
+                        )
+                        or Why_identifier
+                        not in (
+                            "so",
+                            "so that",
+                        )
                     ):
-                        # status = "Well-formed is not achieved ! WHO segment is not not found !"
+                        # status = "Well-formed criteria is not achieved, ambiguity does not exist !"
+                        is_pass = 0
                         status = "Not pass !"
                         recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
                         is_problem = True
-                    elif (
-                        Who_full.Who_identifier == ""
-                        and Who_full.Who_action != ""
-                        and What_full.What_identifier != ""
-                        and What_full.What_action != ""
-                        and Why_full.Why_identifier != ""
-                        and Why_full.Why_action != ""
-                    ):
-                        # status = "Well-formed is achieved ! WHO segment is not complete. WHO identifier does not found !"
-                        status = "Not pass !"
-                        recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
-                        is_problem = True
-                    elif (
-                        Who_full.Who_identifier != ""
-                        and Who_full.Who_action != ""
-                        and What_full.What_identifier == ""
-                        and What_full.What_action != ""
-                        and Why_full.Why_identifier != ""
-                        and Why_full.Why_action != ""
-                    ):
-                        # status = "Well-formed is achieved ! WHAT segment is not complete. WHAT identifier does not found !"
-                        status = "Not pass !"
-                        recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
-                        is_problem = True
-                    elif (
-                        Who_full.Who_identifier != ""
-                        and Who_full.Who_action != ""
-                        and What_full.What_identifier == ""
-                        and What_full.What_action == ""
-                        and Why_full.Why_identifier != ""
-                        and Why_full.Why_action != ""
-                    ):
-                        # status = "Well-formed is not achieved ! WHAT segment is not not found !"
-                        status = "Not pass !"
-                        recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
-                        is_problem = True
-                    elif (
-                        Who_full.Who_identifier != ""
-                        and Who_full.Who_action != ""
-                        and What_full.What_identifier != ""
-                        and What_full.What_action != ""
-                        and Why_full.Why_identifier == ""
-                        and Why_full.Why_action != ""
-                    ):
-                        # status = "Well-formed is achieved ! WHY segment is not complete. WHY identifier does not found !"
-                        status = "Not pass !"
-                        recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
-                        is_problem = True
-                    elif (
-                        Who_full.Who_identifier != ""
-                        and Who_full.Who_action != ""
-                        and What_full.What_identifier != ""
-                        and What_full.What_action != ""
-                        and Why_full.Why_identifier != ""
-                        and Why_full.Why_action == ""
-                    ):
-                        # status = "Well-formed is achieved ! WHY segment is not complete. WHY segment does not found !"
-                        status = "Not pass !"
-                        recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
-                        is_problem = True
+                    else:
+                        status = (
+                            # "Well-formed criteria is achieved! User story is fine"
+                            "Pass !"
+                        )
+                        # hanya user story yang memenuhi kriteria ini yang bisa dilanjutkan proses analisisnya
+
+                elif (
+                    Who_identifier_text == ""
+                    and Who_action_text == ""
+                    and What_identifier_text != ""
+                    and What_action_text != ""
+                    and Why_identifier_text != ""
+                    and Why_action_text != ""
+                ):
+                    # status = "Well-formed is not achieved ! WHO segment is not not found !"
+                    status = "Not pass !"
+                    recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
+                    is_problem = True
+                elif (
+                    Who_identifier_text == ""
+                    and Who_action_text != ""
+                    and What_identifier_text != ""
+                    and What_action_text != ""
+                    and Why_identifier_text != ""
+                    and Why_action_text != ""
+                ):
+                    # status = "Well-formed is achieved ! WHO segment is not complete. WHO identifier does not found !"
+                    status = "Not pass !"
+                    recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
+                    is_problem = True
+                elif (
+                    Who_identifier_text != ""
+                    and Who_action_text != ""
+                    and What_identifier_text == ""
+                    and What_action_text != ""
+                    and Why_identifier_text != ""
+                    and Why_action_text != ""
+                ):
+                    # status = "Well-formed is achieved ! WHAT segment is not complete. WHAT identifier does not found !"
+                    status = "Not pass !"
+                    recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
+                    is_problem = True
+                elif (
+                    Who_identifier_text != ""
+                    and Who_action_text != ""
+                    and What_identifier_text == ""
+                    and What_action_text == ""
+                    and Why_identifier_text != ""
+                    and Why_action_text != ""
+                ):
+                    # status = "Well-formed is not achieved ! WHAT segment is not not found !"
+                    status = "Not pass !"
+                    recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
+                    is_problem = True
+                elif (
+                    Who_identifier_text != ""
+                    and Who_action_text != ""
+                    and What_identifier_text != ""
+                    and What_action_text != ""
+                    and Why_identifier_text == ""
+                    and Why_action_text != ""
+                ):
+                    # status = "Well-formed is achieved ! WHY segment is not complete. WHY identifier does not found !"
+                    status = "Not pass !"
+                    recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
+                    is_problem = True
+                elif (
+                    Who_identifier_text != ""
+                    and Who_action_text != ""
+                    and What_identifier_text != ""
+                    and What_action_text != ""
+                    and Why_identifier_text != ""
+                    and Why_action_text == ""
+                ):
+                    # status = "Well-formed is achieved ! WHY segment is not complete. WHY segment does not found !"
+                    status = "Not pass !"
+                    recommendation = "Please rewrite user story using this template: *As a <role>, I want <action>, so that <goal>*"
+                    is_problem = True
 
                 well_formed_result = {
                     "index": index,
