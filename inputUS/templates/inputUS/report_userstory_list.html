@@ -149,7 +149,9 @@
           <td>{{ report.get_type_display }}</td>
           <td>
             {% if report.is_submited %}
-            <a href="{% url 'report_userstory_edit' report.id %}" class="btn btn-primary link-edit">Edit</a>
+            {% if not report.is_agree  %}
+              <a href="{% url 'report_userstory_edit' report.id %}" class="btn btn-primary link-edit">Edit</a>
+            {% endif %}
             {% else %}
             <div class="form-group align-items-center group-action">
               <form action="" method="post" id="form_post_comment_{{report.id}}">
@@ -165,7 +167,6 @@
                   <label class="form-radio-label" for="radioDisagree">
                     Disagree
                   </label>
-                  <textarea name="report_comment" class="form-control" style="display: none;"></textarea>
                 </div>
                 <button type="button" class="btn btn-sm btn-primary mt-3" onclick="SubmitAction('form_post_comment_{{report.id}}')">Submit</button>
               </form>
