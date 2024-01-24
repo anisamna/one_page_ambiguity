@@ -423,6 +423,8 @@ class AnalysisData:
                             # "Well-formed criteria is achieved! User story is fine"
                             "Pass !"
                         )
+                        recommendation = None
+                        is_problem = False
                         # hanya user story yang memenuhi kriteria ini yang bisa dilanjutkan proses analisisnya
 
                 elif (
