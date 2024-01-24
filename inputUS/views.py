@@ -507,7 +507,6 @@ def view_report_userstory_list(request):
             )
         elif type_value in [ReportUserStory.ANALYS_TYPE.UNIQUENESS]:
             extra_context.update({"potential_problem_list": ((4, "Duplication"),)})
-        
 
         filename_list = US_Upload.objects.filter(
             US_Project_Domain_id=project_id,
@@ -526,11 +525,28 @@ def view_report_userstory_list(request):
             userstory_list = userstory_list.filter(
                 UserStory_File_ID__in=list(file_used_list_id)
             )
+        report = ReportUserStory.objects.filter(userstory__in=userstory_list)
+        if type_value:
+            report = report.filter(type=int(type_value))
+
+        agree = report.filter(is_submited=True, is_agree=True).count()
+        disagree = report.filter(is_submited=True, is_agree=False).count()
+        try:
+            agree_count = (agree/userstory_list.count())*100
+        except Exception:
+            agree_count = 0
+
+        try:
+            disagree_count = (disagree/userstory_list.count())*100
+        except Exception:
+            disagree_count = 0
         extra_context.update(
             {
                 "userstory_list": userstory_list,
                 "project_id": int(project_id),
                 "filename_list": filename_list,
+                "agree_count": round(agree_count, 2),
+                "disagree_count": round(disagree_count, 2),
                 "type": int(request.GET.get("type", None))
                 if request.GET.get("type", None)
                 else None,
@@ -1328,4 +1344,11 @@ def save_comment_report(request):
             respon = {
                 "success": True,
             }
+            if report_obj.is_problem:
+                respon = {
+                    "success": True,
+                    'url': reverse_lazy("report_userstory_edit", kwargs={
+                        'report_id': report_obj.id
+                    })
+                }
     return JsonResponse(respon)
