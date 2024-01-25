@@ -1146,10 +1146,10 @@ class AnalysisData:
             has_verb = False
 
             for token in doc:
-                # if token.pos_ == "VERB":
-                if token.pos_ == "VERB" and "VB" in [
-                    ancestor.tag_ for ancestor in token.ancestors
-                ]:
+                if token.pos_ == "VERB":
+                # if token.pos_ == "VERB" and "VB" in [
+                #     ancestor.tag_ for ancestor in token.ancestors
+                # ]:
                     tok_verb = token.text
                     tok_process = token.lemma_
                     prob_act.append(tok_verb)
@@ -1513,10 +1513,10 @@ class AnalysisData:
                             # actor_ = matching_sub["actor"]
                             # problem_act_ = matching_act["problem_act"]
 
-                            actor_ = matching_sub["problematic_role"]
+                            # actor_ = matching_sub["problematic_role"]
                             problem_act_ = matching_act["problematic_action"]
 
-                            recommended_actor_ = matching_sub["recommended_role"]
+                            # recommended_actor_ = matching_sub["recommended_role"]
                             recommended_act_ = matching_act["recommended_action"]
 
                             role_s_list = matching_sub["role_s_list"]
