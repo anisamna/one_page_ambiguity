@@ -829,6 +829,7 @@ class AnalysisData:
                     if atomic_item["sbar_label"] == 0 and atomic_item["cc_label"] == 0:
                         if atomic_item["cc_label_goal"] == 1:
                             atomicity_amb_status = "Not pass !"
+                            atomicity_amb_is_problem = True
                             atomicity_amb_recommendation = (
                                 "Please rewrite user story to achieve this goal ** "
                                 + atomic_item["goal_text"]
@@ -839,6 +840,7 @@ class AnalysisData:
                             # atomicity_amb_status = "User story meet conciseness and atomicity criteria and does not ambiguous."
                             # atomicity_amb_recommendation = "User story is fine !"
                             atomicity_amb_status = "Pass !"
+                            atomicity_amb_is_problem = False
                             atomicity_amb_recommendation = None
                     elif (
                         atomic_item["sbar_label"] == 0 and atomic_item["cc_label"] == 1
@@ -851,6 +853,7 @@ class AnalysisData:
 
                             if atomic_item["cc_label_goal"] == 1:
                                 atomicity_amb_status = "Not pass !"
+                                atomicity_amb_is_problem = True
                                 atomicity_amb_recommendation = (
                                     "Please split user story at ** "
                                     + (
@@ -862,9 +865,9 @@ class AnalysisData:
                                     + atomic_item["goal_text"]
                                     + " ** !"
                                 )
-                                atomicity_amb_is_problem = True
                             else:
                                 atomicity_amb_status = "Not pass !"
+                                atomicity_amb_is_problem = True
                                 atomicity_amb_recommendation = (
                                     "Please split user story at ** "
                                     + (
@@ -881,6 +884,7 @@ class AnalysisData:
 
                             if atomic_item["cc_label_goal"] == 1:
                                 atomicity_amb_status = "Not pass !"
+                                atomicity_amb_is_problem = True
                                 atomicity_amb_recommendation = (
                                     "Please split user story at ** "
                                     + (
@@ -892,9 +896,9 @@ class AnalysisData:
                                     + atomic_item["goal_text"]
                                     + " ** !"
                                 )
-                                atomicity_amb_is_problem = False
                             else:
                                 atomicity_amb_status = "Not pass !"
+                                atomicity_amb_is_problem = True
                                 atomicity_amb_recommendation = (
                                     "Please split user story at ** "
                                     + (
@@ -904,7 +908,6 @@ class AnalysisData:
                                     )
                                     + " ** !"
                                 )
-                                atomicity_amb_is_problem = False
                     elif (
                         atomic_item["sbar_label"] == 1 and atomic_item["cc_label"] == 0
                     ):
@@ -913,6 +916,7 @@ class AnalysisData:
 
                         if atomic_item["cc_label_goal"] == 1:
                             atomicity_amb_status = "Not pass !"
+                            atomicity_amb_is_problem = True
                             atomicity_amb_recommendation = (
                                 "Please split user story and remove ** "
                                 + atomic_item["sbar_text"]
@@ -923,6 +927,7 @@ class AnalysisData:
 
                         else:
                             atomicity_amb_status = "Not pass !"
+                            atomicity_amb_is_problem = True
                             atomicity_amb_recommendation = (
                                 "Please rewrite user story and remove ** "
                                 + atomic_item["sbar_text"]
@@ -931,7 +936,7 @@ class AnalysisData:
                                 + " ** !"
                             )
 
-                        atomicity_amb_is_problem = True
+                        # atomicity_amb_is_problem = True
                     elif (
                         atomic_item["sbar_label"] == 1 and atomic_item["cc_label"] == 1
                     ):
@@ -940,6 +945,7 @@ class AnalysisData:
                             # atomicity_amb_recommendation = "\nUser story is potentially ambiguous. It is recommended to change user story structure and split it !"
                             if atomic_item["cc_label_goal"] == 1:
                                 atomicity_amb_status = "Not pass !"
+                                atomicity_amb_is_problem = True
                                 atomicity_amb_recommendation = (
                                     "Please split user story at **"
                                     + (
@@ -955,6 +961,7 @@ class AnalysisData:
                                 )
                             else:
                                 atomicity_amb_status = "Not pass !"
+                                atomicity_amb_is_problem = True
                                 atomicity_amb_recommendation = (
                                     "Please split user story at **"
                                     + (
@@ -967,12 +974,12 @@ class AnalysisData:
                                     + "** from the sentence !"
                                 )
 
-                            atomicity_amb_is_problem = True
                         else:
                             # atomicity_amb_status = "User story does not meet conciseness and atomicity criteria."
                             # atomicity_amb_recommendation = "User story is not ambiguous ! However, it is recommended to remove subordinate conjunction and split it !"
                             if atomic_item["cc_label_goal"] == 1:
                                 atomicity_amb_status = "Not pass !"
+                                atomicity_amb_is_problem = True
                                 atomicity_amb_recommendation = (
                                     "Please split user story at **"
                                     + (
@@ -988,6 +995,7 @@ class AnalysisData:
                                 )
                             else:
                                 atomicity_amb_status = "Not pass !"
+                                atomicity_amb_is_problem = True
                                 atomicity_amb_recommendation = (
                                     "Please split user story at **"
                                     + (
@@ -999,8 +1007,6 @@ class AnalysisData:
                                     + atomic_item["sbar_text"]
                                     + "** from the sentence !"
                                 )
-
-                            atomicity_amb_is_problem = True
 
                     atomic_item["atomicity_status"] = atomicity_amb_status
                     atomic_item[
@@ -1312,9 +1318,9 @@ class AnalysisData:
                             # "Preciseness criterion is achieved. User story is good."
                             "Pass !"
                         )
-                        recommendation = ""
-                        # recommendation = None
-
+                        # recommendation = ""
+                        recommendation = None
+                        is_problem = False
                     elif sub["cluster_label"] != -1 and act["label"] == ">1":
                         # perubahan disini
                         problematic_role = ""
@@ -2423,6 +2429,8 @@ class AnalysisData:
                 elif len(item["sentence_class"]) == 1:
                     # print("Status: user story is fine !")
                     status = "Pass !"
+                    recommendation = None
+                    is_problem = False
 
                 if status or recommendation:
                     self.save_report(
@@ -2577,6 +2585,7 @@ class AnalysisData:
             ):
                 stat_sim = "Pass !"
                 sol_sim = None
+                is_problem = False
 
             elif (
                 (role_score > who_score)
@@ -2585,6 +2594,7 @@ class AnalysisData:
             ):
                 stat_sim = "Pass !"
                 sol_sim = None
+                is_problem = False
 
             elif (
                 (role_score < who_score)
@@ -2593,6 +2603,7 @@ class AnalysisData:
             ):
                 stat_sim = "Pass !"
                 sol_sim = None
+                is_problem = False
 
             elif (
                 (role_score < who_score)
@@ -2601,15 +2612,19 @@ class AnalysisData:
             ):
                 stat_sim = "Pass !"
                 sol_sim = None
+                is_problem = False
 
             elif (role_score < who_score) and (
                 (action_score > what_score) or (goal_score > why_score)
             ):
                 stat_sim = "Pass !"
                 sol_sim = None
+                is_problem = False
+
             else:
                 stat_sim = "Pass !"
                 sol_sim = None
+                is_problem = False
 
             story_a_id = userstory_list[i].id if userstory_list[i] else ""
             story_b_id = userstory_list[j].id if userstory_list[j] else ""
