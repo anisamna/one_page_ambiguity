@@ -91,7 +91,9 @@
   <div class="card-header p-3 d-flex">
     <div style="width: 60%;">
       <h5 class="mb-2 text-dark">Result</h5>
-      <h6>Total Story: <span class="total-userstory">-</span></h6>
+      <h6>Num of "Agree": {{agree_count}} %</h6>
+      <h6>Num of "Disagree": {{disagree_count}} %</h6>
+      <h6>Total User Story: <span class="total-userstory">-</span></h6>
       <h6>Total Good Quality: <span class="total-good">-</span></h6>
       <h6>Total Potential Ambiguity: <span class="total-potential">-</span></h6>
     </div>
@@ -338,7 +340,11 @@
         if(res.success){
           $.toast('Success set comment')
           setTimeout(function(){
-            window.location.reload();
+            if(res.url){
+              window.location.href = res.url;
+            }else{
+              window.location.reload();
+            }
           },500)
         }else{
           $.toast('There is a problem while saving comment')
