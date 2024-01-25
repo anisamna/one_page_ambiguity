@@ -343,7 +343,7 @@
           $.toast('Success set comment')
           setTimeout(function(){
             if(res.url){
-              window.location.href = res.url;
+              window.location.href = res.url+window.location.search;
             }else{
               window.location.reload();
             }
