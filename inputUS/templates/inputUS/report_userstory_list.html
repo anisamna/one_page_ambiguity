@@ -160,14 +160,14 @@
               <form action="" method="post" id="form_post_comment_{{report.id}}">
                 <input type="hidden" name="report_id" value="{{report.id}}">
                 <div class="form-radio mr-2">
-                  <input class="form-radio-input" type="radio" id="radioAgree" name="report_agree" value="agree">
-                  <label class="form-radio-label" for="radioAgree">
+                  <input class="form-radio-input" type="radio" id="radioAgree{{report.id}}" name="report_agree" value="agree">
+                  <label class="form-radio-label" for="radioAgree{{report.id}}">
                     Agree
                   </label>
                 </div>
                 <div class="form-radio mr-2">
-                  <input class="form-radio-input" type="radio" id="radioDisagree" name="report_agree" value="disagree">
-                  <label class="form-radio-label" for="radioDisagree">
+                  <input class="form-radio-input" type="radio" id="radioDisagree{{report.id}}" name="report_agree" value="disagree">
+                  <label class="form-radio-label" for="radioDisagree{{report.id}}">
                     Disagree
                   </label>
                 </div>
