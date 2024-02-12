@@ -327,7 +327,7 @@ class AnalysisData:
 
         well_formed_res = []
         status = "Well-formed criteria is not achieved !"
-        recommendation = None
+        recommendation = ""
         index = 0
 
         # tambahan well-formed status_code: 0 = status not pass, 1 = status pass
@@ -423,7 +423,7 @@ class AnalysisData:
                             # "Well-formed criteria is achieved! User story is fine"
                             "Pass !"
                         )
-                        recommendation = None
+                        recommendation = ""
                         is_problem = False
                         # hanya user story yang memenuhi kriteria ini yang bisa dilanjutkan proses analisisnya
 
@@ -1318,8 +1318,8 @@ class AnalysisData:
                             # "Preciseness criterion is achieved. User story is good."
                             "Pass !"
                         )
-                        # recommendation = ""
-                        recommendation = None
+                        recommendation = ""
+                        # recommendation = None
                         is_problem = False
                     elif sub["cluster_label"] != -1 and act["label"] == ">1":
                         # perubahan disini
@@ -1991,8 +1991,8 @@ class AnalysisData:
                         # status = (
                         #     "Consistency criterion is achieved. User story is good."
                         # )
-                        # recommendation = "pass"
-                        recommendation = None
+                        recommendation = "pass"
+                        # recommendation = None
                         is_problem = False
 
                     sub["status"] = status
