@@ -525,19 +525,62 @@ def view_report_userstory_list(request):
             userstory_list = userstory_list.filter(
                 UserStory_File_ID__in=list(file_used_list_id)
             )
-        report = ReportUserStory.objects.filter(userstory__in=userstory_list)
+        report_list = ReportUserStory.objects.filter(userstory__in=userstory_list)
         if type_value:
-            report = report.filter(type=int(type_value))
+            report_list = report_list.filter(type=int(type_value))
+        status = request.GET.get("status", None)
+        potential_problem = request.GET.get("potential_problem", None)
+        if status:
+            if not type_value and not potential_problem:
+                report_list = report_list.filter(is_problem=True)
+            elif not type_value and potential_problem == "0":
+                report_list = report_list.filter(is_problem=False)
+            else:
+                if status == "1":
+                    report_list = report_list.filter(is_problem=True)
+                elif status == "2":
+                    report_list = report_list.filter(is_problem=False)
 
-        agree = report.filter(is_submited=True, is_agree=True).count()
-        disagree = report.filter(is_submited=True, is_agree=False).count()
+        if potential_problem:
+            if potential_problem == "0":
+                report_list = report_list.filter(status__icontains="is achieved")
+            elif potential_problem == "1":
+                report_list = report_list.filter(
+                    type__in=[
+                        ReportUserStory.ANALYS_TYPE.PRECISE,
+                        ReportUserStory.ANALYS_TYPE.WELL_FORMED,
+                        ReportUserStory.ANALYS_TYPE.CONSISTENT,
+                    ]
+                )
+            elif potential_problem == "2":
+                report_list = report_list.filter(
+                    type__in=[
+                        ReportUserStory.ANALYS_TYPE.CONSISTENT,
+                        ReportUserStory.ANALYS_TYPE.ATOMICITY,
+                        ReportUserStory.ANALYS_TYPE.CONCEPTUALLY,
+                    ]
+                )
+            elif potential_problem == "3":
+                report_list = report_list.filter(
+                    type__in=[
+                        ReportUserStory.ANALYS_TYPE.CONCEPTUALLY,
+                    ]
+                )
+            elif potential_problem == "4":
+                report_list = report_list.filter(
+                    type__in=[
+                        ReportUserStory.ANALYS_TYPE.UNIQUENESS,
+                    ]
+                )
+        agree = report_list.filter(is_submited=True, is_agree=True).count()
+        disagree = report_list.filter(is_submited=True, is_agree=False).count()
         try:
-            agree_count = (agree/userstory_list.count())*100
+            agree_count = (agree/report_list.count())*100
         except Exception:
             agree_count = 0
 
         try:
-            disagree_count = (disagree/userstory_list.count())*100
+            disagree_count = (disagree/report_list.count())*100
         except Exception:
             disagree_count = 0
         extra_context.update(
