@@ -2168,8 +2168,23 @@ class AnalysisData:
             subject = dic_sent["subject"]
             predicate = dic_sent["predicate"] if dic_sent["predicate"] else ""
             obj = dic_sent["object"]
-            # new_doc = "".join(predicate)
-            new_docs.append(predicate)
+            new_doc = "".join(predicate)
+            # new_docs.append(predicate)
+
+            if predicate is not None:
+                #process predicate text with Spacy
+                doc = self.nlp(predicate)
+        
+                #remove stopwords
+                filtered_predicate = ' '.join(token.text for token in doc if not token.is_stop)
+                #print(filtered_predicate)      
+                # Get the cleaned text in one line using a list comprehension
+                cleaned_filtered_predicate = re.sub(r'[^A-Za-z0-9\s]', '', filtered_predicate)
+                #print(cleaned_filtered_predicate)
+                #new_doc = ''.join(predicate)
+                #new_docs.append(new_doc)
+                new_docs.append(cleaned_filtered_predicate)
+
         X, vocabulary, vocab_dict = btm.get_words_freqs(new_docs)
         docs_vec = btm.get_vectorized_docs(new_docs, vocabulary)
         biterms = btm.get_biterms(docs_vec)
@@ -2195,44 +2210,81 @@ class AnalysisData:
             cluster_topic = max(
                 range(len(doc_topic_dist)), key=doc_topic_dist.__getitem__
             )
+            if text and cluster_topic is not None:
+                # Find matching predicate in sentence_dependency
+                matching_predicates = [dic_sent for dic_sent in sentence_dependency if dic_sent["predicate"] is not None and text is not None and text in dic_sent["predicate"]]
 
-            # Get the top terms for the cluster topic
-            top_words = btm.get_top_topic_words(
-                model, words_num=10, topics_idx=[cluster_topic]
-            )
+                for dic_sent in matching_predicates:
+                    # Get the top terms for the cluster topic
+                    top_words = btm.get_top_topic_words(model, words_num=10, topics_idx=[cluster_topic])
+                    
+                    # Extract the column name dynamically
+                    word_column = top_words.columns[0]
 
-            # Extract the column name dynamically
-            word_column = top_words.columns[0]
+                    # Extract the cluster words from the top_words DataFrame
+                    cluster_words = top_words[word_column].tolist()
 
-            # Extract the cluster words from the top_words DataFrame
-            cluster_words = top_words[word_column].tolist()
+                    # Shuffle the cluster words to add randomness
+                    random.shuffle(cluster_words)
 
-            # Shuffle the cluster words to add randomness
-            random.shuffle(cluster_words)
+                    # Random sentence generation
+                    sentence_length = min(5, len(cluster_words))  
+                    sentence = random.sample(cluster_words, sentence_length)
 
-            # Random sentence generation
-            sentence_length = min(5, len(cluster_words))
-            sentence = random.sample(cluster_words, sentence_length)
+                    # Combine the words in the sentence
+                    cluster_sentence = ' '.join(sentence)
+                    #print(cluster_sentence)
 
-            # Combine the words in the sentence
-            cluster_sentence = " ".join(sentence)
-
-            for dic_sent in sentence_dependency:
-                if dic_sent["predicate"] == text:
-                    # Create a dictionary with the document's information
-                    doc_info = {
-                        "index": dic_sent["index"],
-                        "userstory": dic_sent["userstory"],
+                    #Create a dictionary with the document's information
+                    doc_info = {"index": dic_sent["index"],
                         "text": dic_sent["sentence"],
                         "subject": dic_sent["subject"],
                         "predicate": dic_sent["predicate"],
                         "object": dic_sent["object"],
                         "cluster_topic": cluster_topic,
                         "terms_in_cluster_topic": cluster_words,
-                        "cluster_sentence": cluster_sentence,
-                    }
+                        "cluster_sentence": cluster_sentence
+                    } 
 
                     topic_btm.append(doc_info)
+
+            # # Get the top terms for the cluster topic
+            # top_words = btm.get_top_topic_words(
+            #     model, words_num=10, topics_idx=[cluster_topic]
+            # )
+
+            # # Extract the column name dynamically
+            # word_column = top_words.columns[0]
+
+            # # Extract the cluster words from the top_words DataFrame
+            # cluster_words = top_words[word_column].tolist()
+
+            # # Shuffle the cluster words to add randomness
+            # random.shuffle(cluster_words)
+
+            # # Random sentence generation
+            # sentence_length = min(5, len(cluster_words))
+            # sentence = random.sample(cluster_words, sentence_length)
+
+            # # Combine the words in the sentence
+            # cluster_sentence = " ".join(sentence)
+
+            # for dic_sent in sentence_dependency:
+            #     if dic_sent["predicate"] == text:
+            #         # Create a dictionary with the document's information
+            #         doc_info = {
+            #             "index": dic_sent["index"],
+            #             "userstory": dic_sent["userstory"],
+            #             "text": dic_sent["sentence"],
+            #             "subject": dic_sent["subject"],
+            #             "predicate": dic_sent["predicate"],
+            #             "object": dic_sent["object"],
+            #             "cluster_topic": cluster_topic,
+            #             "terms_in_cluster_topic": cluster_words,
+            #             "cluster_sentence": cluster_sentence,
+            #         }
+
+            #         topic_btm.append(doc_info)
         return topic_btm
 
     def topic_conceptually(self, topic_btm):
