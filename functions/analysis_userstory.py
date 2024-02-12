@@ -2168,7 +2168,7 @@ class AnalysisData:
             subject = dic_sent["subject"]
             predicate = dic_sent["predicate"] if dic_sent["predicate"] else ""
             obj = dic_sent["object"]
-            new_doc = "".join(predicate)
+            # new_doc = "".join(predicate)
             # new_docs.append(predicate)
 
             if predicate is not None:
@@ -2201,9 +2201,8 @@ class AnalysisData:
         )
 
         # print text and topic number
-        result = btm.get_docs_top_topic(new_docs, p_zd)
-
-        topic_vectors = []
+        # result = btm.get_docs_top_topic(new_docs, p_zd)
+        # topic_vectors = []
 
         for index, doc_topic_dist in enumerate(p_zd):
             text = new_docs[index]
@@ -2290,6 +2289,7 @@ class AnalysisData:
     def topic_conceptually(self, topic_btm):
         sent_concept = []
         keyword_to_sentence_class = {}
+
         for top in topic_btm:
             index = top["index"]
             userstory = top["userstory"]
@@ -2334,7 +2334,7 @@ class AnalysisData:
                                     keyword_to_sentence_class[keyword_word].add(
                                         synset_class.keyword
                                     )
-            labels = []
+            # labels = []
             sentence_classify = {
                 "index": index,
                 "userstory": userstory,
