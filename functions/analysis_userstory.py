@@ -1663,7 +1663,8 @@ class AnalysisData:
                             matching_sub["cluster_label"] != -1
                             and matching_act["label"] == "1"
                         ):
-                            recommendation += "\nPass"
+                            # recommendation += "\nPass"
+                            pass
                         else:
                             problem_act_ = matching_act["problematic_action"]
                             recommended_act_ = matching_act["recommended_action"]
