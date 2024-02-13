@@ -2506,6 +2506,7 @@ class AnalysisData:
 
     def stat_uniqueness_criteria(self):
         # model_st = SentenceTransformer("all-MiniLM-L6-v2")
+        import itertools
         from django.conf import settings
 
         pair_role = []
@@ -2545,42 +2546,41 @@ class AnalysisData:
         score_action = util.cos_sim(action_embeddings, action_embeddings)
         score_goal = util.cos_sim(goal_embeddings, goal_embeddings)
 
-        # bandingkan role ke-i dan ke -(i+1)
-        for i in range(len(score_role) - 1):
-            for j in range(i + 1, len(score_role)):
-                pair_role.append({"index": [i, j], "sim_score_role": score_role[i][j]})
+        # # bandingkan role ke-i dan ke -(i+1)
+        # for i in range(len(score_role) - 1):
+        #     for j in range(i + 1, len(score_role)):
+        #         pair_role.append({"index": [i, j], "sim_score_role": score_role[i][j]})
 
-        # bandingkan action ke-i dan ke-(i+1)
-        for i in range(len(score_action) - 1):
-            for j in range(i + 1, len(score_action)):
-                pair_action.append(
-                    {"index": [i, j], "sim_score_action": score_action[i][j]}
-                )
+        # # bandingkan action ke-i dan ke-(i+1)
+        # for i in range(len(score_action) - 1):
+        #     for j in range(i + 1, len(score_action)):
+        #         pair_action.append(
+        #             {"index": [i, j], "sim_score_action": score_action[i][j]}
+        #         )
 
-        # bandingkan goal ke-i dan ke-(i+1)
-        for i in range(len(score_goal) - 1):
-            for j in range(i + 1, len(score_goal)):
-                pair_goal.append({"index": [i, j], "sim_score_goal": score_goal[i][j]})
+        # # bandingkan goal ke-i dan ke-(i+1)
+        # for i in range(len(score_goal) - 1):
+        #     for j in range(i + 1, len(score_goal)):
+        #         pair_goal.append({"index": [i, j], "sim_score_goal": score_goal[i][j]})
+
+        # Compare all possible combinations of records for role
+        for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
+            pair_role.append({'index': [i, j], 'sim_score_role': score_role[i][j]})
+
+        # Compare all possible combinations of records for action
+        for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
+            pair_action.append({'index': [i, j], 'sim_score_action': score_action[i][j]})
+
+        # Compare all possible combinations of records for goal
+        for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
+            pair_goal.append({'index': [i, j], 'sim_score_goal': score_goal[i][j]})
 
         if len(goal_user) <= 0:
-            for i in range(len(score_action) - 1):
-                tot_score.append(
-                    {
-                        "index": [i, j],
-                        "sim_score_tot": (score_role[i][j] + score_action[i][j]) / 2,
-                    }
-                )
+            for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
+                tot_score.append({'index': [i, j], 'sim_score_tot': (score_role[i][j] + score_action[i][j]) / 2})
         else:
-            for i in range(len(score_action) - 1):
-                tot_score.append(
-                    {
-                        "index": [i, j],
-                        "sim_score_tot": (
-                            score_role[i][j] + score_action[i][j] + score_goal[i][j]
-                        )
-                        / 3,
-                    }
-                )
+            for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
+                tot_score.append({'index': [i, j], 'sim_score_tot': (score_role[i][j] + score_action[i][j] + score_goal[i][j]) / 3})
 
         result = list(zip(pair_role, pair_action, pair_goal, tot_score))
         result = sorted(result, key=lambda x: x[3]["sim_score_tot"], reverse=True)
@@ -2605,8 +2605,9 @@ class AnalysisData:
 
             # maximum level of similarity, role (who), action (what), and goal (why).
             # semua variabel (who, what, why) disamakan similaritynya. nilai default = 0.6 (untuk who/role dan what/action), 0.5 (untuk why/goal)
+
             is_problem = False
-            who_score, what_score, why_score = 0.6, 0.6, 0.5
+            who_score, what_score, why_score = 0.6, 0.6, 0.6
             if self.similarity:
                 who_score, what_score, why_score = (
                     self.similarity,
@@ -2614,70 +2615,102 @@ class AnalysisData:
                     self.similarity,
                 )
 
-            if (
-                (role_score > who_score)
-                and (action_score > what_score)
-                and (goal_score > why_score)
-            ):
-                stat_sim = "Not pass !"
-                sol_sim = "Delete one of those user stories !"
+            if (role_score > 0.6) and (action_score > 0.6) and (goal_score > 0.6):
+                stat_sim = 'User stories are potentially duplicate. These are potentially ambiguous !'
+                sol_sim = 'Please remove one user story!'
                 is_problem = True
-
-            elif (
-                (role_score < who_score)
-                and (action_score > what_score)
-                and (goal_score > why_score)
-            ):
-                stat_sim = "Not pass !"
-                sol_sim = "Need manual confirmation from the user(s) !"
+            elif (role_score < 0.6) and (action_score > 0.6) and (goal_score > 0.6):
+                stat_sim = 'User stories are potentially conflicted. These are potentially ambiguous !'
+                sol_sim = 'Please check with the Product Owner(s)!'
                 is_problem = True
-            elif (
-                (role_score > who_score)
-                and (action_score < what_score)
-                and (goal_score > why_score)
-            ):
-                stat_sim = "Pass !"
-                sol_sim = None
+            elif (role_score > 0.6) and (action_score < 0.6) and (goal_score > 0.6):
+                stat_sim = 'User stories meet uniqueness criterion !'
+                sol_sim = 'User stories are unique !'
                 is_problem = False
-
-            elif (
-                (role_score > who_score)
-                and (action_score > what_score)
-                and (goal_score < why_score)
-            ):
-                stat_sim = "Pass !"
-                sol_sim = None
+            elif (role_score > 0.6) and (action_score > 0.6) and (goal_score < 0.6):
+                stat_sim = 'User stories are potentially duplicate. These are potentially ambiguous !'
+                sol_sim = 'Please remove one user story!'
+                is_problem = True
+            elif (role_score < 0.6) and (action_score < 0.6) and (goal_score > 0.6):
+                stat_sim = 'User stories meet uniqueness criterion !'
+                sol_sim = 'User stories are unique !'
                 is_problem = False
-
-            elif (
-                (role_score < who_score)
-                and (action_score < what_score)
-                and (goal_score > why_score)
-            ):
-                stat_sim = "Pass !"
-                sol_sim = None
+            elif (role_score < 0.6) and (action_score < 0.6) and (goal_score < 0.6):
+                stat_sim = 'User stories meet uniqueness criterion !'
+                sol_sim = 'User stories are unique !'
                 is_problem = False
-
-            elif (
-                (role_score < who_score)
-                and (action_score < what_score)
-                and (goal_score < why_score)
-            ):
-                stat_sim = "Pass !"
-                sol_sim = None
-                is_problem = False
-
-            elif (role_score < who_score) and (
-                (action_score > what_score) or (goal_score > why_score)
-            ):
-                stat_sim = "Pass !"
-                sol_sim = None
-                is_problem = False
-
+            elif (role_score < 0.6) and ((action_score > 0.6) or (goal_score > 0.6)):
+                stat_sim = 'User stories are potentially conflicted. These are potentially ambiguous !'
+                sol_sim = 'Please check with the Product Owner(s)!'
+                is_problem = True
             else:
-                stat_sim = "Pass !"
-                sol_sim = None
+                stat_sim = 'User stories meet uniqueness criterion !'
+                sol_sim = 'User stories are unique !'
                 is_problem = False
+            # if (
+            #     (role_score > who_score)
+            #     and (action_score > what_score)
+            #     and (goal_score > why_score)
+            # ):
+            #     stat_sim = "Not pass !"
+            #     sol_sim = "Delete one of those user stories !"
+            #     is_problem = True
+
+            # elif (
+            #     (role_score < who_score)
+            #     and (action_score > what_score)
+            #     and (goal_score > why_score)
+            # ):
+            #     stat_sim = "Not pass !"
+            #     sol_sim = "Need manual confirmation from the user(s) !"
+            #     is_problem = True
+            # elif (
+            #     (role_score > who_score)
+            #     and (action_score < what_score)
+            #     and (goal_score > why_score)
+            # ):
+            #     stat_sim = "Pass !"
+            #     sol_sim = None
+            #     is_problem = False
+
+            # elif (
+            #     (role_score > who_score)
+            #     and (action_score > what_score)
+            #     and (goal_score < why_score)
+            # ):
+            #     stat_sim = "Pass !"
+            #     sol_sim = None
+            #     is_problem = False
+
+            # elif (
+            #     (role_score < who_score)
+            #     and (action_score < what_score)
+            #     and (goal_score > why_score)
+            # ):
+            #     stat_sim = "Pass !"
+            #     sol_sim = None
+            #     is_problem = False
+
+            # elif (
+            #     (role_score < who_score)
+            #     and (action_score < what_score)
+            #     and (goal_score < why_score)
+            # ):
+            #     stat_sim = "Pass !"
+            #     sol_sim = None
+            #     is_problem = False
+
+            # elif (role_score < who_score) and (
+            #     (action_score > what_score) or (goal_score > why_score)
+            # ):
+            #     stat_sim = "Pass !"
+            #     sol_sim = None
+            #     is_problem = False
+
+            # else:
+            #     stat_sim = "Pass !"
+            #     sol_sim = None
+            #     is_problem = False
 
             story_a_id = userstory_list[i].id if userstory_list[i] else ""
             story_b_id = userstory_list[j].id if userstory_list[j] else ""
