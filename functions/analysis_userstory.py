@@ -1153,9 +1153,9 @@ class AnalysisData:
 
             for token in doc:
                 if token.pos_ == "VERB":
-                # if token.pos_ == "VERB" and "VB" in [
-                #     ancestor.tag_ for ancestor in token.ancestors
-                # ]:
+                    # if token.pos_ == "VERB" and "VB" in [
+                    #     ancestor.tag_ for ancestor in token.ancestors
+                    # ]:
                     tok_verb = token.text
                     tok_process = token.lemma_
                     prob_act.append(tok_verb)
@@ -2171,17 +2171,21 @@ class AnalysisData:
             # new_docs.append(predicate)
 
             if predicate is not None:
-                #process predicate text with Spacy
+                # process predicate text with Spacy
                 doc = self.nlp(predicate)
-        
-                #remove stopwords
-                filtered_predicate = ' '.join(token.text for token in doc if not token.is_stop)
-                #print(filtered_predicate)      
+
+                # remove stopwords
+                filtered_predicate = " ".join(
+                    token.text for token in doc if not token.is_stop
+                )
+                # print(filtered_predicate)
                 # Get the cleaned text in one line using a list comprehension
-                cleaned_filtered_predicate = re.sub(r'[^A-Za-z0-9\s]', '', filtered_predicate)
-                #print(cleaned_filtered_predicate)
-                #new_doc = ''.join(predicate)
-                #new_docs.append(new_doc)
+                cleaned_filtered_predicate = re.sub(
+                    r"[^A-Za-z0-9\s]", "", filtered_predicate
+                )
+                # print(cleaned_filtered_predicate)
+                # new_doc = ''.join(predicate)
+                # new_docs.append(new_doc)
                 new_docs.append(cleaned_filtered_predicate)
 
         X, vocabulary, vocab_dict = btm.get_words_freqs(new_docs)
@@ -2210,12 +2214,20 @@ class AnalysisData:
             )
             if text and cluster_topic is not None:
                 # Find matching predicate in sentence_dependency
-                matching_predicates = [dic_sent for dic_sent in sentence_dependency if dic_sent["predicate"] is not None and text is not None and text in dic_sent["predicate"]]
+                matching_predicates = [
+                    dic_sent
+                    for dic_sent in sentence_dependency
+                    if dic_sent["predicate"] is not None
+                    and text is not None
+                    and text in dic_sent["predicate"]
+                ]
 
                 for dic_sent in matching_predicates:
                     # Get the top terms for the cluster topic
-                    top_words = btm.get_top_topic_words(model, words_num=10, topics_idx=[cluster_topic])
-                    
+                    top_words = btm.get_top_topic_words(
+                        model, words_num=10, topics_idx=[cluster_topic]
+                    )
+
                     # Extract the column name dynamically
                     word_column = top_words.columns[0]
 
@@ -2226,24 +2238,25 @@ class AnalysisData:
                     random.shuffle(cluster_words)
 
                     # Random sentence generation
-                    sentence_length = min(5, len(cluster_words))  
+                    sentence_length = min(5, len(cluster_words))
                     sentence = random.sample(cluster_words, sentence_length)
 
                     # Combine the words in the sentence
-                    cluster_sentence = ' '.join(sentence)
-                    #print(cluster_sentence)
+                    cluster_sentence = " ".join(sentence)
+                    # print(cluster_sentence)
 
-                    #Create a dictionary with the document's information
-                    doc_info = {"index": dic_sent["index"],
+                    # Create a dictionary with the document's information
+                    doc_info = {
+                        "index": dic_sent["index"],
+                        "userstory": dic_sent["userstory"],
                         "text": dic_sent["sentence"],
                         "subject": dic_sent["subject"],
                         "predicate": dic_sent["predicate"],
                         "object": dic_sent["object"],
                         "cluster_topic": cluster_topic,
                         "terms_in_cluster_topic": cluster_words,
-                        "cluster_sentence": cluster_sentence
-                    } 
-
+                        "cluster_sentence": cluster_sentence,
+                    }
                     topic_btm.append(doc_info)
 
             # # Get the top terms for the cluster topic
@@ -2565,22 +2578,37 @@ class AnalysisData:
 
         # Compare all possible combinations of records for role
         for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
-            pair_role.append({'index': [i, j], 'sim_score_role': score_role[i][j]})
+            pair_role.append({"index": [i, j], "sim_score_role": score_role[i][j]})
 
         # Compare all possible combinations of records for action
         for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
-            pair_action.append({'index': [i, j], 'sim_score_action': score_action[i][j]})
+            pair_action.append(
+                {"index": [i, j], "sim_score_action": score_action[i][j]}
+            )
 
         # Compare all possible combinations of records for goal
         for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
-            pair_goal.append({'index': [i, j], 'sim_score_goal': score_goal[i][j]})
+            pair_goal.append({"index": [i, j], "sim_score_goal": score_goal[i][j]})
 
         if len(goal_user) <= 0:
             for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
-                tot_score.append({'index': [i, j], 'sim_score_tot': (score_role[i][j] + score_action[i][j]) / 2})
+                tot_score.append(
+                    {
+                        "index": [i, j],
+                        "sim_score_tot": (score_role[i][j] + score_action[i][j]) / 2,
+                    }
+                )
         else:
             for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
-                tot_score.append({'index': [i, j], 'sim_score_tot': (score_role[i][j] + score_action[i][j] + score_goal[i][j]) / 3})
+                tot_score.append(
+                    {
+                        "index": [i, j],
+                        "sim_score_tot": (
+                            score_role[i][j] + score_action[i][j] + score_goal[i][j]
+                        )
+                        / 3,
+                    }
+                )
 
         result = list(zip(pair_role, pair_action, pair_goal, tot_score))
         result = sorted(result, key=lambda x: x[3]["sim_score_tot"], reverse=True)
@@ -2616,36 +2644,36 @@ class AnalysisData:
                 )
 
             if (role_score > 0.6) and (action_score > 0.6) and (goal_score > 0.6):
-                stat_sim = 'User stories are potentially duplicate. These are potentially ambiguous !'
-                sol_sim = 'Please remove one user story!'
+                stat_sim = "User stories are potentially duplicate. These are potentially ambiguous !"
+                sol_sim = "Please remove one user story!"
                 is_problem = True
             elif (role_score < 0.6) and (action_score > 0.6) and (goal_score > 0.6):
-                stat_sim = 'User stories are potentially conflicted. These are potentially ambiguous !'
-                sol_sim = 'Please check with the Product Owner(s)!'
+                stat_sim = "User stories are potentially conflicted. These are potentially ambiguous !"
+                sol_sim = "Please check with the Product Owner(s)!"
                 is_problem = True
             elif (role_score > 0.6) and (action_score < 0.6) and (goal_score > 0.6):
-                stat_sim = 'User stories meet uniqueness criterion !'
-                sol_sim = 'User stories are unique !'
+                stat_sim = "User stories meet uniqueness criterion !"
+                sol_sim = "User stories are unique !"
                 is_problem = False
             elif (role_score > 0.6) and (action_score > 0.6) and (goal_score < 0.6):
-                stat_sim = 'User stories are potentially duplicate. These are potentially ambiguous !'
-                sol_sim = 'Please remove one user story!'
+                stat_sim = "User stories are potentially duplicate. These are potentially ambiguous !"
+                sol_sim = "Please remove one user story!"
                 is_problem = True
             elif (role_score < 0.6) and (action_score < 0.6) and (goal_score > 0.6):
-                stat_sim = 'User stories meet uniqueness criterion !'
-                sol_sim = 'User stories are unique !'
+                stat_sim = "User stories meet uniqueness criterion !"
+                sol_sim = "User stories are unique !"
                 is_problem = False
             elif (role_score < 0.6) and (action_score < 0.6) and (goal_score < 0.6):
-                stat_sim = 'User stories meet uniqueness criterion !'
-                sol_sim = 'User stories are unique !'
+                stat_sim = "User stories meet uniqueness criterion !"
+                sol_sim = "User stories are unique !"
                 is_problem = False
             elif (role_score < 0.6) and ((action_score > 0.6) or (goal_score > 0.6)):
-                stat_sim = 'User stories are potentially conflicted. These are potentially ambiguous !'
-                sol_sim = 'Please check with the Product Owner(s)!'
+                stat_sim = "User stories are potentially conflicted. These are potentially ambiguous !"
+                sol_sim = "Please check with the Product Owner(s)!"
                 is_problem = True
             else:
-                stat_sim = 'User stories meet uniqueness criterion !'
-                sol_sim = 'User stories are unique !'
+                stat_sim = "User stories meet uniqueness criterion !"
+                sol_sim = "User stories are unique !"
                 is_problem = False
             # if (
             #     (role_score > who_score)
