@@ -314,27 +314,28 @@
         </div>
         <div class="col-md-6">
           <label>Clarity</label>
-          <div class="form-group d-flex align-items-center">
-            <div class="form-check mr-2">
-              <input class="form-check-input" type="checkbox" id="gridCheck1" name="preciseness_checkbox">
-              <label class="form-check-label" for="gridCheck1">
-                Preciseness, Max. distance of two node:
-              </label>
-            </div>
-            &nbsp;
-            &nbsp;
-            <input type="number" class="form-control w-25" placeholder="default: 0.5" name="preciseness_input" step="0.01" />
-          </div>
-          <div class="form-check mr-2">
-            <input class="form-check-input" type="checkbox" id="gridCheck2" name="well_formedness_checkbox">
-            <label class="form-check-label" for="gridCheck2">
-              Well-formedness
-            </label>
-          </div>
           <div class="form-check mr-2">
             <input class="form-check-input" type="checkbox" id="gridCheck3" name="conciseness_checkbox">
             <label class="form-check-label" for="gridCheck3">
               Conciseness
+            </label>
+          </div>
+          <!--<div class="form-group d-flex align-items-center">-->
+          <div class="form-check mr-2">
+            <input class="form-check-input" type="checkbox" id="gridCheck1" name="preciseness_checkbox">
+            <label class="form-check-label" for="gridCheck1">
+              Preciseness <!--Max. distance of two nodes: -->
+            </label>
+          </div>
+            <!--</div>
+            &nbsp;
+            &nbsp;
+            <input type="number" class="form-control w-25" placeholder="default: 0.5" name="preciseness_input" step="0.01" />
+          </div> -->
+          <div class="form-check mr-2">
+            <input class="form-check-input" type="checkbox" id="gridCheck2" name="well_formedness_checkbox">
+            <label class="form-check-label" for="gridCheck2">
+              Well-formedness
             </label>
           </div>
           <label class="mt-5">Consistency</label>
@@ -344,6 +345,12 @@
               Atomicity
             </label>
           </div>
+          <div class="form-check mr-2">
+            <input class="form-check-input" type="checkbox" id="gridCheck7" name="atomicity_checkbox">
+            <label class="form-check-label" for="gridCheck7">
+              Concistency
+            </label>
+          </div>
         </div>
         <div class="col-md-6">
           <label class="mt-5">Adequacy</label>
@@ -351,24 +358,24 @@
             <div class="form-check mr-2">
               <input class="form-check-input" type="checkbox" id="gridCheck5" name="conceptually_sound_checkbox">
               <label class="form-check-label" for="gridCheck5">
-                Conceptually sound, Num. of topic:
+                Conceptually soundness <!--Num. of topic: -->
               </label>
             </div>
+            <!--&nbsp;
             &nbsp;
-            &nbsp;
-            <input type="number" class="form-control w-25" placeholder="default: 10" name="conceptually_sound_input" step="0.01" />
+            <input type="number" class="form-control w-25" placeholder="default: 10" name="conceptually_sound_input" step="0.01" />-->
           </div>
           <label class="mt-5">Uniqueness</label>
           <div class="form-group d-flex align-items-center">
             <div class="form-check mr-2">
               <input class="form-check-input" type="checkbox" id="gridCheck6" name="uniqueness_checkbox">
               <label class="form-check-label" for="gridCheck6">
-                Uniqueness similarity level:
+                Uniqueness <!--similarity level:-->
               </label>
             </div>
+            <!--&nbsp;
             &nbsp;
-            &nbsp;
-            <input type="number" class="form-control w-25" placeholder="default: 0.6" name="uniqueness_input" step="0.01" />
+            <input type="number" class="form-control w-25" placeholder="default: 0.6" name="uniqueness_input" step="0.01" />-->
           </div>
         </div>
       </div>
@@ -380,6 +387,5 @@
 
 </form>
 {% endblock contentLeft %}
-
 
 
