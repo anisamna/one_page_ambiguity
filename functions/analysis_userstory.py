@@ -1663,8 +1663,7 @@ class AnalysisData:
                             matching_sub["cluster_label"] != -1
                             and matching_act["label"] == "1"
                         ):
-                            # recommendation += "\nPass"
-                            pass
+                            recommendation += "\nPass"
                         else:
                             problem_act_ = matching_act["problematic_action"]
                             recommended_act_ = matching_act["recommended_action"]
@@ -2507,6 +2506,7 @@ class AnalysisData:
     def stat_uniqueness_criteria(self):
         # model_st = SentenceTransformer("all-MiniLM-L6-v2")
         import itertools
+
         from django.conf import settings
 
         pair_role = []
