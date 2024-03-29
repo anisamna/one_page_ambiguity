@@ -24,7 +24,7 @@ GRANT ALL PRIVILEGES ON DATABASE ambiguity_db TO ambiguity_user;
 
 ### Download Resource NLTK
 
-lakukan di terminal, ketik python, copy code di shell:
+do in terminal, type python, copy code in shell:
 
 ```python
 import nltk
