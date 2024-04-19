@@ -2,14 +2,14 @@
 
 [![PyPI version](https://badge.fury.io/py/Django.svg)](https://badge.fury.io/py/Django)
 
-## Installation
-
 ## File Media
 
 - create media directory:
 
   - /media/file/treeps
   - /media/file/treeimage
+
+## Installation
 
 ### Database
 
@@ -59,8 +59,23 @@ torch.cuda.empty_cache()
 # https://github.com/UKPLab/sentence-transformers/issues/487
 ```
 
+### Install with Docker
+
+> Install docker and docker compose in this [link](https://docs.docker.com/engine/install/ubuntu/)
+
+- Docker dev
+
+    ```sh
+    docker compose -f docker-compose.dev.yaml up -d
+    ```
+
+- Docker prod
+
+    ```sh
+    docker compose up -d
+    ```
+
 ## Documentation
 
 - [NLTK](https://github.com/nltk/nltk/wiki/Stanford-CoreNLP-API-in-NLTK)
 - [template](https://bootstrapmade.com/demo/NiceAdmin/)
-- https://www.jqueryscript.net/form/jQuery-Plugin-For-Multiple-Select-With-Checkboxes-multi-select-js.html
