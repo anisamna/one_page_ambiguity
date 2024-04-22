@@ -277,7 +277,8 @@ def analyze_data(request):
         is_atomicity,
         is_conceptually_sound,
         is_uniqueness,
-    ) = (False, False, False, False, False, False)
+        is_consistency
+    ) = (False, False, False, False, False, False, False)
     preciseness_checkbox = request.POST.get("preciseness_checkbox", None)
     if preciseness_checkbox == "on":
         is_preciseness = True
@@ -310,6 +311,10 @@ def analyze_data(request):
         uniqueness_input = request.POST.get("uniqueness_input", None)
         if uniqueness_input:
             similarity_value = uniqueness_input
+    
+    consistency_checkbox = request.POST.get("consistency_checkbox", None)
+    if consistency_checkbox == "on":
+        is_consistency = True
 
     if (
         preciseness_checkbox != "on"
@@ -318,6 +323,7 @@ def analyze_data(request):
         and atomicity_checkbox != "on"
         and conceptually_sound_checkbox != "on"
         and uniqueness_checkbox != "on"
+        and consistency_checkbox != "on"
     ):
         messages.warning(
             request,
@@ -350,6 +356,7 @@ def analyze_data(request):
             is_atomicity,
             is_conceptually_sound,
             is_uniqueness,
+            is_consistency
         )
         messages.success(
             request,

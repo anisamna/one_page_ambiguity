@@ -147,6 +147,7 @@ class AnalysisData:
         is_atomicity=True,
         is_conceptually_sound=True,
         is_uniqueness=True,
+        is_consistency=True
     ):
         self.well_formed_data = self.well_formed()
         if is_well_formedness:
@@ -309,7 +310,8 @@ class AnalysisData:
             self.preciseness_data = self.running_preciseness()
 
         # 4. consistency / consistent
-        # self.running_stat_consistency()
+        if is_consistency:
+            self.running_stat_consistency()
 
         if is_conceptually_sound:
             # 5. conceptually sound
@@ -1838,14 +1840,16 @@ class AnalysisData:
         userstory_list = []
 
         for item in self.well_formed_data:
-            text = item["userstory"]
-            userstory = item["userstory_obj"]
-            role = item["actor"].Who_action
-            action = item["action"].What_action
-            txt.append(text)
-            r_txt.append(role)
-            a_txt.append(action)
-            userstory_list.append(userstory)
+            userstory = item["userstory"]
+            if not userstory.is_problem:
+                text = item["userstory"]
+                userstory = item["userstory_obj"]
+                role = item["actor"].Who_action
+                action = item["action"].What_action
+                txt.append(text)
+                r_txt.append(role)
+                a_txt.append(action)
+                userstory_list.append(userstory)
 
         # Vectorize the role_s values using TF-IDF
         vectorizer = TfidfVectorizer()
@@ -1912,40 +1916,42 @@ class AnalysisData:
 
         index = 0
         for item in self.well_formed_data:
-            userstory = item["userstory_obj"]
-            text = item["userstory"]
-            role = item["actor"].Who_action
-            action = item["action"].What_action
+            userstory = item["userstory"]
+            if not userstory.is_problem:
+                userstory = item["userstory_obj"]
+                text = item["userstory"]
+                role = item["actor"].Who_action
+                action = item["action"].What_action
 
-            # Remove punctuation from action
-            action = action.translate(str.maketrans("", "", string.punctuation))
+                # Remove punctuation from action
+                action = action.translate(str.maketrans("", "", string.punctuation))
 
-            # Tokenize the action into individual words
-            words = word_tokenize(action)
+                # Tokenize the action into individual words
+                words = word_tokenize(action)
 
-            # Lemmatize each word and join them back into a sentence
-            lemmatized_sentence = " ".join(lemmatizer.lemmatize(word) for word in words)
+                # Lemmatize each word and join them back into a sentence
+                lemmatized_sentence = " ".join(lemmatizer.lemmatize(word) for word in words)
 
-            # Vectorize the role_s values using TF-IDF
-            vectorizer = TfidfVectorizer()
-            X = vectorizer.fit_transform([lemmatized_sentence])
+                # Vectorize the role_s values using TF-IDF
+                vectorizer = TfidfVectorizer()
+                X = vectorizer.fit_transform([lemmatized_sentence])
 
-            # Apply DBSCAN clustering
-            dbscan = DBSCAN(eps=self.eps, min_samples=int(self.min_samples))
-            labels = dbscan.fit_predict(X)
+                # Apply DBSCAN clustering
+                dbscan = DBSCAN(eps=self.eps, min_samples=int(self.min_samples))
+                labels = dbscan.fit_predict(X)
 
-            # Add the text, action, and cluster label to the dictionary
-            status = "consistent" if labels[0] != -1 else "inconsistent"
-            dic_action.append(
-                {
-                    "index": index + 1,
-                    "userstory": userstory,
-                    "text": text,
-                    "action": lemmatized_sentence,
-                    "act_cluster_label": labels[0],
-                    "status": status,
-                }
-            )
+                # Add the text, action, and cluster label to the dictionary
+                status = "consistent" if labels[0] != -1 else "inconsistent"
+                dic_action.append(
+                    {
+                        "index": index + 1,
+                        "userstory": userstory,
+                        "text": text,
+                        "action": lemmatized_sentence,
+                        "act_cluster_label": labels[0],
+                        "status": status,
+                    }
+                )
 
         # Get the top terms for each act_cluster_label
         # isian pertama, what is your preferred number of terms to be displayed in each class, jika tidak diisi gunakan default ini
