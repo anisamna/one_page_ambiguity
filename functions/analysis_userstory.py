@@ -1840,10 +1840,9 @@ class AnalysisData:
         userstory_list = []
 
         for item in self.well_formed_data:
-            userstory = item["userstory"]
+            userstory = item["userstory_obj"]
             if not userstory.is_problem:
                 text = item["userstory"]
-                userstory = item["userstory_obj"]
                 role = item["actor"].Who_action
                 action = item["action"].What_action
                 txt.append(text)
@@ -1916,9 +1915,8 @@ class AnalysisData:
 
         index = 0
         for item in self.well_formed_data:
-            userstory = item["userstory"]
+            userstory = item["userstory_obj"]
             if not userstory.is_problem:
-                userstory = item["userstory_obj"]
                 text = item["userstory"]
                 role = item["actor"].Who_action
                 action = item["action"].What_action
