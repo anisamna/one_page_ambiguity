@@ -27,6 +27,7 @@ services:
     env_file:
       - .env.dist
     depends_on:
+      - db
       - stanford_corenlp
     volumes:
       - .:/ambiguity
@@ -49,29 +50,29 @@ services:
     depends_on:
       - ambiguity
   
-  redis:
-    image: 'redis:alpine'
-    # container_name: ambiguity_redis
-    # hostname: ambiguity_redis
-    expose:
-      - 6379
+  # redis:
+  #   image: 'redis:alpine'
+  #   # container_name: ambiguity_redis
+  #   # hostname: ambiguity_redis
+  #   expose:
+  #     - 6379
 
-  celery:
-    restart: always
-    build:
-      context: .
-    # container_name: ambiguity_celery
-    volumes:
-      - .:/ambiguity
-      - ambiguity_static_volume:/ambiguity/files/ambiguity_static
-      - ambiguity_media_volume:/ambiguity/files/ambiguity_media
-    command: >
-      sh -c "python init_nltk.py &&
-            celery -A one_page_ambiguity_base worker -l INFO"
-    depends_on:
-      - ambiguity
-    env_file:
-      - .env.dist
+  # celery:
+  #   restart: always
+  #   build:
+  #     context: .
+  #   # container_name: ambiguity_celery
+  #   volumes:
+  #     - .:/ambiguity
+  #     - ambiguity_static_volume:/ambiguity/files/ambiguity_static
+  #     - ambiguity_media_volume:/ambiguity/files/ambiguity_media
+  #   command: >
+  #     sh -c "python init_nltk.py &&
+  #           celery -A one_page_ambiguity_base worker -l INFO"
+  #   depends_on:
+  #     - ambiguity
+  #   env_file:
+  #     - .env.dist
 
 
 volumes:
