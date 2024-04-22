@@ -2539,10 +2539,12 @@ class AnalysisData:
         goal_user = []
         userstory_list = []
         for item in self.well_formed_data:
-            role_user.append(item["actor"].Who_action if item["actor"] else None)
-            action_user.append(item["action"].What_action if item["action"] else None)
-            goal_user.append(item["goal"].Why_action if item["goal"] else None)
-            userstory_list.append(item["userstory_obj"])
+            userstory = item["userstory_obj"]
+            if not userstory.is_problem:
+                role_user.append(item["actor"].Who_action if item["actor"] else None)
+                action_user.append(item["action"].What_action if item["action"] else None)
+                goal_user.append(item["goal"].Why_action if item["goal"] else None)
+                userstory_list.append(item["userstory_obj"])
 
         # # text=df_element['UserStory']
         # # role=df_element['Role']
