@@ -158,6 +158,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "https://*.furiosa.my.id",
     "http://*.furiosa.my.id",
+    "https://*.ambitrust.online",
 ]
 
 AUTHENTICATION_BACKENDS = ("one_page_ambiguity_base.backends.EmailBackend",)
