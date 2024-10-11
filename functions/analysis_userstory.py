@@ -2584,37 +2584,52 @@ class AnalysisData:
 
         # Compare all possible combinations of records for role
         for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
-            pair_role.append({"index": [i, j], "sim_score_role": score_role[i][j]})
+            try:
+                pair_role.append({"index": [i, j], "sim_score_role": score_role[i][j]})
+            except IndexError:
+                continue
 
         # Compare all possible combinations of records for action
         for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
-            pair_action.append(
-                {"index": [i, j], "sim_score_action": score_action[i][j]}
-            )
+            try:
+                pair_action.append(
+                    {"index": [i, j], "sim_score_action": score_action[i][j]}
+                )
+            except IndexError:
+                continue
 
         # Compare all possible combinations of records for goal
         for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
-            pair_goal.append({"index": [i, j], "sim_score_goal": score_goal[i][j]})
+            try:
+                pair_goal.append({"index": [i, j], "sim_score_goal": score_goal[i][j]})
+            except IndexError:
+                continue
 
         if len(goal_user) <= 0:
             for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
-                tot_score.append(
-                    {
-                        "index": [i, j],
-                        "sim_score_tot": (score_role[i][j] + score_action[i][j]) / 2,
-                    }
-                )
+                try:
+                    tot_score.append(
+                        {
+                            "index": [i, j],
+                            "sim_score_tot": (score_role[i][j] + score_action[i][j]) / 2,
+                        }
+                    )
+                except IndexError:
+                    continue
         else:
             for i, j in itertools.combinations(range(len(self.well_formed_data)), 2):
-                tot_score.append(
-                    {
-                        "index": [i, j],
-                        "sim_score_tot": (
-                            score_role[i][j] + score_action[i][j] + score_goal[i][j]
-                        )
-                        / 3,
-                    }
-                )
+                try:
+                    tot_score.append(
+                        {
+                            "index": [i, j],
+                            "sim_score_tot": (
+                                score_role[i][j] + score_action[i][j] + score_goal[i][j]
+                            )
+                            / 3,
+                        }
+                    )
+                except IndexError:
+                    continue
 
         result = list(zip(pair_role, pair_action, pair_goal, tot_score))
         result = sorted(result, key=lambda x: x[3]["sim_score_tot"], reverse=True)

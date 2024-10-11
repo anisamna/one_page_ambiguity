@@ -18,6 +18,8 @@ services:
     env_file:
       - .env.dist
     restart: always
+    ports:
+      - "9000:9000"
 
   ambiguity:
     build: 
