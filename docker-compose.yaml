@@ -33,7 +33,7 @@ services:
       - .:/ambiguity
       - ambiguity_static_volume:/ambiguity/files/ambiguity_static
       - ambiguity_media_volume:/ambiguity/files/ambiguity_media
-    command: ["sh", "-c", "sleep 10 && python manage.py collectstatic --noinput &&  uv run python manage.py migrate && python init_nltk.py && gunicorn --bind :8005 --workers 3 one_page_ambiguity_base.wsgi"]
+    command: ["sh", "-c", "sleep 10 && uv run python manage.py collectstatic --noinput &&  uv run python manage.py migrate && uv run python init_nltk.py && uv run gunicorn --bind :8005 --workers 3 --timeout 120 one_page_ambiguity_base.wsgi"]
     # command: >
     #   sh -c "python manage.py collectstatic --noinput && 
     #         ./wait-for-postgres.sh &&
