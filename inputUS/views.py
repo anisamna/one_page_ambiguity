@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
+from django.contrib.admin.models import ADDITION
 
 from functions.segmentation import segmentation, segmentation_edit_userstory
 
@@ -18,6 +19,7 @@ from .models import (AdjustedUserStory, Glossary, KeywordGlossary,
                      ReportUserStory, Result, Role, US_Upload,
                      UserStory_element)
 
+from one_page_ambiguity_base.utils import log_admin_action
 # from .tasks import task_process_analys_data
 
 # from functions.well_formed import well_formed_an
@@ -68,12 +70,18 @@ class AddSingleUserStory(TemplateView):
             userstory_obj.save()
 
             if userstory_obj.UserStory_File_ID:
-                file_obj, created = NameFileUsed.objects.get_or_create(
+                file_obj, _ = NameFileUsed.objects.get_or_create(
                     name_file=userstory_obj.UserStory_File_ID,
                     created_by=userstory_obj.created_by,
                 )
                 file_obj.is_active = True
                 file_obj.save()
+                log_admin_action(
+                    user=request.user,
+                    object_instance=file_obj,
+                    action_flag=ADDITION,
+                    message=f'Created user story "{userstory_obj.UserStory_Full_Text}" with this file: "{file_obj.name_file}".'
+                )
             segmentation_edit_userstory(userstory_obj.id, True)
             messages.success(request, "Success, add new user story")
             return redirect(reverse_lazy("show_splitted_UserStory"))
@@ -123,6 +131,12 @@ def Upload_UserStory(request):
             )
             file_obj.is_active = True
             file_obj.save()
+            log_admin_action(
+                user=request.user,
+                object_instance=file_obj,
+                action_flag=ADDITION,
+                message=f'Created a new file upload: "{file_obj.name_file}".'
+            )
 
             messages.success(
                 request, "New set of user stories have been successfully added"
@@ -338,7 +352,22 @@ def analyze_data(request):
         project = get_object_or_404(Project, id=project_id)
         userstory_list = UserStory_element.objects.filter(
             Project_Name=project
-        ).values_list("id", flat=True)
+        )
+
+        for item in userstory_list.filter(UserStory_File_ID__isnull=False):
+            namefileuser = item.UserStory_File_ID.namefileused_set.last()
+            if namefileuser:
+                log_admin_action(
+                    user=request.user,
+                    object_instance=namefileuser,
+                    action_flag=ADDITION,
+                    message=(
+                        f'processed user story "{item.UserStory_Full_Text}" '
+                        f'all analysis.'
+                    )
+                )
+
+        userstory_list = userstory_list.values_list("id", flat=True)
         story_list_id = list(set(userstory_list))
         AnalysisData(
             story_list_id,
@@ -377,7 +406,21 @@ def analyze_data(request):
 
         userstory_list = UserStory_element.objects.filter(
             id__in=data_list_id
-        ).values_list("id", flat=True)
+        )
+
+        for item in userstory_list.filter(UserStory_File_ID__isnull=False):
+            namefileuser = item.UserStory_File_ID.namefileused_set.last()
+            if namefileuser:
+                log_admin_action(
+                    user=request.user,
+                    object_instance=namefileuser,
+                    action_flag=ADDITION,
+                    message=(
+                        f'processed user story "{item.UserStory_Full_Text}" '
+                        f'with analysis.'
+                    )
+                )
+        userstory_list = userstory_list.values_list("id", flat=True)
         story_list_id = list(set(userstory_list))
 
         # process_obj = ProcessBackground.objects.create(
@@ -774,6 +817,16 @@ def edit_userstory(request, report_id):
                     userstory.old_userstory = userstory.UserStory_Full_Text
                     userstory.is_processed = False
                     userstory.save()
+                    namefileuser = userstory.UserStory_File_ID.namefileused_set.last()
+                    if namefileuser:
+                        log_admin_action(
+                            user=request.user,
+                            object_instance=namefileuser,
+                            message=(
+                                f'Adjustment Report User Story "{userstory.userstory_text}"'
+                            )
+                        )
+
                     segmentation_edit_userstory(userstory.id, True)
                     messages.success(request, "Success update userstory.")
                     return redirect(
@@ -814,6 +867,16 @@ def edit_userstory(request, report_id):
                                 status=int(type_status),
                             )
                             segmentation_edit_userstory(userstory_child.id, True)
+
+                            namefileuser = userstory.UserStory_File_ID.namefileused_set.last()
+                            if namefileuser:
+                                log_admin_action(
+                                    user=request.user,
+                                    object_instance=namefileuser,
+                                    message=(
+                                        f'Adjustment Report User Story "{userstory.userstory_text}"'
+                                    )
+                                )
 
                 messages.success(request, "Success update userstory.")
                 return redirect(
@@ -867,6 +930,15 @@ def edit_userstory(request, report_id):
                             userstory.is_processed = False
                             userstory.save()
                             segmentation_edit_userstory(userstory.id, True)
+                            namefileuser = userstory.UserStory_File_ID.namefileused_set.last()
+                            if namefileuser:
+                                log_admin_action(
+                                    user=request.user,
+                                    object_instance=namefileuser,
+                                    message=(
+                                        f'Adjustment Report User Story CONCEPTUALLY "{userstory.userstory_text}"'
+                                    )
+                                )
                             messages.success(request, "Success update userstory.")
                             return redirect(
                                 reverse("report_userstory_list") + f"?{path_url[1]}"
@@ -916,7 +988,15 @@ def edit_userstory(request, report_id):
                         status=int(type_status) if type_status else None,
                     )
                     is_edit = True
-
+                    namefileuser = userstory.UserStory_File_ID.namefileused_set.last()
+                    if namefileuser:
+                        log_admin_action(
+                            user=request.user,
+                            object_instance=namefileuser,
+                            message=(
+                                f'Adjustment Report User Story ROLE "{userstory.userstory_text}"'
+                            )
+                        )
             problematic_action = request.POST.get("problematic_action", None)
             improved_action = request.POST.get("improved_action", None)
             improved_action_new = request.POST.get("improved_action_new", None)
@@ -964,7 +1044,15 @@ def edit_userstory(request, report_id):
                         status=int(type_status) if type_status else None,
                     )
                     is_edit = True
-
+                    namefileuser = userstory.UserStory_File_ID.namefileused_set.last()
+                    if namefileuser:
+                        log_admin_action(
+                            user=request.user,
+                            object_instance=namefileuser,
+                            message=(
+                                f'Adjustment Report User Story ACTION "{userstory.userstory_text}"'
+                            )
+                        )
             if submit_type == "preview":
                 extra_context.update({"new_userstory": new_userstory})
             if is_edit:
@@ -999,6 +1087,15 @@ def add_userstory(request, project_id):
                         created_by=request.user
                     )
                     segmentation_edit_userstory(userstory.id, True)
+                    namefileuser = userstory.UserStory_File_ID.namefileused_set.last()
+                    if namefileuser:
+                        log_admin_action(
+                            user=request.user,
+                            object_instance=namefileuser,
+                            message=(
+                                f'Add User Story "{userstory.userstory_text}"'
+                            )
+                        )
             messages.success(request, "Success add userstory.")
     return render(request, "inputUS/add_userstory.html", extra_context)
 
@@ -1023,10 +1120,16 @@ def view_add_project(request):
         project_name = request.POST.get("project_name", None)
         project_description = request.POST.get("project_description", None)
         if project_name:
-            Project.objects.create(
+            obj = Project.objects.create(
                 Project_Name=project_name,
                 Project_Desc=project_description,
                 created_by=request.user,
+            )
+            log_admin_action(
+                user=request.user,
+                object_instance=obj,
+                action_flag=ADDITION,
+                message=f'Created a new project: "{obj.Project_Name}".'
             )
             messages.success(request, "Success add project.")
             return redirect(reverse("projects_list_view"))
@@ -1044,6 +1147,11 @@ def view_edit_project(request, project_id):
             project.Project_Name = project_name
             project.Project_Desc = project_description
             project.save()
+            log_admin_action(
+                user=request.user,
+                object_instance=project,
+                message=f'The project "{project.Project_Name}" has been updated with new information.'
+            )
             messages.success(request, "Success update project.")
             return redirect(reverse("projects_list_view"))
     return render(request, "inputUS/project/edit.html", extra_context)
@@ -1054,6 +1162,12 @@ def view_delete_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     if project:
         project.delete()
+        log_admin_action(
+            user=request.user,
+            object_instance=project,
+            action_flag=DELETION,
+            message=f'The project "{project.Project_Name}" has been deleted.'
+        )
         messages.success(request, "Success delete project.")
     return redirect(reverse("projects_list_view"))
 

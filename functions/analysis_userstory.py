@@ -17,7 +17,7 @@ from sentence_transformers import util
 from sklearn.cluster import DBSCAN
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from inputUS.models import (Glossary, KeywordGlossary, ReportTerms,
+from inputUS.models import (KeywordGlossary, ReportTerms,
                             ReportUserStory, Role, UserStory_element)
 
 
@@ -1852,7 +1852,12 @@ class AnalysisData:
 
         # Vectorize the role_s values using TF-IDF
         vectorizer = TfidfVectorizer()
-        X = vectorizer.fit_transform(r_txt)
+        try:
+            X = vectorizer.fit_transform(r_txt)
+        except ValueError as e:
+            print("Error:", e)
+            print("r_txt: ", r_txt)
+            return []
 
         # Apply DBSCAN clustering
         dbscan = DBSCAN(eps=self.eps, min_samples=int(self.min_samples))

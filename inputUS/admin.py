@@ -1,5 +1,6 @@
 from django.contrib import admin
-
+from django.urls import reverse
+from django.utils.html import format_html
 from inputUS.models import (AdjustedUserStory, Glossary, KeywordGlossary,
                             NameFileUsed, Personas, ProcessBackground, Project,
                             ReportUserStory, Role, Similarity_Analysis,
@@ -174,7 +175,23 @@ class AdjustedUserStoryAdmin(admin.ModelAdmin):
 
 @admin.register(NameFileUsed)
 class NameFileUsedAdmin(admin.ModelAdmin):
-    list_display = ("id", "name_file", "is_active", "created_by")
+    list_display = ("id", "name_file", "created_at", "get_created_by", "get_action_button")
+    search_fields = ("name_file", "created_by__username", "created_by__email", "created_by__first_name", "created_by__last_name")
+
+    @admin.display(description="Created By")
+    def get_created_by(self, obj):
+        return format_html(
+            '<b>{}</b><br><span>{}</span>',
+            obj.created_by.get_full_name() if obj.created_by.get_full_name() else obj.created_by.username,
+            obj.created_by.email,
+        )
+
+    @admin.display(description="Action")
+    def get_action_button(self, obj):
+        return format_html(
+            '<a class="btn btn-sm btn-primary" href="{}">Show Logs</a>',
+            reverse("admin:inputUS_namefileused_history", args=[obj.id]),
+        )
 
 
 @admin.register(Personas)
