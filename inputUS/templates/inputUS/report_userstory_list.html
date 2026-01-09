@@ -151,9 +151,9 @@
           <td>{{ report.get_type_display }}</td>
           <td>
             {% if report.is_submited %}
-            {% if not report.is_agree  %}
+            {% comment %} {% if not report.is_agree  %} {% endcomment %}
               <a href="{% url 'report_userstory_edit' report.id %}" class="btn btn-primary link-edit">Edit</a>
-            {% endif %}
+            {% comment %} {% endif %} {% endcomment %}
             {% else %}
             {% comment %} {% if item.is_problem %} {% endcomment %}
             <div class="form-group align-items-center group-action">
@@ -335,9 +335,9 @@
     data = $("#"+id).serializeArray()
     data.push({name:"csrfmiddlewaretoken", value:getCookie("csrftoken")})
     $.ajax({
-      url:"{% url "report_save_comment" %}",
-      type:"POST",
-      data:data,
+      url: "{% url 'report_save_comment' %}",
+      type: "POST",
+      data: data,
       success:function(res){
         if(res.success){
           $.toast('Success set comment')

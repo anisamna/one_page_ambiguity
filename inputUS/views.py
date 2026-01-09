@@ -677,7 +677,6 @@ def edit_userstory(request, report_id):
     is_edit_role = False
     is_edit_action = False
     if reportuserstory.recommendation_type:
-        # print("recommendation_type", reportuserstory.recommendation_type)
         is_edit_role = reportuserstory.recommendation_type in [
             ReportUserStory.RECOMENDATION_TYPE.ROLE,
             ReportUserStory.RECOMENDATION_TYPE.ACTION_ROLE,

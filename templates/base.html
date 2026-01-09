@@ -398,7 +398,7 @@
         url: '{% url "get_json_project_use" %}',
         type: 'GET',
         success: function(respon){
-          // console.log(respon)
+          console.log(respon)
           if (respon.success) {
             let html_ = ''
             respon.data.map(item => {

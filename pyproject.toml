@@ -25,6 +25,7 @@ dependencies = [
     "scikit-learn==1.0.2",
     "scipy==1.7.3",
     "ipython>=8.18.1",
+    "pip>=25.3",
 ]
 
 [project.optional-dependencies]
