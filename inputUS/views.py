@@ -822,7 +822,7 @@ def edit_userstory(request, report_id):
                             user=request.user,
                             object_instance=namefileuser,
                             message=(
-                                f'Adjustment Report User Story "{userstory.userstory_text}"'
+                                f'Adjustment Report User Story "{userstory.UserStory_Full_Text}"'
                             )
                         )
 
@@ -873,7 +873,7 @@ def edit_userstory(request, report_id):
                                     user=request.user,
                                     object_instance=namefileuser,
                                     message=(
-                                        f'Adjustment Report User Story "{userstory.userstory_text}"'
+                                        f'Adjustment Report User Story "{userstory.UserStory_Full_Text}"'
                                     )
                                 )
 
@@ -935,7 +935,7 @@ def edit_userstory(request, report_id):
                                     user=request.user,
                                     object_instance=namefileuser,
                                     message=(
-                                        f'Adjustment Report User Story CONCEPTUALLY "{userstory.userstory_text}"'
+                                        f'Adjustment Report User Story CONCEPTUALLY "{userstory.UserStory_Full_Text}"'
                                     )
                                 )
                             messages.success(request, "Success update userstory.")
@@ -993,7 +993,7 @@ def edit_userstory(request, report_id):
                             user=request.user,
                             object_instance=namefileuser,
                             message=(
-                                f'Adjustment Report User Story ROLE "{userstory.userstory_text}"'
+                                f'Adjustment Report User Story ROLE "{userstory.UserStory_Full_Text}"'
                             )
                         )
             problematic_action = request.POST.get("problematic_action", None)
@@ -1049,7 +1049,7 @@ def edit_userstory(request, report_id):
                             user=request.user,
                             object_instance=namefileuser,
                             message=(
-                                f'Adjustment Report User Story ACTION "{userstory.userstory_text}"'
+                                f'Adjustment Report User Story ACTION "{userstory.UserStory_Full_Text}"'
                             )
                         )
             if submit_type == "preview":
@@ -1092,7 +1092,7 @@ def add_userstory(request, project_id):
                             user=request.user,
                             object_instance=namefileuser,
                             message=(
-                                f'Add User Story "{userstory.userstory_text}"'
+                                f'Add User Story "{userstory.UserStory_Full_Text}"'
                             )
                         )
             messages.success(request, "Success add userstory.")
