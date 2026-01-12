@@ -314,6 +314,7 @@ class ReportUserStory(MetaAttribute):
         UNIQUENESS = 6, "Uniqueness"
 
     userstory = models.ForeignKey(UserStory_element, on_delete=models.CASCADE)
+    userstory_unique = models.ForeignKey(UserStory_element, on_delete=models.SET_NULL, null=True, related_name='userstory_uniquex')
     status = models.CharField(max_length=500, null=True, blank=True)
     recommendation = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)

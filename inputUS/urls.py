@@ -90,4 +90,9 @@ urlpatterns = [
         views.save_comment_report,
         name="report_save_comment"
     ),
+    path(
+        "report-userstory-delete/<int:userstory_id>",
+        views.delete_user_story,
+        name="user_story_delete_unique"
+    )
 ]

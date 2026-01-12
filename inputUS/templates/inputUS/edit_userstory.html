@@ -230,11 +230,30 @@
         {% endif %}
       </div>
       {% endif %}
+      {% if reportuserstory.type == 6 and reportuserstory.userstory_unique %}
+      <div class="alert alert-danger" role="alert">Please remove one of the duplicate user stories</div>
+      <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ reportuserstory.userstory }}
+          <button class="btn btn-sm btn-danger action-delete-unique" type="button" data-userstory-id="{{ reportuserstory.userstory.id }}">
+            <i class="bi bi-trash"></i>
+          </button>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ reportuserstory.userstory_unique }}
+          <button class="btn btn-sm btn-danger action-delete-unique" type="button" data-userstory-id="{{ reportuserstory.userstory_unique.id }}">
+            <i class="bi bi-trash"></i>
+          </button>
+        </li>
+      </ul>
+      {% endif %}
     </div>
     <div class="card-footer">
       {% if reportuserstory.type == 2 or reportuserstory.type == 7 or reportuserstory.type == 1  %}
       {% else %}
-      <button class="btn btn-primary" name="submit_type" type="submit" value="preview"><i class="bi bi-binoculars"></i> Preview</button>
+        {% if reportuserstory.type != 6 %}
+        <button class="btn btn-primary" name="submit_type" type="submit" value="preview"><i class="bi bi-binoculars"></i> Preview</button>
+        {% endif %}
       {% endif %}
       <button class="btn btn-success" name="submit_type" type="submit" value="submit"><i class="bi bi-send"></i> Submit</button>
       <button type="button" class="btn btn-secondary" onclick="backHistory()"><i class="bi bi-arrow-left-circle"></i> Cancel</button>
@@ -254,6 +273,33 @@
 
 {% block extrajs %}
 {{ block.super }}
+{% if reportuserstory.type == 6 and reportuserstory.userstory_unique %}
+<script>
+  $('.action-delete-unique').on('click', function (e) {
+    e.preventDefault();
+
+    const userstory_id = $(this).data('userstory-id');
+
+    const confirmed = confirm('Are you sure you want to delete this user story?');
+    if (!confirmed) {
+      return;
+    }
+
+    $.ajax({
+      url: `/inputUS/report-userstory-delete/${userstory_id}`,
+      type: 'GET',
+      success: function (response) {
+        if (response.success) {
+          window.location.href = `/inputUS/report/list${window.location.search}`;
+        } else {
+          alert('Failed to delete user story');
+        }
+      }
+    });
+  });
+</script>
+{% endif %}
+
 <script>
   const backHistory = () => {
     window.location.href = `/inputUS/report/list${window.location.search}`

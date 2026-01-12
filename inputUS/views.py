@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
-from django.contrib.admin.models import ADDITION
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 
 from functions.segmentation import segmentation, segmentation_edit_userstory
 
@@ -1515,3 +1515,29 @@ def save_comment_report(request):
                     })
                 }
     return JsonResponse(respon)
+
+
+def delete_user_story(request, userstory_id):
+    print(userstory_id)
+    report_obj = ReportUserStory.objects.filter(
+        userstory_id=userstory_id, 
+        type=ReportUserStory.ANALYS_TYPE.UNIQUENESS
+    ).last()
+    print(report_obj)
+    if not report_obj:
+        return JsonResponse({"error": "userstory not found"})
+
+    AdjustedUserStory.objects.create(
+        created_by=request.user,
+        userstory=report_obj.userstory,
+        userstory_text=report_obj.userstory.UserStory_Full_Text,
+        adjusted="Removed because of dupication.",
+        status=ReportUserStory.ANALYS_TYPE.UNIQUENESS,
+    )
+    
+    ReportUserStory.objects.filter(
+        userstory_id=report_obj.userstory_unique.id,
+        type=ReportUserStory.ANALYS_TYPE.UNIQUENESS).update(userstory_unique=None)
+    
+    report_obj.delete()
+    return JsonResponse({"success": True})

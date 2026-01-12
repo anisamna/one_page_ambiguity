@@ -108,7 +108,7 @@ class AnalysisData:
             "search": ["investigate", "inquire", "research", "search"],
         }
 
-    def save_report(self, userstory, status, type, data={}, is_problem=False):
+    def save_report(self, userstory, status, type, data={}, is_problem=False, userstory_unique=None):
         # print(f'\n{userstory}')
         # print(status)
         # print(data)
@@ -129,6 +129,8 @@ class AnalysisData:
             setattr(report, key, value)
         if self.user:
             report.created_by = self.user
+        if userstory_unique:
+            report.userstory_unique = userstory_unique
         report.is_processed = True
         report.is_problem = is_problem
         report.save()
@@ -1999,7 +2001,7 @@ class AnalysisData:
                         # status = (
                         #     "Consistency criterion is achieved. User story is good."
                         # )
-                        recommendation = "pass"
+                        recommendation = "-"
                         # recommendation = None
                         is_problem = False
 
@@ -2550,6 +2552,10 @@ class AnalysisData:
                 action_user.append(item["action"].What_action if item["action"] else None)
                 goal_user.append(item["goal"].Why_action if item["goal"] else None)
                 userstory_list.append(item["userstory_obj"])
+        
+        print("role_user", role_user)
+        print("action_user", action_user)
+        print("goal_user", goal_user)
 
         # # text=df_element['UserStory']
         # # role=df_element['Role']
@@ -2678,28 +2684,28 @@ class AnalysisData:
                 sol_sim = "Please check with the Product Owner(s)!"
                 is_problem = True
             elif (role_score > 0.6) and (action_score < 0.6) and (goal_score > 0.6):
-                stat_sim = "User stories meet uniqueness criterion !"
-                sol_sim = "User stories are unique !"
+                stat_sim = "Pass !"
+                sol_sim = "-"
                 is_problem = False
             elif (role_score > 0.6) and (action_score > 0.6) and (goal_score < 0.6):
                 stat_sim = "User stories are potentially duplicate. These are potentially ambiguous !"
                 sol_sim = "Please remove one user story!"
                 is_problem = True
             elif (role_score < 0.6) and (action_score < 0.6) and (goal_score > 0.6):
-                stat_sim = "User stories meet uniqueness criterion !"
-                sol_sim = "User stories are unique !"
+                stat_sim = "Pass !"
+                sol_sim = "-"
                 is_problem = False
             elif (role_score < 0.6) and (action_score < 0.6) and (goal_score < 0.6):
-                stat_sim = "User stories meet uniqueness criterion !"
-                sol_sim = "User stories are unique !"
+                stat_sim = "Pass !"
+                sol_sim = "-"
                 is_problem = False
             elif (role_score < 0.6) and ((action_score > 0.6) or (goal_score > 0.6)):
                 stat_sim = "User stories are potentially conflicted. These are potentially ambiguous !"
                 sol_sim = "Please check with the Product Owner(s)!"
                 is_problem = True
             else:
-                stat_sim = "User stories meet uniqueness criterion !"
-                sol_sim = "User stories are unique !"
+                stat_sim = "Pass !"
+                sol_sim = "-"
                 is_problem = False
             # if (
             #     (role_score > who_score)
@@ -2791,4 +2797,5 @@ class AnalysisData:
                 ReportUserStory.ANALYS_TYPE.UNIQUENESS,
                 {"recommendation": sol_sim, "description": description},
                 is_problem,
+                userstory_list[j],
             )
